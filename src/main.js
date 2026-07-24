@@ -750,6 +750,18 @@ app.innerHTML = `
                   Contiene audio listo para tu práctica diaria. Música,
                   meditaciones y recursos para inspirarte.
                 </p>
+                <div>
+                  <strong>Incluye</strong>
+                  <ul>
+                    <li>Música del álbum Luz</li>
+                    <li>Hand-Qazeres (Live): handpan en directo grabado en la parte antigua de Cáceres</li>
+                    <li>Kirtan y mantras</li>
+                    <li>Meditaciones guiadas</li>
+                    <li>Sonidos de la naturaleza</li>
+                    <li>Viajes sonoros</li>
+                    <li>Recursos para tu práctica diaria</li>
+                  </ul>
+                </div>
                 <a
                   class="product-button"
                   href="${links.usbCard}"
@@ -777,6 +789,18 @@ app.innerHTML = `
                   Belleza natural con todo el contenido de Viajes Sonoros. Un
                   bonito regalo para ti o para alguien especial.
                 </p>
+                <div>
+                  <strong>Incluye</strong>
+                  <ul>
+                    <li>Todo el contenido de la Tarjeta USB</li>
+                    <li>Hand-Qazeres (Live): handpan en directo grabado en la parte antigua de Cáceres</li>
+                    <li>Más de 2 GB de contenido</li>
+                    <li>Vídeos exclusivos</li>
+                    <li>PDFs y material de apoyo</li>
+                    <li>Recursos adicionales de Viajes Sonoros</li>
+                    <li>Presentación en madera natural</li>
+                  </ul>
+                </div>
                 <a
                   class="product-button"
                   href="${links.woodenDrive}"
