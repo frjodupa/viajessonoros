@@ -155,6 +155,75 @@ body.operational-page a:hover {
   height: 260px !important;
 }
 
+.experiences-page #grid-exp > .experiences-empty {
+  grid-column: 1 / -1;
+  width: min(100%, 760px);
+  margin-inline: auto;
+  padding: clamp(30px, 5vw, 52px);
+  border: 1px solid var(--vs-line);
+  text-align: center;
+}
+
+.experiences-page #grid-exp > .experiences-empty:hover {
+  transform: none;
+  box-shadow: var(--vs-shadow);
+}
+
+.experiences-empty h2 {
+  margin: 0 0 18px;
+  font-size: clamp(2rem, 5vw, 3rem);
+  line-height: 1.08;
+}
+
+.experiences-empty p {
+  max-width: 620px;
+  margin: 0 auto;
+  color: var(--vs-muted);
+}
+
+.experiences-empty p + p {
+  margin-top: 12px;
+}
+
+.experiences-empty-actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 12px;
+  margin-top: 26px;
+}
+
+.experiences-empty-actions a {
+  min-height: 50px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 0 22px;
+  border: 1px solid var(--vs-purple);
+  border-radius: 999px;
+  font-size: 0.88rem;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.experiences-empty-primary {
+  color: #fff;
+  background: var(--vs-purple);
+  box-shadow: 0 14px 30px rgba(82, 32, 109, 0.2);
+}
+
+.experiences-empty-primary svg {
+  width: 20px;
+  height: 20px;
+  flex: 0 0 auto;
+}
+
+.experiences-empty-secondary {
+  color: var(--vs-purple);
+  background: transparent;
+}
+
 .experiences-page #grid-exp button,
 .experiences-page main button {
   min-height: 44px;
@@ -187,6 +256,15 @@ body.operational-page a:hover {
 
   .experiences-page .experience-card-image {
     height: 220px !important;
+  }
+
+  .experiences-page #grid-exp > .experiences-empty {
+    padding: 30px 18px;
+  }
+
+  .experiences-empty-actions,
+  .experiences-empty-actions a {
+    width: 100%;
   }
 }
 
