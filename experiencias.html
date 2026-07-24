@@ -64,7 +64,7 @@ window.guardarEvento=async()=>{
       else if(imageDataUrl){ imagen_url=imageDataUrl }
     }
     if(!imagen_url) imagen_url='https://images.unsplash.com/photo-1506126613408-eca07ce68773?w=800&q=80&auto=format&fit=crop'
-    const payload={titulo,fecha_texto,fecha:fecha_texto,precio,price:precio,lugar,descripcion,imagen_url}
+    const payload={titulo,fecha:fecha_texto,precio,price:precio,lugar,descripcion,imagen_url}
     if(supabase){ if(editId){ await supabase.from('eventos').update(payload).eq('id',editId) } else { await supabase.from('eventos').insert(payload) } }
     else { let local=JSON.parse(localStorage.getItem('vs_eventos')||'[]'); if(editId){ local=local.map(e=>e.id==editId?{...e,...payload}:e) } else { local.unshift({id:Date.now().toString(),...payload,created_at:new Date().toISOString()}) } localStorage.setItem('vs_eventos',JSON.stringify(local)) }
     window.cancelarEdicion(); alert('¡Guardada con imagen!'); view='experiencias'; render()
