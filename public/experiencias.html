@@ -28,7 +28,7 @@
 <meta name="description" content="Consulta las próximas experiencias de sonido y solicita tu plaza directamente por WhatsApp.">
 <meta name="robots" content="index,follow">
 <meta name="theme-color" content="#412A6B">
-<link rel="canonical" href="https://viajessonoros.es/experiencias.html">
+<link rel="canonical" href="https://www.viajessonoros.es/experiencias.html">
 <link rel="icon" href="/logo-viajes-sonoros.png">
 <link rel="apple-touch-icon" href="/logo-viajes-sonoros.png">
 <link rel="manifest" href="/site.webmanifest">
@@ -37,12 +37,12 @@
 <meta property="og:site_name" content="Viajes Sonoros">
 <meta property="og:title" content="Próximas experiencias sonoras | Viajes Sonoros">
 <meta property="og:description" content="Consulta las próximas experiencias de sonido y solicita tu plaza.">
-<meta property="og:url" content="https://viajessonoros.es/experiencias.html">
-<meta property="og:image" content="https://viajessonoros.es/experiencia-grupo.jpg">
+<meta property="og:url" content="https://www.viajessonoros.es/experiencias.html">
+<meta property="og:image" content="https://www.viajessonoros.es/experiencia-grupo.jpg">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="Próximas experiencias sonoras | Viajes Sonoros">
 <meta name="twitter:description" content="Consulta las próximas experiencias de sonido y solicita tu plaza.">
-<meta name="twitter:image" content="https://viajessonoros.es/experiencia-grupo.jpg">
+<meta name="twitter:image" content="https://www.viajessonoros.es/experiencia-grupo.jpg">
 </head>
 <body style="margin:0;background:#FFFBF7;font-family:system-ui">
 <div id="app"></div>
@@ -59,7 +59,7 @@ let eventos=[], view='experiencias', user=null, editId=null, fileToUpload=null, 
 const escapeHTML=(value='')=>String(value).replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;').replaceAll('"','&quot;').replaceAll("'",'&#039;')
 const safeImageURL=(value='')=>{try{const url=new URL(String(value),location.origin);return ['http:','https:','data:'].includes(url.protocol)?url.href:'/experiencia-grupo.jpg'}catch{return '/experiencia-grupo.jpg'}}
 const safeId=(value='')=>String(value).replace(/[^a-zA-Z0-9-]/g,'')
-const updateEventSchema=(items=[])=>{document.getElementById('event-schema')?.remove();const events=items.filter(ev=>/^\d{4}-\d{2}-\d{2}/.test(ev.fecha||'')).map(ev=>({'@type':'Event',name:String(ev.titulo||'Experiencia Viajes Sonoros'),startDate:String(ev.fecha),eventStatus:'https://schema.org/EventScheduled',eventAttendanceMode:'https://schema.org/OfflineEventAttendanceMode',location:{'@type':'Place',name:String(ev.lugar||'Lugar por confirmar')},image:[safeImageURL(ev.imagen_url)],description:String(ev.descripcion||''),organizer:{'@type':'Organization',name:'Viajes Sonoros',url:'https://viajessonoros.es/'}}));if(!events.length)return;const script=document.createElement('script');script.id='event-schema';script.type='application/ld+json';script.textContent=JSON.stringify({'@context':'https://schema.org','@graph':events});document.head.append(script)}
+const updateEventSchema=(items=[])=>{document.getElementById('event-schema')?.remove();const events=items.filter(ev=>/^\d{4}-\d{2}-\d{2}/.test(ev.fecha||'')).map(ev=>({'@type':'Event',name:String(ev.titulo||'Experiencia Viajes Sonoros'),startDate:String(ev.fecha),eventStatus:'https://schema.org/EventScheduled',eventAttendanceMode:'https://schema.org/OfflineEventAttendanceMode',location:{'@type':'Place',name:String(ev.lugar||'Lugar por confirmar')},image:[safeImageURL(ev.imagen_url)],description:String(ev.descripcion||''),organizer:{'@type':'Organization',name:'Viajes Sonoros',url:'https://www.viajessonoros.es/'}}));if(!events.length)return;const script=document.createElement('script');script.id='event-schema';script.type='application/ld+json';script.textContent=JSON.stringify({'@context':'https://schema.org','@graph':events});document.head.append(script)}
 
 window.goInicio=()=>{ window.location.href='/' }
 window.goExperiencias=()=>{ view='experiencias'; render() }

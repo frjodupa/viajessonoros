@@ -1,4 +1,4 @@
 Contact: mailto:info@viajessonoros.es
 Preferred-Languages: es
-Canonical: https://viajessonoros.es/.well-known/security.txt
+Canonical: https://www.viajessonoros.es/.well-known/security.txt
 Expires: 2027-07-24T23:59:59Z
