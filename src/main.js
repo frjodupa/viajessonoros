@@ -667,7 +667,12 @@ app.innerHTML = `
           <p class="eyebrow">Próximos eventos</p>
           <h2 id="events-title">Próximos<br>eventos</h2>
           <p>Próximas experiencias para encontrarte, respirar y volver a ti.</p>
-          <a class="outline-link" href="/experiencias.html">
+          <a
+            class="outline-link"
+            id="events-agenda-link"
+            href="/experiencias.html"
+            hidden
+          >
             Ver agenda completa ${renderIcon('arrow', 'icon-arrow')}
           </a>
         </aside>
@@ -727,9 +732,6 @@ app.innerHTML = `
             <p class="eyebrow">Tienda</p>
             <h2 id="shop-title">Lleva el sonido contigo.</h2>
             <p>Recursos para tu práctica diaria y tu bienestar.</p>
-            <a class="outline-link" href="#tienda">
-              Ver toda la tienda ${renderIcon('arrow', 'icon-arrow')}
-            </a>
           </div>
 
           <div class="product-grid">
@@ -815,7 +817,9 @@ app.innerHTML = `
       </a>
       <a
         class="contact-item"
-        href="tel:+34610056859"
+        href="${links.general}"
+        target="_blank"
+        rel="noopener noreferrer"
       >
         ${renderIcon('whatsapp', 'contact-icon icon-brand icon-whatsapp')}
         <small>WhatsApp</small>
@@ -852,16 +856,19 @@ app.innerHTML = `
 `
 
 const eventsGrid = document.querySelector('#landing-events')
+const eventsAgendaLink = document.querySelector('#events-agenda-link')
 let eventsRequestId = 0
 
 const loadLandingEvents = async () => {
   const requestId = ++eventsRequestId
   eventsGrid.setAttribute('aria-busy', 'true')
+  eventsAgendaLink.hidden = true
 
   try {
     const experiences = await readExperiences()
     if (requestId !== eventsRequestId) return
 
+    eventsAgendaLink.hidden = experiences.length === 0
     eventsGrid.innerHTML = experiences.length
       ? experiences.map(renderLandingEvent).join('')
       : `
