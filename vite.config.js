@@ -8,6 +8,7 @@ export default defineConfig({
         main: resolve('index.html'),
         admin: resolve('admin.html'),
         experiencias: resolve('experiencias.html'),
+        resetPassword: resolve('reset-password.html'),
       },
     },
   },

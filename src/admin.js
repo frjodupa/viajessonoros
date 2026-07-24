@@ -43,6 +43,27 @@ export async function cerrarSesion(){
   showSession(null)
 }
 
+export async function solicitarRecuperacion(){
+  const email = document.getElementById('email').value.trim()
+  loginError.style.display = 'none'
+
+  if (!email) {
+    loginError.textContent = 'Introduce tu correo electrónico.'
+    loginError.style.display = 'block'
+    return
+  }
+
+  const { error } = await supabase.auth.resetPasswordForEmail(email, {
+    redirectTo: 'https://viajessonoros.es/reset-password.html',
+  })
+
+  loginError.textContent = error
+    ? 'No se pudo enviar el enlace de recuperación. Inténtalo de nuevo.'
+    : 'Si el correo está registrado, recibirás un enlace para crear una nueva contraseña.'
+  loginError.style.color = error ? '#b42318' : '#26734d'
+  loginError.style.display = 'block'
+}
+
 export async function subirEvento(e){
   e.preventDefault()
   if (!(await hasValidUser())) return
@@ -86,6 +107,7 @@ async function listar(){
 window.checkAuth = checkAuth
 window.subirEvento = subirEvento
 window.cerrarSesion = cerrarSesion
+window.solicitarRecuperacion = solicitarRecuperacion
 
 supabase.auth.onAuthStateChange((_event, session) => {
   showSession(session)
