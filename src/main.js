@@ -656,7 +656,7 @@ app.innerHTML = `
             <article class="product-card product-card-usb reveal">
               <div class="product-image">
                 <img
-                  src="/D44E2919-2609-4885-AD85-79205DD06AB2.jpeg"
+                  src="/tarjeta-oficial.jpeg"
                   alt="Tarjeta USB de Viajes Sonoros"
                   loading="lazy"
                 >
@@ -683,7 +683,7 @@ app.innerHTML = `
             <article class="product-card product-card-wood reveal">
               <div class="product-image">
                 <img
-                  src="/PENDRIVE-VIAJESSONOROS6-600x600.jpg"
+                  src="/pendrive-oficial.jpg"
                   alt="Pendrive de madera de Viajes Sonoros"
                   loading="lazy"
                 >
