@@ -1,0 +1,7 @@
+Viajes Sonoros
+Titular: Francisco José Duque Paredes
+Ubicación: Cáceres, España
+Contacto: info@viajessonoros.es
+Web: https://viajessonoros.es
+
+Tecnología: HTML5, CSS, JavaScript, Vite, Supabase y Vercel.

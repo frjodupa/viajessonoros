@@ -1,0 +1,19 @@
+{
+  "name": "Viajes Sonoros",
+  "short_name": "Viajes Sonoros",
+  "description": "Experiencias de sonido, meditación y relajación profunda.",
+  "lang": "es",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#faf7f1",
+  "theme_color": "#64257d",
+  "icons": [
+    {
+      "src": "/logo-viajes-sonoros.png",
+      "sizes": "any",
+      "type": "image/png",
+      "purpose": "any"
+    }
+  ]
+}

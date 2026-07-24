@@ -3,4 +3,4 @@ Allow: /
 Disallow: /admin.html
 Disallow: /src/admin.html
 
-Sitemap: https://www.viajessonoros.es/sitemap.xml
+Sitemap: https://viajessonoros.es/sitemap.xml
