@@ -1,8 +1,7 @@
 import './style.css'
-import { createClient } from '@supabase/supabase-js'
+import { supabase } from './supabase.js'
 
 const PHONE = '34610056859'
-const EXPERIENCES_SUPABASE_URL = 'https://kvcqnttxxdxqajemhmcm.supabase.co'
 const LANDING_EVENTS_LIMIT = 3
 
 const whatsappLink = (message) =>
@@ -372,45 +371,17 @@ const getEventWhatsAppLink = (experience) => {
   return whatsappLink(message)
 }
 
-let experiencesClient = null
 let experiencesSubscription = null
 
-const getExperiencesSource = () => {
-  let storedKey = ''
-
-  try {
-    storedKey = localStorage.getItem('sb_anon_key') || ''
-  } catch {
-    storedKey = ''
-  }
-
-  if (!storedKey) return { type: 'local' }
-
-  if (!experiencesClient) {
-    experiencesClient = createClient(EXPERIENCES_SUPABASE_URL, storedKey)
-  }
-
-  return { type: 'supabase', client: experiencesClient }
-}
-
 const readExperiences = async () => {
-  const source = getExperiencesSource()
+  const { data, error } = await supabase
+    .from('experiencias')
+    .select('titulo,fecha,precio,lugar,descripcion,imagen_url')
+    .order('created_at', { ascending: false })
+    .limit(1)
 
-  if (source.type === 'supabase') {
-    const { data, error } = await source.client
-      .from('eventos')
-      .select('*')
-      .order('created_at', { ascending: false })
-
-    if (error) throw error
-    return data || []
-  }
-
-  try {
-    return JSON.parse(localStorage.getItem('vs_eventos') || '[]')
-  } catch {
-    return []
-  }
+  if (error) throw error
+  return data || []
 }
 
 const renderLandingEvent = (experience) => {
@@ -808,7 +779,7 @@ const loadLandingEvents = async () => {
   eventsGrid.setAttribute('aria-busy', 'true')
 
   try {
-    const experiences = selectLandingExperiences(await readExperiences())
+    const experiences = await readExperiences()
     if (requestId !== eventsRequestId) return
 
     eventsGrid.innerHTML = experiences.length
@@ -842,18 +813,16 @@ const loadLandingEvents = async () => {
 }
 
 const startExperiencesSync = () => {
-  const source = getExperiencesSource()
+  if (experiencesSubscription) return
 
-  if (source.type !== 'supabase' || experiencesSubscription) return
-
-  experiencesSubscription = source.client
+  experiencesSubscription = supabase
     .channel('landing-eventos')
     .on(
       'postgres_changes',
       {
         event: '*',
         schema: 'public',
-        table: 'eventos',
+        table: 'experiencias',
       },
       loadLandingEvents,
     )
