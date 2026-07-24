@@ -787,7 +787,13 @@ app.innerHTML = `
       </a>
     </div>
     <div class="footer-bottom">
-      © ${new Date().getFullYear()} Viajes Sonoros Feel · Todos los derechos reservados
+      <nav class="legal-links" aria-label="Información legal">
+        <a href="/aviso-legal.html">Aviso Legal</a>
+        <a href="/politica-privacidad.html">Privacidad</a>
+        <a href="/politica-cookies.html">Cookies</a>
+        <a href="/condiciones-reserva.html">Condiciones</a>
+      </nav>
+      <p>© ${new Date().getFullYear()} Viajes Sonoros Feel · Todos los derechos reservados</p>
     </div>
   </footer>
 

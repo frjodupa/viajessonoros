@@ -1,0 +1,6 @@
+User-agent: *
+Allow: /
+Disallow: /admin.html
+Disallow: /src/admin.html
+
+Sitemap: https://www.viajessonoros.es/sitemap.xml
