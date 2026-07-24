@@ -5,13 +5,12 @@ const CLAVE = 'feel2024'
 export function checkAuth(){
   const input = document.getElementById('pass') || document.querySelector('input')
   const val = (input?.value || '').trim().toLowerCase()
-  console.log('clave puesta:', val)
-  if(val === 'feel2024'){
+  if(val === CLAVE){
     document.getElementById('login').style.display='none'
     document.getElementById('panel').style.display='block'
     listar()
   } else {
-    alert('Clave incorrecta: "' + val + '" - escribe feel2024 sin espacios')
+    alert('Clave incorrecta')
   }
 }
 
