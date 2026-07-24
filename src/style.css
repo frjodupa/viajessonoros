@@ -405,24 +405,6 @@ a {
   text-align: center;
 }
 
-.hero-ornament {
-  width: 46px;
-  height: 46px;
-  display: block;
-  color: var(--gold);
-  margin: 0 auto 22px;
-}
-
-.hero-ornament svg {
-  width: 100%;
-  height: 100%;
-  display: block;
-  stroke: currentColor;
-  stroke-width: 1.35;
-  stroke-linecap: round;
-  stroke-linejoin: round;
-}
-
 .hero h1 {
   margin: 0;
   color: #172552;
@@ -1645,13 +1627,14 @@ a {
   .hero-inner {
     min-height: 800px;
     align-items: flex-start;
+    padding-top: 0;
   }
 
   .hero-copy {
     width: 100%;
     max-width: 640px;
     margin-inline: auto;
-    padding-top: 125px;
+    padding-top: calc(var(--header-height) + 36px);
   }
 
   .hero h1 {
@@ -1911,13 +1894,6 @@ a {
 
   .hero-copy {
     padding: calc(var(--header-height) + 10px) 0 18px;
-  }
-
-  .hero-ornament {
-    display: none;
-    width: 0;
-    height: 0;
-    margin: 0;
   }
 
   .hero h1 {
