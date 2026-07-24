@@ -378,7 +378,7 @@ const readExperiences = async () => {
     .from('experiencias')
     .select('titulo,fecha,precio,lugar,descripcion,imagen_url')
     .order('created_at', { ascending: false })
-    .limit(1)
+    .limit(LANDING_EVENTS_LIMIT)
 
   if (error) throw error
   return data || []
