@@ -7,6 +7,7 @@ export default defineConfig({
       input: {
         main: resolve('index.html'),
         admin: resolve('admin.html'),
+        experiencias: resolve('experiencias.html'),
       },
     },
   },
