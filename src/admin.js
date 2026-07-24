@@ -1,21 +1,51 @@
 import { supabase } from './supabase.js'
 
-const CLAVE = 'feel2024'
+const login = document.getElementById('login')
+const panel = document.getElementById('panel')
+const loginError = document.getElementById('login-error')
 
-export function checkAuth(){
-  const input = document.getElementById('pass') || document.querySelector('input')
-  const val = (input?.value || '').trim().toLowerCase()
-  if(val === CLAVE){
-    document.getElementById('login').style.display='none'
-    document.getElementById('panel').style.display='block'
-    listar()
-  } else {
-    alert('Clave incorrecta')
+const showSession = (session) => {
+  login.style.display = session ? 'none' : 'block'
+  panel.style.display = session ? 'block' : 'none'
+}
+
+const hasValidUser = async () => {
+  const { data, error } = await supabase.auth.getUser()
+  if (error || !data.user) {
+    showSession(null)
+    return false
   }
+
+  return true
+}
+
+export async function checkAuth(event){
+  event?.preventDefault()
+  loginError.style.display = 'none'
+
+  const email = document.getElementById('email').value.trim()
+  const password = document.getElementById('pass').value
+  const { data, error } = await supabase.auth.signInWithPassword({ email, password })
+
+  if (error) {
+    loginError.textContent = 'Email o contraseña incorrectos.'
+    loginError.style.display = 'block'
+    showSession(null)
+    return
+  }
+
+  showSession(data.session)
+  await listar()
+}
+
+export async function cerrarSesion(){
+  await supabase.auth.signOut()
+  showSession(null)
 }
 
 export async function subirEvento(e){
   e.preventDefault()
+  if (!(await hasValidUser())) return
   const titulo = document.getElementById('titulo').value
   const badge = document.getElementById('badge').value
   const fecha = document.getElementById('fecha').value
@@ -46,6 +76,7 @@ export async function subirEvento(e){
 }
 
 async function listar(){
+  if (!(await hasValidUser())) return
   const { data } = await supabase.from('eventos').select('*').order('created_at',{ascending:false})
   const div = document.getElementById('lista')
   if(!div) return
@@ -54,3 +85,12 @@ async function listar(){
 
 window.checkAuth = checkAuth
 window.subirEvento = subirEvento
+window.cerrarSesion = cerrarSesion
+
+supabase.auth.onAuthStateChange((_event, session) => {
+  showSession(session)
+})
+
+const { data: { session } } = await supabase.auth.getSession()
+showSession(session)
+if (session) await listar()
