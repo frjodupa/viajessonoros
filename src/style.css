@@ -1041,12 +1041,12 @@ a {
 }
 
 .product-image {
-  min-height: 0;
+  height: clamp(230px, 25vw, 340px);
   display: grid;
   place-items: center;
   overflow: hidden;
-  aspect-ratio: 1;
-  padding: 22px;
+  aspect-ratio: auto;
+  padding: 18px;
   background: transparent;
 }
 
@@ -1057,14 +1057,16 @@ a {
 }
 
 .product-card-usb .product-image img {
-  width: 78%;
-  height: 78%;
+  width: min(72%, 460px);
+  height: auto;
+  max-height: 100%;
   box-shadow: none;
 }
 
 .product-card-wood .product-image img {
-  width: 68%;
-  height: 88%;
+  width: min(58%, 300px);
+  height: auto;
+  max-height: 100%;
   object-fit: contain;
   box-shadow: none;
 }
@@ -1073,8 +1075,8 @@ a {
   display: flex;
   flex-direction: column;
   flex: 1;
-  min-height: 205px;
-  padding: 22px 20px 18px;
+  min-height: 190px;
+  padding: 20px 20px 17px;
 }
 
 .product-content h3 {
@@ -1628,8 +1630,9 @@ a {
   }
 
   .product-image {
-    min-height: 170px;
-    aspect-ratio: 1;
+    height: 280px;
+    min-height: 0;
+    aspect-ratio: auto;
   }
 
   .product-content {
@@ -1820,8 +1823,9 @@ a {
   }
 
   .product-image {
+    height: 250px;
     min-height: 0;
-    aspect-ratio: 1;
+    aspect-ratio: auto;
   }
 
   .product-content {
@@ -1882,7 +1886,8 @@ a {
   }
 
   .product-image {
-    aspect-ratio: 1;
+    height: 220px;
+    aspect-ratio: auto;
     min-height: 0;
   }
 
