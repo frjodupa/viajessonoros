@@ -100,6 +100,9 @@ const links = {
   general: whatsappLink(
     'Hola, quiero información sobre las experiencias de Viajes Sonoros.',
   ),
+  upcomingDates: whatsappLink(
+    'Hola, me gustaría recibir información sobre las próximas experiencias de Viajes Sonoros y autorizo voluntariamente que me incluyáis en vuestra lista de difusión de WhatsApp. Sé que puedo solicitar la baja en cualquier momento.',
+  ),
   usbCard: whatsappLink(
     'Hola.\nQuiero comprar la Tarjeta USB de Viajes Sonoros.',
   ),
@@ -863,11 +866,25 @@ const loadLandingEvents = async () => {
       ? experiences.map(renderLandingEvent).join('')
       : `
           <div class="events-empty">
-            <strong>No hay próximas experiencias publicadas.</strong>
-            <span>Consulta la agenda completa para conocer nuevas fechas.</span>
-            <a class="outline-link" href="/experiencias.html">
-              Ver agenda completa ${renderIcon('arrow', 'icon-arrow')}
-            </a>
+            <strong>Estamos preparando nuestras próximas experiencias</strong>
+            <div class="events-empty-copy">
+              <p>Muy pronto compartiremos nuevas fechas para volver a encontrarnos a través del sonido, la presencia y la calma.</p>
+              <p>Si deseas conocer nuestras próximas experiencias, puedes escribirnos voluntariamente por WhatsApp y solicitar que te incluyamos en nuestra lista de difusión. Solo recibirás información relacionada con Viajes Sonoros y podrás darte de baja cuando lo desees.</p>
+            </div>
+            <div class="events-empty-actions">
+              <a
+                class="button button-primary"
+                href="${links.upcomingDates}"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                ${renderIcon('whatsapp', 'icon-brand icon-whatsapp')}
+                Quiero recibir próximas fechas
+              </a>
+              <a class="outline-link" href="/experiencias.html">
+                Conocer todas las experiencias ${renderIcon('arrow', 'icon-arrow')}
+              </a>
+            </div>
           </div>
         `
   } catch (error) {
