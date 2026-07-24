@@ -404,7 +404,8 @@ let experiencesSubscription = null
 const readExperiences = async () => {
   const { data, error } = await supabase
     .from('experiencias')
-    .select('id,titulo,fecha,hora,precio,lugar,descripcion,imagen_url,created_at')
+    .select('id,titulo,fecha,hora,precio,lugar,descripcion,imagen_url,publicado,created_at')
+    .eq('publicado', true)
     .order('fecha', { ascending: true })
     .order('hora', { ascending: true, nullsFirst: false })
 
