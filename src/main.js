@@ -296,19 +296,14 @@ const isPublishedExperience = (experience) => {
 }
 
 const getExperienceDate = (experience) =>
-  parseExperienceDate(
-    experience.fecha_fin ||
-      experience.end_date ||
-      experience.fecha_texto ||
-      experience.fecha,
-  )
+  parseExperienceDate(experience.fecha)
 
 const getExperienceIdentity = (experience) => {
   if (experience.id != null) return `id:${experience.id}`
 
   return [
     experience.titulo,
-    experience.fecha_texto || experience.fecha,
+    experience.fecha,
     experience.lugar,
   ]
     .map((value) => String(value || '').trim().toLocaleLowerCase('es'))
@@ -363,12 +358,45 @@ const getEventIcon = (experience) => {
 
 const getEventWhatsAppLink = (experience) => {
   const title = experience.titulo || ''
-  const date = experience.fecha_texto || experience.fecha || ''
-  const price = experience.precio || experience.price || ''
+  const date = formatExperienceDate(experience.fecha)
+  const time = formatExperienceTime(experience.hora)
+  const price = formatContribution(experience.precio)
   const place = experience.lugar || ''
-  const message = `Hola! Quiero reservar la experiencia "${title}" del ${date} (${price}) en ${place}. ¿Queda plaza? Mi nombre es:`
+  const schedule = [date, time].filter(Boolean).join(' · ')
+  const message = `Hola! Quiero reservar la experiencia "${title}" del ${schedule} (${price}) en ${place}. ¿Queda plaza? Mi nombre es:`
 
   return whatsappLink(message)
+}
+
+const formatExperienceDate = (value) => {
+  const date = parseExperienceDate(value)
+
+  return date
+    ? new Intl.DateTimeFormat('es-ES', {
+        day: 'numeric',
+        month: 'long',
+        year: 'numeric',
+      }).format(date)
+    : String(value || '')
+}
+
+const formatExperienceTime = (value) => {
+  const match = String(value || '').match(/^(\d{2}):(\d{2})/)
+  return match ? `${match[1]}:${match[2]} h` : ''
+}
+
+const formatContribution = (value) => {
+  const contribution = String(value || '').trim()
+
+  if (
+    !contribution ||
+    /^aportaci[oó]n\b/i.test(contribution) ||
+    /^gratuito$/i.test(contribution)
+  ) {
+    return contribution
+  }
+
+  return `Aportación ${contribution}`
 }
 
 let experiencesSubscription = null
@@ -376,9 +404,9 @@ let experiencesSubscription = null
 const readExperiences = async () => {
   const { data, error } = await supabase
     .from('experiencias')
-    .select('titulo,fecha,precio,lugar,descripcion,imagen_url')
-    .order('created_at', { ascending: false })
-    .limit(LANDING_EVENTS_LIMIT)
+    .select('id,titulo,fecha,hora,precio,lugar,descripcion,imagen_url,created_at')
+    .order('fecha', { ascending: true })
+    .order('hora', { ascending: true, nullsFirst: false })
 
   if (error) throw error
   return data || []
@@ -387,10 +415,13 @@ const readExperiences = async () => {
 const renderLandingEvent = (experience) => {
   const title = escapeHTML(experience.titulo || 'Experiencia Viajes Sonoros')
   const date = escapeHTML(
-    experience.fecha_texto || experience.fecha || 'Fecha por confirmar',
+    formatExperienceDate(experience.fecha) || 'Fecha por confirmar',
   )
+  const time = escapeHTML(formatExperienceTime(experience.hora))
   const place = escapeHTML(experience.lugar || 'Lugar por confirmar')
-  const price = escapeHTML(experience.precio || experience.price || '')
+  const price = escapeHTML(
+    formatContribution(experience.precio),
+  )
   const description = escapeHTML(experience.descripcion || '')
   const status = escapeHTML(
     experience.badge ||
@@ -414,7 +445,7 @@ const renderLandingEvent = (experience) => {
       <div class="event-content">
         <h3>${title}</h3>
         <ul>
-          <li>${date}</li>
+          <li>${[date, time].filter(Boolean).join(' · ')}</li>
           <li>${place}</li>
           ${price ? `<li>${price}</li>` : ''}
         </ul>
@@ -861,7 +892,7 @@ const startExperiencesSync = () => {
   if (experiencesSubscription) return
 
   experiencesSubscription = supabase
-    .channel('landing-eventos')
+    .channel('landing-experiencias')
     .on(
       'postgres_changes',
       {
@@ -982,13 +1013,6 @@ if ('IntersectionObserver' in window) {
 updateScrollState()
 loadLandingEvents()
 startExperiencesSync()
-
-window.addEventListener('storage', (event) => {
-  if (event.key === 'vs_eventos' || event.key === 'sb_anon_key') {
-    loadLandingEvents()
-    startExperiencesSync()
-  }
-})
 
 window.addEventListener('focus', loadLandingEvents)
 

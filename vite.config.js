@@ -6,7 +6,6 @@ export default defineConfig({
     rollupOptions: {
       input: {
         main: resolve('index.html'),
-        admin: resolve('admin.html'),
         experiencias: resolve('experiencias.html'),
         resetPassword: resolve('reset-password.html'),
       },

@@ -89,6 +89,6 @@ form.addEventListener('submit', async (event) => {
   showMessage('Contraseña actualizada correctamente.', 'success')
   await supabase.auth.signOut()
   window.setTimeout(() => {
-    window.location.replace('/admin.html')
+    window.location.replace('/experiencias.html')
   }, 1200)
 })
