@@ -16,7 +16,7 @@ Auditoría: 24 de julio de 2026.
 
 - Supabase: tabla y almacenamiento de experiencias.
 - `localStorage`: `vs_eventos` y `sb_anon_key`, ambos de finalidad técnica.
-- Google Fonts y esm.sh: recursos externos.
+- esm.sh: recurso externo de la página de experiencias. Las tipografías se alojan localmente.
 - No se detecta `sessionStorage`.
 
 ## Verificaciones pendientes fuera del repositorio
@@ -32,7 +32,7 @@ Auditoría: 24 de julio de 2026.
 - `localStorage`: uso técnico de `vs_eventos` y `sb_anon_key`.
 - `sessionStorage`: no detectado.
 - Scripts externos: esm.sh en la página de experiencias.
-- Fuentes externas: Google Fonts.
+- Fuentes externas: no; Cormorant Garamond y Montserrat se sirven desde el propio dominio.
 - Dependencias npm: 0 vulnerabilidades conocidas en `npm audit`.
 - Secretos privados versionados: no detectados; `.env` está ignorado.
 - Cabeceras: CSP, HSTS, Referrer-Policy, Permissions-Policy, X-Frame-Options y X-Content-Type-Options configuradas.

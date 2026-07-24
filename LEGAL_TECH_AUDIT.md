@@ -6,7 +6,7 @@ Fecha: 24 de julio de 2026.
 
 - `localStorage`: claves técnicas `vs_eventos` y `sb_anon_key`.
 - Supabase: base de datos, almacenamiento y conexión en tiempo real.
-- Google Fonts: carga externa de tipografías.
+- Tipografías Cormorant Garamond y Montserrat alojadas localmente.
 - esm.sh: carga externa del módulo de Supabase en `experiencias.html`.
 - Vercel: alojamiento y registros técnicos de acceso.
 - Enlaces salientes a WhatsApp, Instagram y correo electrónico.
