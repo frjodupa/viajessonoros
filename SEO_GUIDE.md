@@ -2,7 +2,7 @@
 
 ## Configuración permanente
 
-- Dominio canónico efectivo: `https://www.viajessonoros.es` (Vercel redirige el dominio sin `www`).
+- Dominio canónico efectivo: `https://viajessonoros.es` (`www` redirige permanentemente al dominio raíz).
 - Idioma: español.
 - Marca: Viajes Sonoros.
 - `robots.txt` y `sitemap.xml` se sirven desde `public/`.
