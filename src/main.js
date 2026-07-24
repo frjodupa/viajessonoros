@@ -653,7 +653,7 @@ app.innerHTML = `
           </div>
 
           <div class="product-grid">
-            <article class="product-card reveal">
+            <article class="product-card product-card-usb reveal">
               <div class="product-image">
                 <img
                   src="/D44E2919-2609-4885-AD85-79205DD06AB2.jpeg"
@@ -680,11 +680,11 @@ app.innerHTML = `
               </div>
             </article>
 
-            <article class="product-card reveal">
+            <article class="product-card product-card-wood reveal">
               <div class="product-image">
                 <img
-                  src="/PENDRIVE-VIAJESSONOROS7.jpg"
-                  alt="Pendrive de madera de Viajes Sonoros junto a su caja"
+                  src="/PENDRIVE-VIAJESSONOROS6-600x600.jpg"
+                  alt="Pendrive de madera de Viajes Sonoros"
                   loading="lazy"
                 >
               </div>

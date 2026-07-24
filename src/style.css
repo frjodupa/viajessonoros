@@ -964,9 +964,11 @@ a {
 }
 
 .shop-section {
-  padding: 50px 0;
+  padding: 64px 0;
   border-top: 1px solid var(--line);
-  background: var(--cream);
+  background:
+    radial-gradient(circle at 82% 20%, rgba(197, 144, 49, 0.08), transparent 30%),
+    var(--cream);
 }
 
 .about-block {
@@ -999,8 +1001,8 @@ a {
 
 .shop-block {
   display: grid;
-  grid-template-columns: 150px minmax(0, 1fr);
-  gap: 20px;
+  grid-template-columns: 170px minmax(0, 1fr);
+  gap: 28px;
 }
 
 .shop-intro {
@@ -1021,18 +1023,18 @@ a {
 .product-grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 18px;
+  gap: 22px;
 }
 
 .product-card {
   min-width: 0;
-  display: grid;
-  grid-template-columns: 1fr;
+  display: flex;
+  flex-direction: column;
   overflow: hidden;
-  border: 1px solid rgba(197, 144, 49, 0.24);
-  border-radius: 16px;
-  background: var(--paper);
-  box-shadow: 0 14px 36px rgba(55, 31, 62, 0.08);
+  border: 1px solid rgba(197, 144, 49, 0.3);
+  border-radius: 20px;
+  background: rgba(255, 253, 249, 0.96);
+  box-shadow: 0 18px 44px rgba(55, 31, 62, 0.09);
   transition:
     transform 260ms ease,
     box-shadow 260ms ease;
@@ -1040,25 +1042,40 @@ a {
 
 .product-image {
   min-height: 0;
+  display: grid;
+  place-items: center;
   overflow: hidden;
   aspect-ratio: 16 / 10;
-  background: var(--cream-deep);
+  padding: 22px;
+  background:
+    radial-gradient(circle at center, #fff 0, #fbf7f0 68%, #f5ede1 100%);
 }
 
 .product-image img {
+  object-fit: contain;
   object-position: center;
+  border-radius: 14px;
 }
 
-.product-card:last-child .product-image img {
+.product-card-usb .product-image img {
+  width: 78%;
+  height: 78%;
+  box-shadow: 0 12px 30px rgba(57, 37, 62, 0.13);
+}
+
+.product-card-wood .product-image img {
+  width: 68%;
+  height: 88%;
   object-fit: contain;
-  padding: 12px;
+  box-shadow: 0 12px 30px rgba(92, 66, 35, 0.13);
 }
 
 .product-content {
   display: flex;
   flex-direction: column;
-  min-height: 175px;
-  padding: 19px 17px 14px;
+  flex: 1;
+  min-height: 205px;
+  padding: 22px 20px 18px;
 }
 
 .product-content h3 {
@@ -1066,10 +1083,10 @@ a {
 }
 
 .product-content > strong {
-  margin-top: 3px;
+  margin-top: 5px;
   color: var(--purple-dark);
-  font-size: 11px;
-  font-weight: 600;
+  font-size: 14px;
+  font-weight: 700;
 }
 
 .product-content > strong small {
@@ -1078,17 +1095,34 @@ a {
 }
 
 .product-content > p {
-  margin: 13px 0;
+  margin: 15px 0 20px;
   color: var(--muted);
-  font-size: 9px;
-  line-height: 1.5;
+  font-size: 10px;
+  line-height: 1.65;
 }
 
 .product-button {
-  min-height: 31px;
+  min-height: 44px;
   margin-top: auto;
-  padding: 5px 7px;
-  font-size: 7px;
+  padding: 10px 15px;
+  border-color: #1fa855;
+  border-radius: 999px;
+  color: var(--white);
+  background: linear-gradient(135deg, #26b963, #169447);
+  box-shadow: 0 10px 24px rgba(31, 168, 85, 0.24);
+  font-size: 10px;
+  font-weight: 700;
+}
+
+.product-button .icon-whatsapp {
+  margin-left: 0;
+  color: var(--white);
+}
+
+.product-button:hover {
+  color: var(--white);
+  background: linear-gradient(135deg, #1fa855, #117d3b);
+  box-shadow: 0 13px 28px rgba(31, 168, 85, 0.34);
 }
 
 .final-quote {
