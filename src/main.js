@@ -589,7 +589,7 @@ app.innerHTML = `
             poster="/instrumentos-cuencos.jpg"
             aria-label="Meditación con cuencos tibetanos de Viajes Sonoros"
           >
-            <source src="/Cuencos-Tibetanos2.mov" type="video/quicktime">
+            <source src="/Cuencos-Tibetanos2.mp4" type="video/mp4">
             Tu navegador no permite reproducir este vídeo.
           </video>
         </div>
