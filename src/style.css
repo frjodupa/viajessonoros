@@ -406,25 +406,21 @@ a {
 }
 
 .hero-ornament {
-  width: 240px;
-  display: flex;
-  align-items: center;
-  gap: 20px;
-  margin: 0 auto 14px;
-}
-
-.hero-ornament span {
-  flex: 1;
-  height: 1px;
-  background: var(--gold);
-}
-
-.hero-ornament b {
-  width: 21px;
-  height: 21px;
+  width: 46px;
+  height: 46px;
   display: block;
   color: var(--gold);
-  font-weight: 400;
+  margin: 0 auto 22px;
+}
+
+.hero-ornament svg {
+  width: 100%;
+  height: 100%;
+  display: block;
+  stroke: currentColor;
+  stroke-width: 1.35;
+  stroke-linecap: round;
+  stroke-linejoin: round;
 }
 
 .hero h1 {
@@ -1894,8 +1890,8 @@ a {
   }
 
   .hero {
-    min-height: 88svh;
-    max-height: 92svh;
+    min-height: 86svh;
+    max-height: 88svh;
     background:
       linear-gradient(
         180deg,
@@ -1908,17 +1904,20 @@ a {
   }
 
   .hero-inner {
-    min-height: 88svh;
-    max-height: 92svh;
+    min-height: 86svh;
+    max-height: 88svh;
+    padding-top: 0;
   }
 
   .hero-copy {
-    padding: calc(var(--header-height) + 18px) 0 22px;
+    padding: calc(var(--header-height) + 10px) 0 18px;
   }
 
   .hero-ornament {
-    width: 150px;
-    margin-bottom: 8px;
+    display: none;
+    width: 0;
+    height: 0;
+    margin: 0;
   }
 
   .hero h1 {

@@ -508,9 +508,9 @@ app.innerHTML = `
       <div class="container hero-inner">
         <div class="hero-copy reveal">
           <div class="hero-ornament" aria-hidden="true">
-            <span></span>
-            <b>${renderIcon('heart')}</b>
-            <span></span>
+            <svg viewBox="0 0 48 48" fill="none">
+              <path d="M24 43V21M24 35c-6-1-10-5-12-10M24 31c6-1 10-5 12-10M24 26c-4-2-7-5-8-9M24 26c4-2 7-5 8-9M24 21c-2-3-3-6-3-10M24 21c2-3 3-6 3-10M24 43c-4-1-8 0-11 3M24 43c4-1 8 0 11 3" />
+            </svg>
           </div>
           <h1 id="hero-title">Detén el tiempo.<strong>Vuelve a ti.</strong></h1>
           <p>
