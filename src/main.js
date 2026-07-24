@@ -626,17 +626,35 @@ app.innerHTML = `
     <section class="about-section" id="nosotros" aria-labelledby="about-title">
       <div class="container">
         <article class="about-block reveal">
-          <p class="eyebrow">Sobre nosotros</p>
-          <h2 id="about-title">María de la Osa & José Duque</h2>
-          <p>
-            Músicos, facilitadores y viajeros del alma. Nuestro camino une la
-            música, la meditación y el sonido como medicina para acompañarte de
-            vuelta a ti.
-          </p>
-          <a class="outline-link" href="#contacto">
-            Conócenos mejor ${renderIcon('arrow', 'icon-arrow')}
-          </a>
-          <span class="about-lotus" aria-hidden="true">${icons.lotus}</span>
+          <div class="about-copy">
+            <p class="eyebrow">Sobre nosotros</p>
+            <h2 id="about-title">María de la Osa & José Duque</h2>
+            <p class="about-lead">
+              Músicos, facilitadores y viajeros del alma. Compartimos una forma
+              de entender el sonido como espacio de presencia, cuidado y
+              conexión interior.
+            </p>
+            <p>
+              En cada encuentro unimos música en directo, meditación y la
+              vibración de instrumentos ancestrales para crear experiencias
+              cercanas, profundas y respetuosas con el ritmo de cada persona.
+              Nuestro propósito es acompañarte a detenerte, escuchar y volver a
+              ti.
+            </p>
+            <div class="about-values" aria-label="Nuestros pilares">
+              <span>Música en directo</span>
+              <span>Sonido consciente</span>
+              <span>Presencia y cuidado</span>
+            </div>
+          </div>
+          <aside class="about-note">
+            <span class="about-lotus" aria-hidden="true">${icons.lotus}</span>
+            <p>
+              Creamos cada viaje con sensibilidad, intención y la certeza de
+              que el silencio también forma parte de la música.
+            </p>
+            <small>Viajes Sonoros Feel</small>
+          </aside>
         </article>
       </div>
     </section>
