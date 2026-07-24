@@ -1064,7 +1064,7 @@ a {
 }
 
 .product-card-wood .product-image img {
-  width: min(58%, 300px);
+  width: min(66%, 350px);
   height: auto;
   max-height: 100%;
   object-fit: contain;
