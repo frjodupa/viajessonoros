@@ -1,6 +1,14 @@
 {
   "redirects": [
     {
+      "source": "/",
+      "has": [
+        { "type": "host", "value": "www.viajessonoros.es" }
+      ],
+      "destination": "https://viajessonoros.es/",
+      "permanent": true
+    },
+    {
       "source": "/:path*",
       "has": [
         { "type": "host", "value": "www.viajessonoros.es" }
