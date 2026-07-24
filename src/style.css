@@ -681,6 +681,71 @@ a {
   line-height: 1.2;
 }
 
+.meditate-section {
+  padding: 68px 0;
+  border-top: 1px solid var(--line);
+  background:
+    radial-gradient(circle at 20% 20%, rgba(197, 144, 49, 0.14), transparent 28%),
+    linear-gradient(135deg, #3c2057, #5c286f);
+}
+
+.meditate-layout {
+  display: grid;
+  grid-template-columns: minmax(260px, 0.72fr) minmax(0, 1.28fr);
+  align-items: center;
+  gap: 48px;
+}
+
+.meditate-copy {
+  color: var(--paper);
+}
+
+.meditate-copy .eyebrow {
+  color: var(--gold-light);
+}
+
+.meditate-copy h2 {
+  max-width: 460px;
+  margin: 12px 0 20px;
+  color: var(--paper);
+  font-size: clamp(38px, 4.2vw, 58px);
+  line-height: 1;
+}
+
+.meditate-copy > p:not(.eyebrow) {
+  max-width: 470px;
+  margin: 0;
+  color: rgba(255, 253, 249, 0.78);
+  font-size: 12px;
+  line-height: 1.75;
+}
+
+.meditate-copy > span {
+  display: inline-block;
+  margin-top: 22px;
+  padding-top: 15px;
+  border-top: 1px solid rgba(225, 193, 133, 0.42);
+  color: var(--gold-light);
+  font-size: 9px;
+  letter-spacing: 0.06em;
+}
+
+.meditate-video {
+  overflow: hidden;
+  border: 1px solid rgba(225, 193, 133, 0.45);
+  border-radius: 22px;
+  background: #20142c;
+  box-shadow: 0 24px 60px rgba(24, 11, 34, 0.34);
+}
+
+.meditate-video video {
+  width: 100%;
+  display: block;
+  aspect-ratio: 16 / 9;
+  object-fit: cover;
+  background: #20142c;
+}
+
 .journey-section {
   padding: 16px 0 20px;
   border-top: 1px solid var(--line);
@@ -1970,5 +2035,36 @@ a {
   .reveal {
     opacity: 1;
     transform: none;
+  }
+}
+
+@media (max-width: 900px) {
+  .meditate-layout {
+    grid-template-columns: 1fr;
+    gap: 30px;
+  }
+
+  .meditate-copy {
+    text-align: center;
+  }
+
+  .meditate-copy h2,
+  .meditate-copy > p:not(.eyebrow) {
+    margin-right: auto;
+    margin-left: auto;
+  }
+}
+
+@media (max-width: 620px) {
+  .meditate-section {
+    padding: 52px 0;
+  }
+
+  .meditate-copy h2 {
+    font-size: 38px;
+  }
+
+  .meditate-video {
+    border-radius: 16px;
   }
 }

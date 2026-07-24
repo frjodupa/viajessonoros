@@ -569,6 +569,33 @@ app.innerHTML = `
       </div>
     </section>
 
+    <section class="meditate-section" aria-labelledby="meditate-title">
+      <div class="container meditate-layout">
+        <div class="meditate-copy reveal">
+          <p class="eyebrow">Medita con nosotros</p>
+          <h2 id="meditate-title">Un instante para volver a ti.</h2>
+          <p>
+            Haz una pausa, respira con calma y permite que la vibración de los
+            cuencos tibetanos te acompañe hacia un estado de mayor presencia y
+            serenidad.
+          </p>
+          <span>Busca un lugar tranquilo y escucha con auriculares.</span>
+        </div>
+        <div class="meditate-video reveal">
+          <video
+            controls
+            playsinline
+            preload="metadata"
+            poster="/instrumentos-cuencos.jpg"
+            aria-label="Meditación con cuencos tibetanos de Viajes Sonoros"
+          >
+            <source src="/Cuencos-Tibetanos2.mov" type="video/quicktime">
+            Tu navegador no permite reproducir este vídeo.
+          </video>
+        </div>
+      </div>
+    </section>
+
     <section class="journey-section" aria-labelledby="journey-title">
       <div class="container editorial-layout journey-layout">
         <aside class="section-intro reveal">
