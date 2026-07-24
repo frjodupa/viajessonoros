@@ -25,3 +25,5 @@ Fecha: 24 de julio de 2026.
 ## Conclusión
 
 No es necesario un banner de consentimiento mientras se mantenga esta configuración. El almacenamiento local detectado es técnico y no se utiliza para seguimiento. Si se incorporan analítica, publicidad, contenido embebido o cualquier tecnología no esencial, deberá implantarse bloqueo previo y un mecanismo para aceptar, rechazar, configurar y retirar el consentimiento.
+
+La auditoría confirma que no existen suscripciones, publicidad, carrito ni pasarela de pago. Sí se muestran importes y botones de reserva o pedido por WhatsApp: el sitio funciona como escaparate y canal de contacto, mientras que cualquier confirmación o aportación se gestiona fuera de la web.
