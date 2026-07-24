@@ -73,7 +73,7 @@ window.guardarEvento=async()=>{
     const payload={titulo,fecha,hora:hora||null,precio,lugar,descripcion,imagen_url:imagen_url||null}
     const result=editId?await supabase.from('experiencias').update(payload).eq('id',editId):await supabase.from('experiencias').insert(payload)
     if(result.error) throw result.error
-    window.cancelarEdicion(); alert('¡Guardada con imagen!'); view='experiencias'; render()
+    window.cancelarEdicion(); alert('¡Experiencia guardada!'); view='experiencias'; render()
   }catch(err){ alert('Error: '+err.message) } finally{ if(btn){ btn.textContent='Guardar experiencia'; btn.disabled=false } }
 }
 window.editarEvento=async(id)=>{ if(!(await hasValidAdmin())){view='admin-login';render();return} const ev=eventos.find(e=>e.id==id); if(!ev) return; editId=id; document.getElementById('f-titulo').value=ev.titulo||''; document.getElementById('f-fecha').value=ev.fecha||''; document.getElementById('f-hora').value=String(ev.hora||'').slice(0,5); document.getElementById('f-precio').value=ev.precio||''; document.getElementById('f-lugar').value=ev.lugar||''; document.getElementById('f-desc').value=ev.descripcion||''; document.getElementById('f-imagen').value=ev.imagen_url||''; if(ev.imagen_url){document.getElementById('img-prev').src=ev.imagen_url;document.getElementById('preview-img').style.display='block'} imageDataUrl=ev.imagen_url||null; window.scrollTo({top:0,behavior:'smooth'}) }
