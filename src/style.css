@@ -178,7 +178,6 @@ a {
 
 .button:hover,
 .outline-link:hover,
-.event-button:hover,
 .product-button:hover {
   transform: translateY(-2px);
 }
@@ -1102,7 +1101,6 @@ a {
   border: 1px solid var(--gold);
 }
 
-.event-button,
 .product-button {
   min-height: 44px;
   width: 100%;
@@ -1123,38 +1121,17 @@ a {
     background-color 220ms ease;
 }
 
-.event-button {
-  margin-top: auto;
-  border-color: #25d366;
-  color: var(--white);
-  background: #25d366;
-  box-shadow: 0 12px 26px rgba(37, 211, 102, 0.22);
-}
-
-.event-button span,
 .product-button span {
   margin-left: auto;
 }
 
-.event-button .icon-whatsapp,
 .product-button .icon-whatsapp {
   width: 17px;
   height: 17px;
 }
 
-.event-button:hover,
 .product-button:hover {
   background: rgba(197, 144, 49, 0.06);
-}
-
-.event-button:hover {
-  border-color: #1fb85a;
-  color: var(--white);
-  background: #1fb85a;
-}
-
-.event-button:focus-visible {
-  outline-color: rgba(37, 211, 102, 0.58);
 }
 
 @media (min-width: 768px) {
@@ -2056,9 +2033,6 @@ a {
     grid-column: auto;
   }
 
-  .event-button {
-    width: 100%;
-  }
 }
 
 @media (max-width: 620px) {

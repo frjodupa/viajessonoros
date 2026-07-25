@@ -1,0 +1,49 @@
+.whatsapp-reserve-button {
+  width: 100%;
+  min-height: 52px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  margin-top: auto;
+  padding: 12px 20px;
+  border: 0;
+  border-radius: 999px;
+  color: #fff;
+  background: #25d366;
+  box-shadow: 0 12px 28px rgba(37, 211, 102, 0.24);
+  cursor: pointer;
+  font-family: inherit;
+  font-size: 0.9rem;
+  font-weight: 700;
+  line-height: 1.2;
+  text-align: center;
+  text-decoration: none;
+  transition:
+    transform 180ms ease,
+    box-shadow 180ms ease,
+    background-color 180ms ease;
+}
+
+.whatsapp-reserve-button > svg {
+  width: 22px;
+  height: 22px;
+  flex: 0 0 auto;
+}
+
+.whatsapp-reserve-button:hover {
+  color: #fff;
+  background: #1fb85a;
+  box-shadow: 0 14px 30px rgba(37, 211, 102, 0.28);
+  transform: translateY(-2px);
+}
+
+.whatsapp-reserve-button:active {
+  box-shadow: 0 8px 18px rgba(37, 211, 102, 0.22);
+  transform: translateY(0);
+}
+
+.whatsapp-reserve-button:focus-visible {
+  outline: 3px solid rgba(37, 211, 102, 0.38);
+  outline-offset: 4px;
+}

@@ -236,40 +236,6 @@ body.operational-page a:hover {
   -webkit-line-clamp: 4;
 }
 
-.experiences-page .experience-whatsapp-button {
-  width: 100%;
-  min-height: 52px;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 10px;
-  margin-top: auto;
-  padding: 12px 20px;
-  border: 0;
-  border-radius: 999px;
-  color: #fff;
-  background: #25d366 !important;
-  box-shadow: 0 12px 28px rgba(37, 211, 102, 0.24);
-  cursor: pointer;
-  font-size: 0.9rem;
-  font-weight: 700;
-}
-
-.experiences-page .experience-whatsapp-button svg {
-  width: 22px;
-  height: 22px;
-  flex: 0 0 auto;
-}
-
-.experiences-page .experience-whatsapp-button:hover {
-  background: #1fb85a !important;
-}
-
-.experiences-page .experience-whatsapp-button:focus-visible {
-  outline: 3px solid rgba(37, 211, 102, 0.38);
-  outline-offset: 4px;
-}
-
 @media (min-width: 701px) {
   .experiences-page #grid-exp > .experience-public-card:only-child {
     width: 100%;
@@ -455,10 +421,6 @@ body.operational-page a:hover {
   .experiences-page .experience-card-description {
     font-size: 0.9rem;
     -webkit-line-clamp: 5;
-  }
-
-  .experiences-page .experience-whatsapp-button {
-    width: 100%;
   }
 
   .experiences-page #grid-exp > .experiences-empty {

@@ -455,13 +455,13 @@ const renderLandingEvent = (experience, isSingle = false) => {
         </ul>
         ${description ? `<p class="event-description">${description}</p>` : ''}
         <a
-          class="event-button"
+          class="whatsapp-reserve-button"
           href="${getEventWhatsAppLink(experience)}"
           target="_blank"
           rel="noopener noreferrer"
         >
+          ${icons.whatsapp}
           Reservar por WhatsApp
-          ${renderIcon('whatsapp', 'icon-brand icon-whatsapp')}
         </a>
       </div>
     </article>
