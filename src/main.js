@@ -416,7 +416,7 @@ const readExperiences = async () => {
   return data || []
 }
 
-const renderLandingEvent = (experience) => {
+const renderLandingEvent = (experience, isSingle = false) => {
   const title = escapeHTML(experience.titulo || 'Experiencia Viajes Sonoros')
   const date = escapeHTML(
     formatExperienceDate(experience.fecha) || 'Fecha por confirmar',
@@ -436,7 +436,7 @@ const renderLandingEvent = (experience) => {
   const iconName = getEventIcon(experience)
 
   return `
-    <article class="event-card reveal is-visible">
+    <article class="event-card${isSingle ? ' event-card-single' : ''} reveal is-visible">
       <div class="event-image">
         <img
           src="${escapeHTML(safeImageURL(experience.imagen_url))}"
@@ -910,12 +910,17 @@ const loadLandingEvents = async () => {
   eventsAgendaLink.hidden = true
 
   try {
-    const experiences = await readExperiences()
+    const experiences = selectLandingExperiences(await readExperiences())
     if (requestId !== eventsRequestId) return
 
+    eventsGrid.dataset.count = String(experiences.length)
     eventsAgendaLink.hidden = experiences.length === 0
     eventsGrid.innerHTML = experiences.length
-      ? experiences.map(renderLandingEvent).join('')
+      ? experiences
+          .map((experience) =>
+            renderLandingEvent(experience, experiences.length === 1),
+          )
+          .join('')
       : `
           <div class="events-empty">
             <strong>Estamos preparando nuestras próximas experiencias</strong>
