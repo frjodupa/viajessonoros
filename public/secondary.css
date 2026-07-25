@@ -373,6 +373,54 @@ body.operational-page a:hover {
   font-weight: 600 !important;
 }
 
+.experiences-page main .admin-recovery-link {
+  min-height: 0;
+  margin-top: 14px;
+  padding: 4px 8px;
+  border: 0;
+  border-radius: 6px !important;
+  color: var(--vs-purple);
+  background: transparent;
+  cursor: pointer;
+  font-size: 0.82rem;
+  font-weight: 600 !important;
+  text-decoration: underline;
+  text-decoration-color: transparent;
+  text-underline-offset: 4px;
+}
+
+.experiences-page main .admin-recovery-link:hover {
+  color: var(--vs-purple-dark);
+  text-decoration-color: currentColor;
+}
+
+.experiences-page main .admin-recovery-link:focus-visible {
+  outline: 3px solid rgba(197, 144, 49, 0.58);
+  outline-offset: 3px;
+}
+
+.experiences-page main .admin-recovery-link:disabled {
+  opacity: 0.58;
+  cursor: wait;
+  transform: none;
+}
+
+.admin-recovery-message {
+  min-height: 1.5em;
+  margin: 8px 0 0;
+  color: #b42318;
+  font-size: 0.76rem;
+  line-height: 1.45;
+}
+
+.admin-recovery-message:empty {
+  display: none;
+}
+
+.admin-recovery-message.success {
+  color: #26734d;
+}
+
 .experiences-page input,
 .experiences-page textarea {
   min-height: 46px;
