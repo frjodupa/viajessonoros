@@ -1001,6 +1001,15 @@ app.innerHTML = `
             </article>
           </div>
       </div>
+      <div class="container shop-banner reveal">
+        <img
+          src="/banner-tienda.png"
+          alt="Tienda de Viajes Sonoros"
+          loading="lazy"
+          width="1983"
+          height="793"
+        >
+      </div>
     </section>
 
     <section class="final-quote" aria-label="Frase final">
