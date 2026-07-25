@@ -4,6 +4,51 @@ import { supabase } from './supabase.js'
 const PHONE = '34610056859'
 const LANDING_EVENTS_LIMIT = 3
 
+// Reseñas reales verificadas manualmente. Actualización manual.
+// Mantener también actualizados la valoración y el total cuando cambien en Google.
+const GOOGLE_REVIEWS = [
+  {
+    name: 'Espe Fernández García',
+    date: '15 junio 2025',
+    text: 'Un viaje sonoro espectacular que me ha transportado a mi ser interior. Gracias José y María por compartir tanto. Sois muy generosos. Súper recomendable.',
+  },
+  {
+    name: 'Miguel Perez',
+    date: '26 mayo 2025',
+    text: 'La verdad que una experiencia única y mágica. Nunca había hecho una meditación sonora y me ha encantado. Repetiré sin duda alguna.',
+  },
+  {
+    name: 'Beatriz Velázquez',
+    date: '1 marzo 2024',
+    text: 'Una experiencia para repetir. Gracias, José y María, por vuestra profesionalidad y amabilidad.',
+  },
+  {
+    name: 'Felipe Díaz Manzano',
+    date: '16 abril 2024',
+    text: 'Impresionante el viaje. Un sinfín de sensaciones y emociones con el magnífico trabajo realizado con los instrumentos. Namaste.',
+  },
+  {
+    name: 'Raquel Diadosa Abreu',
+    date: '20 abril 2024',
+    text: 'Una experiencia auténtica. Me encantó y volveré a repetir.',
+  },
+  {
+    name: 'Yolanda Sanchez',
+    date: '16 abril 2023',
+    text: 'Maravilloso y sorprendente viaje sonoro y espiritual que te transporta a otros niveles y te conecta con el universo. Gracias mil.',
+  },
+  {
+    name: 'Isabel Soto de Prado',
+    date: '26 marzo 2023',
+    text: 'Experiencia impresionante, increíble y recomendable al cien por cien. Gracias por compartirlo con nosotras.',
+  },
+  {
+    name: 'MALTRAVIESO Border Scene',
+    date: '7 diciembre 2022',
+    text: 'Fabulosa experiencia, más que recomendable. Gracias.',
+  },
+]
+
 const whatsappLink = (message) =>
   `https://wa.me/${PHONE}?text=${encodeURIComponent(message)}`
 
@@ -95,6 +140,15 @@ const icons = {
 
 const renderIcon = (name, className = '') =>
   `<span class="icon ${className}" aria-hidden="true">${icons[name]}</span>`
+
+const getReviewInitials = (name) =>
+  name
+    .split(/\s+/)
+    .filter(Boolean)
+    .slice(0, 2)
+    .map((word) => word[0])
+    .join('')
+    .toLocaleUpperCase('es')
 
 const links = {
   general: whatsappLink(
@@ -711,6 +765,108 @@ app.innerHTML = `
       </div>
     </section>
 
+    <section class="reviews-section" aria-labelledby="reviews-title">
+      <div class="container">
+        <div class="reviews-heading reveal">
+          <div class="reviews-intro">
+            <p class="eyebrow">Voces que han compartido el viaje</p>
+            <h2 id="reviews-title">Lo que permanece después del sonido</h2>
+            <p>
+              Cada experiencia se vive de una manera distinta. Estas son algunas
+              de las palabras que quienes han compartido el viaje han querido
+              dejarnos.
+            </p>
+          </div>
+          <aside class="reviews-summary" aria-label="Valoración en Google">
+            <span>Reseñas reales de Google</span>
+            <strong>5,0</strong>
+            <span class="reviews-summary-stars" aria-hidden="true">★★★★★</span>
+            <span class="sr-only">Cinco estrellas sobre cinco</span>
+            <small>20 reseñas en Google</small>
+          </aside>
+        </div>
+
+        <div
+          class="reviews-carousel reveal"
+          role="region"
+          aria-roledescription="carrusel"
+          aria-label="Reseñas reales de Google"
+        >
+          <div class="reviews-toolbar">
+            <p id="reviews-carousel-status" class="sr-only" aria-live="polite"></p>
+            <div class="reviews-arrows">
+              <button
+                class="reviews-arrow"
+                id="reviews-previous"
+                type="button"
+                aria-label="Mostrar reseñas anteriores"
+              >
+                <span aria-hidden="true">←</span>
+              </button>
+              <button
+                class="reviews-arrow"
+                id="reviews-next"
+                type="button"
+                aria-label="Mostrar reseñas siguientes"
+              >
+                <span aria-hidden="true">→</span>
+              </button>
+            </div>
+          </div>
+
+          <div class="reviews-viewport" id="reviews-viewport" tabindex="0">
+            <div class="reviews-track">
+              ${GOOGLE_REVIEWS.map(
+                ({ name, date, text }, index) => `
+                  <article
+                    class="review-card"
+                    role="group"
+                    aria-roledescription="diapositiva"
+                    aria-label="${index + 1} de ${GOOGLE_REVIEWS.length}"
+                  >
+                    <div class="review-stars">
+                      <span aria-hidden="true">★★★★★</span>
+                      <span class="sr-only">Cinco estrellas</span>
+                    </div>
+                    <blockquote>
+                      <p>${text}</p>
+                    </blockquote>
+                    <footer class="review-author">
+                      <span class="review-initials" aria-hidden="true">${getReviewInitials(name)}</span>
+                      <div>
+                        <strong>${name}</strong>
+                        <span>${date} · Google</span>
+                      </div>
+                    </footer>
+                  </article>
+                `,
+              ).join('')}
+            </div>
+          </div>
+
+          <div
+            class="reviews-indicators"
+            id="reviews-indicators"
+            aria-label="Seleccionar posición del carrusel"
+          ></div>
+        </div>
+
+        <div class="reviews-cta reveal">
+          <p>Tu experiencia también puede ayudar a otras personas a descubrir este espacio.</p>
+          <a
+            class="button reviews-google-button"
+            href="https://g.page/r/CejQBHnewzl2EAE/review"
+            target="_blank"
+            rel="noopener noreferrer"
+            aria-label="Dejar una reseña en Google, se abre en una pestaña nueva"
+          >
+            <span aria-hidden="true">★</span>
+            Dejar una reseña en Google
+          </a>
+        </div>
+      </div>
+    </section>
+
     <section class="about-section" id="nosotros" aria-labelledby="about-title">
       <div class="container">
         <article class="about-block reveal">
@@ -979,6 +1135,125 @@ const startExperiencesSync = () => {
     )
     .subscribe()
 }
+
+const reviewsViewport = document.querySelector('#reviews-viewport')
+const reviewCards = [...document.querySelectorAll('.review-card')]
+const reviewsPrevious = document.querySelector('#reviews-previous')
+const reviewsNext = document.querySelector('#reviews-next')
+const reviewsIndicators = document.querySelector('#reviews-indicators')
+const reviewsStatus = document.querySelector('#reviews-carousel-status')
+let activeReviewPosition = 0
+let reviewScrollFrame = 0
+
+const getVisibleReviewCount = () => {
+  if (window.innerWidth > 1000) return 3
+  if (window.innerWidth > 699) return 2
+  return 1
+}
+
+const getLastReviewPosition = () =>
+  Math.max(0, reviewCards.length - getVisibleReviewCount())
+
+const updateReviewsControls = () => {
+  const lastPosition = getLastReviewPosition()
+  activeReviewPosition = Math.min(activeReviewPosition, lastPosition)
+  reviewsPrevious.disabled = activeReviewPosition === 0
+  reviewsNext.disabled = activeReviewPosition === lastPosition
+
+  ;[...reviewsIndicators.children].forEach((indicator, index) => {
+    const isActive = index === activeReviewPosition
+    indicator.classList.toggle('is-active', isActive)
+    indicator.setAttribute('aria-current', isActive ? 'true' : 'false')
+  })
+
+  const visibleCount = getVisibleReviewCount()
+  const firstVisible = activeReviewPosition + 1
+  const lastVisible = Math.min(
+    reviewCards.length,
+    activeReviewPosition + visibleCount,
+  )
+  reviewsStatus.textContent = `Mostrando reseñas ${firstVisible} a ${lastVisible} de ${reviewCards.length}.`
+}
+
+const scrollToReviewPosition = (position, behavior = 'smooth') => {
+  activeReviewPosition = Math.max(
+    0,
+    Math.min(position, getLastReviewPosition()),
+  )
+  reviewsViewport.scrollTo({
+    left: reviewCards[activeReviewPosition].offsetLeft,
+    behavior:
+      window.matchMedia('(prefers-reduced-motion: reduce)').matches
+        ? 'auto'
+        : behavior,
+  })
+  updateReviewsControls()
+}
+
+const renderReviewIndicators = () => {
+  const positions = getLastReviewPosition() + 1
+  reviewsIndicators.innerHTML = Array.from(
+    { length: positions },
+    (_, index) => `
+      <button
+        class="reviews-indicator"
+        type="button"
+        aria-label="Mostrar reseñas desde la posición ${index + 1}"
+      ></button>
+    `,
+  ).join('')
+
+  ;[...reviewsIndicators.children].forEach((indicator, index) => {
+    indicator.addEventListener('click', () => scrollToReviewPosition(index))
+  })
+  updateReviewsControls()
+}
+
+reviewsPrevious.addEventListener('click', () =>
+  scrollToReviewPosition(activeReviewPosition - 1),
+)
+reviewsNext.addEventListener('click', () =>
+  scrollToReviewPosition(activeReviewPosition + 1),
+)
+
+reviewsViewport.addEventListener('keydown', (event) => {
+  if (event.key !== 'ArrowLeft' && event.key !== 'ArrowRight') return
+  event.preventDefault()
+  scrollToReviewPosition(
+    activeReviewPosition + (event.key === 'ArrowRight' ? 1 : -1),
+  )
+})
+
+reviewsViewport.addEventListener(
+  'scroll',
+  () => {
+    if (reviewScrollFrame) return
+    reviewScrollFrame = window.requestAnimationFrame(() => {
+      const closestPosition = reviewCards.reduce(
+        (closest, card, index) =>
+          Math.abs(card.offsetLeft - reviewsViewport.scrollLeft) <
+          Math.abs(reviewCards[closest].offsetLeft - reviewsViewport.scrollLeft)
+            ? index
+            : closest,
+        0,
+      )
+      activeReviewPosition = Math.min(
+        closestPosition,
+        getLastReviewPosition(),
+      )
+      updateReviewsControls()
+      reviewScrollFrame = 0
+    })
+  },
+  { passive: true },
+)
+
+window.addEventListener('resize', () => {
+  renderReviewIndicators()
+  scrollToReviewPosition(activeReviewPosition, 'auto')
+})
+
+renderReviewIndicators()
 
 const header = document.querySelector('[data-header]')
 const menuButton = document.querySelector('.menu-toggle')
