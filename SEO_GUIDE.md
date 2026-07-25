@@ -30,3 +30,17 @@ La puntuación Lighthouse debe medirse sobre producción en móvil y escritorio 
 La portada y las páginas legales incluyen metadatos principales. La página de experiencias añade marcado `Event` únicamente cuando recibe fechas ISO válidas. Se proporcionan manifest, iconos, páginas 404/500, `humans.txt` y `security.txt`.
 
 Las imágenes locales de mayor tamaño deben convertirse a formatos modernos y dimensionarse antes de poder garantizar Performance >95. Esta optimización no debe aplicarse renombrando recursos sin revisar todas sus referencias.
+
+## SEO LOCAL: CÁCERES Y EXTREMADURA
+
+- Palabra clave principal: `meditación en Cáceres`.
+- Palabra clave secundaria: `baños de sonido en Cáceres`.
+- Área principal: Cáceres y Extremadura.
+- Alcance adicional: desplazamientos para eventos, retiros y encuentros privados.
+- Dominio canónico: `https://viajessonoros.es`.
+- Páginas indexables: portada, experiencias y páginas legales públicas incluidas en el sitemap.
+- Páginas no indexables: accesos administrativos, restablecimiento de contraseña y páginas de error.
+- Google Search Console: verificar el dominio, enviar `https://viajessonoros.es/sitemap.xml` y revisar cobertura, experiencia y consultas locales.
+- Perfil de Empresa de Google: mantener la información real y coherente con la web, incluidas las áreas de servicio aplicables.
+- Reseñas: solicitar reseñas reales a participantes después de las experiencias, sin condicionar su contenido.
+- No inventar reseñas, sedes, horarios, coordenadas, premios ni otros datos locales.

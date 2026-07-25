@@ -542,6 +542,32 @@ app.innerHTML = `
       </div>
     </section>
 
+    <section class="local-seo-section" aria-labelledby="local-seo-title">
+      <div class="container local-seo-inner reveal">
+        <p class="eyebrow">En Cáceres, Extremadura y donde nos llame el sonido</p>
+        <h2 id="local-seo-title">Meditación y baños de sonido en Cáceres</h2>
+        <div class="local-seo-copy">
+          <p>
+            Viajes Sonoros crea experiencias de meditación, baños de sonido,
+            relajación profunda y escucha consciente principalmente en Cáceres
+            y Extremadura. A través del handpan, los cuencos, el gong, la voz,
+            la kora y otros instrumentos acústicos, proponemos encuentros para
+            detener el ritmo, respirar y volver al presente.
+          </p>
+          <p>
+            También nos desplazamos a otros lugares para participar en retiros,
+            eventos, hoteles, centros de bienestar, espacios culturales,
+            empresas, festivales y encuentros privados.
+          </p>
+          <p>
+            Cada experiencia se adapta al espacio, al grupo y al propósito del
+            encuentro, manteniendo siempre una propuesta cuidada, cercana y
+            respetuosa.
+          </p>
+        </div>
+      </div>
+    </section>
+
     <section class="experiences-section" id="experiencias" aria-labelledby="experiences-title">
       <div class="container editorial-layout">
         <aside class="section-intro reveal">
