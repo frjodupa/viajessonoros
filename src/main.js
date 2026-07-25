@@ -778,11 +778,14 @@ app.innerHTML = `
             </p>
           </div>
           <aside class="reviews-summary" aria-label="Valoración en Google">
-            <span>Reseñas reales de Google</span>
-            <strong>5,0</strong>
-            <span class="reviews-summary-stars" aria-hidden="true">★★★★★</span>
-            <span class="sr-only">Cinco estrellas sobre cinco</span>
-            <small>20 reseñas en Google</small>
+            <span class="reviews-summary-label">Reseñas reales de Google</span>
+            <div class="reviews-summary-rating">
+              <strong>5,0</strong>
+              <span class="reviews-summary-stars" aria-hidden="true">★★★★★</span>
+              <span class="sr-only">Cinco estrellas sobre cinco</span>
+              <small>20 reseñas en Google</small>
+            </div>
+            <p>Testimonios publicados por participantes en nuestro perfil de Google.</p>
           </aside>
         </div>
 
@@ -824,6 +827,20 @@ app.innerHTML = `
                     aria-roledescription="diapositiva"
                     aria-label="${index + 1} de ${GOOGLE_REVIEWS.length}"
                   >
+                    <header class="review-header">
+                      <span
+                        class="review-initials review-initials-${index % 4}"
+                        aria-hidden="true"
+                      >${getReviewInitials(name)}</span>
+                      <div class="review-author">
+                        <strong>${name}</strong>
+                        <span>${date} · Google</span>
+                      </div>
+                      <span class="review-google-mark" aria-label="Google">
+                        <span class="review-google-g" aria-hidden="true">G</span>
+                        <span>Google</span>
+                      </span>
+                    </header>
                     <div class="review-stars">
                       <span aria-hidden="true">★★★★★</span>
                       <span class="sr-only">Cinco estrellas</span>
@@ -831,13 +848,6 @@ app.innerHTML = `
                     <blockquote>
                       <p>${text}</p>
                     </blockquote>
-                    <footer class="review-author">
-                      <span class="review-initials" aria-hidden="true">${getReviewInitials(name)}</span>
-                      <div>
-                        <strong>${name}</strong>
-                        <span>${date} · Google</span>
-                      </div>
-                    </footer>
                   </article>
                 `,
               ).join('')}
@@ -1154,14 +1164,36 @@ const getVisibleReviewCount = () => {
 const getLastReviewPosition = () =>
   Math.max(0, reviewCards.length - getVisibleReviewCount())
 
+const getReviewPagePositions = () => {
+  const visibleCount = getVisibleReviewCount()
+  const lastPosition = getLastReviewPosition()
+  const positions = []
+
+  for (let position = 0; position < lastPosition; position += visibleCount) {
+    positions.push(position)
+  }
+
+  if (!positions.includes(lastPosition)) positions.push(lastPosition)
+  return positions
+}
+
 const updateReviewsControls = () => {
   const lastPosition = getLastReviewPosition()
   activeReviewPosition = Math.min(activeReviewPosition, lastPosition)
   reviewsPrevious.disabled = activeReviewPosition === 0
   reviewsNext.disabled = activeReviewPosition === lastPosition
 
-  ;[...reviewsIndicators.children].forEach((indicator, index) => {
-    const isActive = index === activeReviewPosition
+  const pagePositions = getReviewPagePositions()
+  const activePagePosition = pagePositions.reduce((closest, position) =>
+    Math.abs(position - activeReviewPosition) <
+    Math.abs(closest - activeReviewPosition)
+      ? position
+      : closest,
+  )
+
+  ;[...reviewsIndicators.children].forEach((indicator) => {
+    const isActive =
+      Number(indicator.dataset.position) === activePagePosition
     indicator.classList.toggle('is-active', isActive)
     indicator.setAttribute('aria-current', isActive ? 'true' : 'false')
   })
@@ -1191,37 +1223,52 @@ const scrollToReviewPosition = (position, behavior = 'smooth') => {
 }
 
 const renderReviewIndicators = () => {
-  const positions = getLastReviewPosition() + 1
-  reviewsIndicators.innerHTML = Array.from(
-    { length: positions },
-    (_, index) => `
+  const positions = getReviewPagePositions()
+  reviewsIndicators.innerHTML = positions
+    .map(
+      (position, index) => `
       <button
         class="reviews-indicator"
         type="button"
-        aria-label="Mostrar reseñas desde la posición ${index + 1}"
+        data-position="${position}"
+        aria-label="Mostrar página ${index + 1} de reseñas"
       ></button>
     `,
-  ).join('')
+    )
+    .join('')
 
-  ;[...reviewsIndicators.children].forEach((indicator, index) => {
-    indicator.addEventListener('click', () => scrollToReviewPosition(index))
+  ;[...reviewsIndicators.children].forEach((indicator) => {
+    indicator.addEventListener('click', () =>
+      scrollToReviewPosition(Number(indicator.dataset.position)),
+    )
   })
   updateReviewsControls()
 }
 
-reviewsPrevious.addEventListener('click', () =>
-  scrollToReviewPosition(activeReviewPosition - 1),
-)
-reviewsNext.addEventListener('click', () =>
-  scrollToReviewPosition(activeReviewPosition + 1),
-)
+const scrollToAdjacentReviewPage = (direction) => {
+  const pagePositions = getReviewPagePositions()
+  const currentPage = pagePositions.reduce(
+    (closestIndex, position, index) =>
+      Math.abs(position - activeReviewPosition) <
+      Math.abs(pagePositions[closestIndex] - activeReviewPosition)
+        ? index
+        : closestIndex,
+    0,
+  )
+  const nextPage = Math.max(
+    0,
+    Math.min(currentPage + direction, pagePositions.length - 1),
+  )
+  scrollToReviewPosition(pagePositions[nextPage])
+}
+
+reviewsPrevious.addEventListener('click', () => scrollToAdjacentReviewPage(-1))
+reviewsNext.addEventListener('click', () => scrollToAdjacentReviewPage(1))
 
 reviewsViewport.addEventListener('keydown', (event) => {
   if (event.key !== 'ArrowLeft' && event.key !== 'ArrowRight') return
   event.preventDefault()
-  scrollToReviewPosition(
-    activeReviewPosition + (event.key === 'ArrowRight' ? 1 : -1),
-  )
+  scrollToAdjacentReviewPage(event.key === 'ArrowRight' ? 1 : -1)
 })
 
 reviewsViewport.addEventListener(
