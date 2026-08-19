@@ -356,6 +356,58 @@ body.operational-page a:hover {
   text-underline-offset: 4px;
 }
 
+.admin-password-field {
+  position: relative;
+  margin: 10px 0;
+}
+
+.admin-password-field #clave-input {
+  width: 100%;
+  margin: 0;
+  padding: 10px 48px 10px 10px;
+  border: 1px solid #ede8f3;
+  border-radius: 20px;
+}
+
+.experiences-page main .password-visibility-button {
+  position: absolute;
+  top: 50%;
+  right: 5px;
+  width: 38px;
+  min-height: 38px;
+  padding: 8px;
+  border: 0;
+  color: #6b5a78;
+  background: transparent;
+  cursor: pointer;
+  transform: translateY(-50%);
+}
+
+.password-visibility-button svg {
+  display: block;
+  width: 20px;
+  height: 20px;
+  fill: none;
+  stroke: currentColor;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 1.7;
+}
+
+.password-visibility-button .eye-closed,
+.password-visibility-button[aria-pressed="true"] .eye-open {
+  display: none;
+}
+
+.password-visibility-button[aria-pressed="true"] .eye-closed {
+  display: block;
+}
+
+.experiences-page main .password-visibility-button:focus-visible {
+  outline: 2px solid var(--vs-gold);
+  outline-offset: 1px;
+}
+
 .experiences-page main .admin-recovery-link:hover {
   color: var(--vs-purple-dark);
   text-decoration-color: currentColor;
