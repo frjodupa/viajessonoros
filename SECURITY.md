@@ -1,6 +1,6 @@
 # Seguridad de Viajes Sonoros
 
-Auditoría: 24 de julio de 2026.
+Auditoría: 19 de agosto de 2026.
 
 ## Controles activos
 
@@ -16,7 +16,7 @@ Auditoría: 24 de julio de 2026.
 
 - Supabase: tabla y almacenamiento de experiencias.
 - `localStorage`: `vs_eventos` y `sb_anon_key`, ambos de finalidad técnica.
-- esm.sh: recurso externo de la página de experiencias. Las tipografías se alojan localmente.
+- Las tipografías y los scripts se alojan localmente; Supabase es la única conexión externa de datos.
 - No se detecta `sessionStorage`.
 
 ## Verificaciones pendientes fuera del repositorio
@@ -31,13 +31,13 @@ Auditoría: 24 de julio de 2026.
 - Analítica, publicidad, píxeles, mapas o vídeos embebidos: no detectados.
 - `localStorage`: uso técnico de `vs_eventos` y `sb_anon_key`.
 - `sessionStorage`: no detectado.
-- Scripts externos: esm.sh en la página de experiencias.
+- Scripts externos: no detectados.
 - Fuentes externas: no; Cormorant Garamond y Montserrat se sirven desde el propio dominio.
 - Dependencias npm: 0 vulnerabilidades conocidas en `npm audit`.
 - Secretos privados versionados: no detectados; `.env` está ignorado.
 - Cabeceras: CSP, HSTS, Referrer-Policy, Permissions-Policy, X-Frame-Options y X-Content-Type-Options configuradas.
 - Sanitización: la landing escapa los datos dinámicos; la página pública de experiencias ha incorporado escapado de texto, validación de URL e identificadores.
-- Supabase: la URL configurada en `.env` no coincide con la usada por la landing y ninguno de los hostnames comprobados resolvió por DNS el 24 de julio de 2026. No se pudieron validar CORS, RLS ni lectura de experiencias.
+- Supabase: el frontend utiliza únicamente la URL del proyecto y la clave anónima mediante variables `VITE_*`; RLS y las políticas del bucket deben verificarse manualmente en el panel.
 
 ## Riesgo conocido
 
