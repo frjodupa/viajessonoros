@@ -156,14 +156,57 @@ const links = {
     'Hola, quiero información sobre las experiencias de Viajes Sonoros.',
   ),
   upcomingDates: whatsappLink(
-    'Hola, me gustaría recibir información sobre las próximas experiencias de Viajes Sonoros y autorizo voluntariamente que me incluyáis en vuestra lista de difusión de WhatsApp. Sé que puedo solicitar la baja en cualquier momento.',
+    'Hola, quiero apuntarme a la lista de difusión de Viajes Sonoros para recibir las próximas experiencias.',
   ),
   usbCard: whatsappLink(
-    'Hola.\nQuiero comprar la Tarjeta USB de Viajes Sonoros.',
+    'Hola, quiero comprar la Tarjeta USB de Viajes Sonoros.',
   ),
   woodenDrive: whatsappLink(
-    'Hola.\nQuiero comprar el Pendrive de madera de Viajes Sonoros.',
+    'Hola, quiero comprar el Pendrive de madera de Viajes Sonoros.',
   ),
+  shopHelp: whatsappLink(
+    'Hola, quiero información para comprar un producto de Viajes Sonoros y calcular el envío a mi ciudad.',
+  ),
+}
+
+const productDetails = {
+  tarjeta: {
+    name: 'Tarjeta USB',
+    image: '/tarjeta-oficial.jpeg',
+    alt: 'Tarjeta USB de Viajes Sonoros',
+    price: '10 €',
+    description:
+      'Contiene audio listo para tu práctica diaria. Música, meditaciones y recursos para inspirarte.',
+    contents: [
+      'Música del álbum Luz',
+      'Hand-Qazeres (Live): handpan en directo grabado en la parte antigua de Cáceres',
+      'Kirtan y mantras',
+      'Meditaciones guiadas',
+      'Sonidos de la naturaleza',
+      'Viajes sonoros',
+      'Recursos para tu práctica diaria',
+    ],
+    link: links.usbCard,
+  },
+  pendrive: {
+    name: 'Pendrive de madera',
+    image: '/pendrive-oficial.jpg',
+    imageClass: 'product-image-blended',
+    alt: 'Pendrive de madera de Viajes Sonoros',
+    price: '20 €',
+    description:
+      'Belleza natural con todo el contenido de Viajes Sonoros. Un bonito regalo para ti o para alguien especial.',
+    contents: [
+      'Todo el contenido de la Tarjeta USB',
+      'Hand-Qazeres (Live): handpan en directo grabado en la parte antigua de Cáceres',
+      'Más de 2 GB de contenido',
+      'Vídeos exclusivos',
+      'PDFs y material de apoyo',
+      'Recursos adicionales de Viajes Sonoros',
+      'Presentación en madera natural',
+    ],
+    link: links.woodenDrive,
+  },
 }
 
 const experiences = [
@@ -365,9 +408,23 @@ const isPublishedExperience = (experience) => {
 const getExperienceDate = (experience) =>
   parseExperienceDate(experience.fecha)
 
+const hasConfirmedExperiencePlace = (experience) => {
+  const place = String(experience.lugar || '').trim()
+  if (!place) return false
+
+  const normalizedPlace = place
+    .toLocaleLowerCase('es')
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+
+  return !/^(lugar\s+)?(por confirmar|pendiente|proximamente|a determinar)$/.test(
+    normalizedPlace,
+  )
+}
+
 const isExperienceReservable = (experience, now = new Date()) => {
   const eventDate = getExperienceDate(experience)
-  if (!eventDate) return true
+  if (!eventDate || !hasConfirmedExperiencePlace(experience)) return false
 
   const timeMatch = String(experience.hora || '').match(/^(\d{1,2}):(\d{2})/)
 
@@ -421,21 +478,6 @@ const selectLandingExperiences = (items) => {
       )
     })
     .slice(0, LANDING_EVENTS_LIMIT)
-}
-
-const getEventIcon = (experience) => {
-  const title = String(experience.titulo || '').toLocaleLowerCase('es')
-
-  if (title.includes('handpan')) return 'handpan'
-  if (
-    title.includes('kirtan') ||
-    title.includes('concierto') ||
-    title.includes('música')
-  ) {
-    return 'music'
-  }
-
-  return 'users'
 }
 
 const getEventWhatsAppLink = (experience) => {
@@ -503,7 +545,7 @@ const readExperiences = async () => {
 }
 
 const renderLandingEvent = (experience, isSingle = false) => {
-  const id = escapeHTML(experience.id)
+  const id = String(experience.id ?? '').replace(/[^a-zA-Z0-9_-]/g, '')
   const title = escapeHTML(experience.titulo || 'Experiencia Viajes Sonoros')
   const date = escapeHTML(
     formatExperienceDate(experience.fecha) || 'Fecha por confirmar',
@@ -520,8 +562,8 @@ const renderLandingEvent = (experience, isSingle = false) => {
       experience.status ||
       'Próxima experiencia',
   )
-  const iconName = getEventIcon(experience)
-  const reserveButton = isExperienceReservable(experience)
+  const isReservable = isExperienceReservable(experience)
+  const experienceAction = isReservable
     ? `
         <a
           class="whatsapp-reserve-button"
@@ -534,7 +576,18 @@ const renderLandingEvent = (experience, isSingle = false) => {
           Reservar por WhatsApp
         </a>
       `
-    : ''
+    : `
+        <a
+          class="whatsapp-reserve-button"
+          href="${links.upcomingDates}"
+          target="_blank"
+          rel="noopener noreferrer"
+          onclick="event.stopPropagation()"
+        >
+          ${icons.whatsapp}
+          Quiero recibir las próximas fechas
+        </a>
+      `
 
   return `
     <article class="event-card${isSingle ? ' event-card-single' : ''} reveal is-visible" onclick="window.abrirExperiencia('${id}',this)">
@@ -546,7 +599,6 @@ const renderLandingEvent = (experience, isSingle = false) => {
         >
         <span class="event-tag">${status}</span>
       </div>
-      <span class="round-icon event-icon" aria-hidden="true">${icons[iconName]}</span>
       <div class="event-content">
         <h3>${title}</h3>
         <ul>
@@ -557,7 +609,7 @@ const renderLandingEvent = (experience, isSingle = false) => {
         ${description ? `<p class="event-description">${description}</p>` : ''}
         <div class="event-actions">
           <button class="experience-detail-button" type="button" onclick="event.stopPropagation();window.abrirExperiencia('${id}',this)">Ver experiencia</button>
-          ${reserveButton}
+          ${experienceAction}
         </div>
       </div>
     </article>
@@ -589,10 +641,10 @@ app.innerHTML = `
 
       <nav class="main-nav" id="main-nav" aria-label="Navegación principal">
         <a class="active" href="#inicio">Inicio</a>
+        <a href="#tienda">Tienda</a>
+        <a href="#eventos">Próximas experiencias</a>
         <a href="#experiencias">Experiencias</a>
         <a href="#instrumentos">Instrumentos</a>
-        <a href="/experiencias.html">Próximas fechas</a>
-        <a href="#tienda">Tienda</a>
         <a href="#nosotros">Sobre nosotros</a>
         <a href="#contacto">Contacto</a>
       </nav>
@@ -603,23 +655,14 @@ app.innerHTML = `
     <section class="hero" id="inicio" aria-labelledby="hero-title">
       <div class="container hero-inner">
         <div class="hero-copy reveal">
-          <h1 id="hero-title">Viajes sonoros en Cáceres.<strong>Vuelve a ti.</strong></h1>
-          <p>
-            Experiencias de sonido, meditación,<br>
-            relajación profunda y conexión interior.
-          </p>
+          <h1 id="hero-title">Lleva la experiencia de <strong>Viajes Sonoros contigo</strong></h1>
+          <p>Música, meditación y sonido para crear tu propio espacio de calma, estés donde estés</p>
           <div class="hero-actions">
-            <a class="button button-primary" href="/experiencias.html">
-              Ver próximas experiencias ${renderIcon('arrow', 'icon-arrow')}
+            <a class="button button-primary" href="#tarjeta-usb">
+              Descubrir la tarjeta ${renderIcon('arrow', 'icon-arrow')}
             </a>
-            <a
-              class="button button-whatsapp"
-              href="${links.general}"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              ${renderIcon('whatsapp', 'icon-brand icon-whatsapp')}
-              Reservar por WhatsApp
+            <a class="button button-whatsapp" href="#pendrive-madera">
+              Descubrir el pendrive ${renderIcon('arrow', 'icon-arrow')}
             </a>
           </div>
         </div>
@@ -783,8 +826,8 @@ app.innerHTML = `
     <section class="events-section" id="eventos" aria-labelledby="events-title">
       <div class="container editorial-layout">
         <aside class="section-intro reveal">
-          <p class="eyebrow">Próximos eventos</p>
-          <h2 id="events-title">Próximos<br>eventos</h2>
+          <p class="eyebrow">Próximas experiencias</p>
+          <h2 id="events-title">Próximas experiencias</h2>
           <p>Próximas experiencias para encontrarte, respirar y volver a ti.</p>
           <a
             class="outline-link"
@@ -806,6 +849,24 @@ app.innerHTML = `
             Cargando próximas experiencias…
           </div>
         </div>
+      </div>
+    </section>
+
+    <section class="events-capture" aria-labelledby="events-capture-title">
+      <div class="container events-capture-inner reveal">
+        <div>
+          <h2 id="events-capture-title">Sé la primera persona en conocer nuestras próximas experiencias</h2>
+          <p>Apúntate a nuestra lista de difusión y recibe las nuevas fechas, lugares y propuestas de Viajes Sonoros directamente en WhatsApp.</p>
+        </div>
+        <a
+          class="button button-primary"
+          href="${links.upcomingDates}"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          ${renderIcon('whatsapp', 'icon-brand icon-whatsapp')}
+          Unirme a la lista de difusión
+        </a>
       </div>
     </section>
 
@@ -959,14 +1020,9 @@ app.innerHTML = `
 
     <section class="shop-section" id="tienda" aria-labelledby="shop-title">
       <div class="container shop-block">
-          <div class="shop-intro reveal">
-            <p class="eyebrow">Tienda</p>
-            <h2 id="shop-title">Lleva el sonido contigo.</h2>
-            <p>Recursos para tu práctica diaria y tu bienestar.</p>
-          </div>
-
+          <h2 class="sr-only" id="shop-title">Tienda de Viajes Sonoros</h2>
           <div class="product-grid">
-            <article class="product-card product-card-usb reveal">
+            <article class="product-card product-card-usb reveal" id="tarjeta-usb">
               <div class="product-image">
                 <img
                   src="/tarjeta-oficial.jpeg"
@@ -985,36 +1041,34 @@ app.innerHTML = `
                   <strong>Incluye</strong>
                   <ul>
                     <li>Música del álbum Luz</li>
-                    <li>Hand-Qazeres (Live): handpan en directo grabado en la parte antigua de Cáceres</li>
-                    <li>Kirtan y mantras</li>
                     <li>Meditaciones guiadas</li>
-                    <li>Sonidos de la naturaleza</li>
                     <li>Viajes sonoros</li>
-                    <li>Recursos para tu práctica diaria</li>
                   </ul>
                 </div>
-                <a
-                  class="product-button"
-                  href="${links.usbCard}"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
-                  ${renderIcon('whatsapp', 'icon-brand icon-whatsapp')}
-                  Pedir por WhatsApp
-                </a>
+                <div class="product-actions">
+                  <button class="product-detail-button" type="button" onclick="window.abrirProducto('tarjeta',this)">Ver todos los detalles</button>
+                  <a class="product-button" href="${links.usbCard}" target="_blank" rel="noopener noreferrer">
+                    ${renderIcon('whatsapp', 'icon-brand icon-whatsapp')}
+                    Comprar por WhatsApp
+                  </a>
+                </div>
               </div>
             </article>
 
-            <article class="product-card product-card-wood reveal">
+            <article class="product-card product-card-wood reveal" id="pendrive-madera">
               <div class="product-image">
                 <img
+                  class="product-image-blended"
                   src="/pendrive-oficial.jpg"
                   alt="Pendrive de madera de Viajes Sonoros"
                   loading="lazy"
                 >
               </div>
               <div class="product-content">
-                <h3>Pendrive de madera</h3>
+                <div class="product-heading">
+                  <h3>Pendrive de madera</h3>
+                  <span class="product-badge">Más completo</span>
+                </div>
                 <strong>20 € <small>+ envío</small></strong>
                 <p>
                   Belleza natural con todo el contenido de Viajes Sonoros. Un
@@ -1024,23 +1078,17 @@ app.innerHTML = `
                   <strong>Incluye</strong>
                   <ul>
                     <li>Todo el contenido de la Tarjeta USB</li>
-                    <li>Hand-Qazeres (Live): handpan en directo grabado en la parte antigua de Cáceres</li>
                     <li>Más de 2 GB de contenido</li>
-                    <li>Vídeos exclusivos</li>
-                    <li>PDFs y material de apoyo</li>
-                    <li>Recursos adicionales de Viajes Sonoros</li>
-                    <li>Presentación en madera natural</li>
+                    <li>Vídeos exclusivos y material de apoyo</li>
                   </ul>
                 </div>
-                <a
-                  class="product-button"
-                  href="${links.woodenDrive}"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
-                  ${renderIcon('whatsapp', 'icon-brand icon-whatsapp')}
-                  Pedir por WhatsApp
-                </a>
+                <div class="product-actions">
+                  <button class="product-detail-button" type="button" onclick="window.abrirProducto('pendrive',this)">Ver todos los detalles</button>
+                  <a class="product-button" href="${links.woodenDrive}" target="_blank" rel="noopener noreferrer">
+                    ${renderIcon('whatsapp', 'icon-brand icon-whatsapp')}
+                    Comprar por WhatsApp
+                  </a>
+                </div>
               </div>
             </article>
           </div>
@@ -1053,6 +1101,69 @@ app.innerHTML = `
           width="1983"
           height="793"
         >
+      </div>
+    </section>
+
+    <section class="purchase-guide" aria-labelledby="purchase-guide-title">
+      <div class="container purchase-guide-inner">
+        <div class="purchase-guide-heading reveal">
+          <p class="eyebrow">Cómo comprar</p>
+          <h2 id="purchase-guide-title">Comprar es muy sencillo</h2>
+        </div>
+
+        <ol class="purchase-steps">
+          <li class="purchase-step reveal">
+            <span aria-hidden="true">1</span>
+            <div>
+              <h3>Elige tu formato</h3>
+              <p>Selecciona la Tarjeta USB o el Pendrive de madera y escríbenos por WhatsApp.</p>
+            </div>
+          </li>
+          <li class="purchase-step reveal">
+            <span aria-hidden="true">2</span>
+            <div>
+              <h3>Calculamos el envío</h3>
+              <p>Indícanos la ciudad de entrega. Calcularemos el envío y te confirmaremos el precio final antes del pago.</p>
+            </div>
+          </li>
+          <li class="purchase-step reveal">
+            <span aria-hidden="true">3</span>
+            <div>
+              <h3>Pago y preparación</h3>
+              <p>El pago se realiza mediante Bizum. Una vez recibido, preparamos el envío ese mismo día dentro del horario de gestión o el siguiente día hábil.</p>
+            </div>
+          </li>
+        </ol>
+
+        <div class="purchase-faq reveal">
+          <h3>Preguntas frecuentes</h3>
+          <details>
+            <summary>¿Cómo se realiza el pago?</summary>
+            <p>El pago se realiza mediante Bizum después de confirmar contigo el pedido y el importe final.</p>
+          </details>
+          <details>
+            <summary>¿Cuánto cuesta el envío?</summary>
+            <p>Se calcula según la ciudad o destino de entrega y se añade al precio final antes de realizar el pago.</p>
+          </details>
+          <details>
+            <summary>¿Dónde realizáis envíos?</summary>
+            <p>Enviamos al destino que nos indiques. Antes del pago calculamos el coste correspondiente y te confirmamos el precio completo.</p>
+          </details>
+          <details>
+            <summary>¿Cuándo se prepara el pedido?</summary>
+            <p>Si recibimos el pago dentro del horario de gestión de envíos, lo preparamos ese mismo día. En caso contrario, el siguiente día hábil.</p>
+          </details>
+        </div>
+
+        <a
+          class="button button-primary purchase-guide-cta reveal"
+          href="${links.shopHelp}"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          ${renderIcon('whatsapp', 'icon-brand icon-whatsapp')}
+          Consultar y comprar por WhatsApp
+        </a>
       </div>
     </section>
 
@@ -1117,10 +1228,70 @@ app.innerHTML = `
   </footer>
 
   <button class="back-to-top" type="button" aria-label="Volver arriba">↑</button>
+  <dialog class="product-detail-dialog" id="product-detail-dialog" aria-labelledby="product-detail-title">
+    <div id="product-detail-content"></div>
+  </dialog>
   ${landingExperienceDetail.modalHTML}
 `
 
+const heroSection = document.querySelector('.hero')
+const shopSection = document.querySelector('.shop-section')
+const purchaseGuideSection = document.querySelector('.purchase-guide')
+const eventsSection = document.querySelector('.events-section')
+
+heroSection.after(shopSection)
+shopSection.after(purchaseGuideSection)
+purchaseGuideSection.after(eventsSection)
+
 landingExperienceDetail.bind()
+
+const productDialog = document.querySelector('#product-detail-dialog')
+const productDialogContent = document.querySelector('#product-detail-content')
+let productDetailTrigger = null
+
+window.cerrarProducto = () => {
+  if (productDialog.open) productDialog.close()
+}
+
+window.abrirProducto = (productId, trigger) => {
+  const product = productDetails[productId]
+  if (!product) return
+  productDetailTrigger = trigger || document.activeElement
+  productDialogContent.innerHTML = `
+    <article class="product-detail-panel">
+      <button class="product-detail-close" type="button" aria-label="Cerrar detalles del producto" onclick="window.cerrarProducto()">×</button>
+      <div class="product-detail-media">
+        <img class="${product.imageClass || ''}" src="${product.image}" alt="${product.alt}">
+      </div>
+      <div class="product-detail-body">
+        <h2 id="product-detail-title">${product.name}</h2>
+        <strong class="product-detail-price">${product.price} <small>+ envío</small></strong>
+        <p>${product.description}</p>
+        <section aria-labelledby="product-detail-contents-title">
+          <h3 id="product-detail-contents-title">Incluye</h3>
+          <ul>${product.contents.map((item) => `<li>${item}</li>`).join('')}</ul>
+        </section>
+        <a class="product-button product-detail-buy" href="${product.link}" target="_blank" rel="noopener noreferrer">
+          ${renderIcon('whatsapp', 'icon-brand icon-whatsapp')}
+          Comprar por WhatsApp
+        </a>
+      </div>
+    </article>
+  `
+  productDialog.showModal()
+  document.body.classList.add('product-detail-open')
+  productDialog.querySelector('.product-detail-close')?.focus()
+}
+
+productDialog.addEventListener('click', (event) => {
+  if (event.target === productDialog) window.cerrarProducto()
+})
+
+productDialog.addEventListener('close', () => {
+  document.body.classList.remove('product-detail-open')
+  productDetailTrigger?.focus()
+  productDetailTrigger = null
+})
 
 const eventsGrid = document.querySelector('#landing-events')
 const eventsAgendaLink = document.querySelector('#events-agenda-link')
@@ -1149,18 +1320,8 @@ const loadLandingEvents = async () => {
             <strong>Estamos preparando nuestras próximas experiencias</strong>
             <div class="events-empty-copy">
               <p>Muy pronto compartiremos nuevas fechas para volver a encontrarnos a través del sonido, la presencia y la calma.</p>
-              <p>Si deseas conocer nuestras próximas experiencias, puedes escribirnos voluntariamente por WhatsApp y solicitar que te incluyamos en nuestra lista de difusión. Solo recibirás información relacionada con Viajes Sonoros y podrás darte de baja cuando lo desees.</p>
             </div>
             <div class="events-empty-actions">
-              <a
-                class="button button-primary"
-                href="${links.upcomingDates}"
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                ${renderIcon('whatsapp', 'icon-brand icon-whatsapp')}
-                Quiero recibir próximas fechas
-              </a>
               <a class="outline-link" href="/experiencias.html">
                 Conocer todas las experiencias ${renderIcon('arrow', 'icon-arrow')}
               </a>
@@ -1441,6 +1602,17 @@ window.addEventListener('resize', () => {
 backToTop.addEventListener('click', () => {
   window.scrollTo({ top: 0, behavior: 'smooth' })
 })
+
+if ('IntersectionObserver' in window) {
+  const backToTopSafeAreaObserver = new IntersectionObserver((entries) => {
+    const overlapsActions = entries.some((entry) => entry.isIntersecting)
+    backToTop.classList.toggle('is-suppressed', overlapsActions)
+  })
+
+  ;[shopSection, eventsSection].forEach((section) =>
+    backToTopSafeAreaObserver.observe(section),
+  )
+}
 
 const revealElements = document.querySelectorAll('.reveal')
 

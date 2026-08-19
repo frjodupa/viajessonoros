@@ -56,9 +56,12 @@ body.experience-detail-open {
 
 .experience-detail-dialog .experience-detail-close {
   position: absolute !important;
-  inset: 16px 16px auto auto !important;
+  top: 16px !important;
+  right: 16px !important;
+  left: auto !important;
   z-index: 10;
   width: 44px;
+  height: 44px;
   min-height: 44px;
   display: grid;
   margin: 0 !important;
@@ -68,7 +71,7 @@ body.experience-detail-open {
   border: 0;
   border-radius: 50% !important;
   color: var(--vs-purple, var(--purple, #64257d));
-  background: rgba(255, 255, 255, 0.9);
+  background: #fff;
   box-shadow: 0 6px 18px rgba(42, 22, 49, 0.16);
   cursor: pointer;
   font-size: 1.85rem;
