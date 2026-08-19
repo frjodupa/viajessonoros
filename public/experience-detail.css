@@ -1,0 +1,168 @@
+body.experience-detail-open {
+  overflow: hidden;
+}
+
+.experience-detail-dialog {
+  width: min(920px, calc(100% - 32px));
+  max-width: 920px;
+  max-height: min(88dvh, 880px);
+  padding: 0;
+  overflow-x: hidden;
+  overflow-y: auto;
+  border: 0;
+  border-radius: 24px;
+  color: var(--vs-ink, var(--ink, #2a1631));
+  background: var(--vs-paper, var(--paper, #fffbf7));
+  box-shadow: 0 30px 90px rgba(42, 22, 49, 0.3);
+}
+
+.experience-detail-dialog::backdrop {
+  background: rgba(31, 18, 35, 0.66);
+  backdrop-filter: blur(3px);
+}
+
+.experience-detail-panel {
+  position: relative;
+  min-width: 0;
+  display: grid;
+  grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
+}
+
+.experience-detail-media {
+  position: relative;
+  min-width: 0;
+}
+
+.experience-detail-image {
+  width: 100%;
+  height: 100%;
+  min-height: 480px;
+  display: block;
+  object-fit: cover;
+}
+
+.experience-detail-body {
+  position: relative;
+  min-width: 0;
+  padding: clamp(34px, 5vw, 54px);
+}
+
+.experience-detail-body h2 {
+  margin: 0 42px 24px 0;
+  color: var(--vs-ink, var(--ink, #2a1631));
+  font-size: clamp(2rem, 5vw, 3.4rem);
+  line-height: 1.02;
+}
+
+.experience-detail-dialog .experience-detail-close {
+  position: absolute !important;
+  inset: 16px 16px auto auto !important;
+  z-index: 10;
+  width: 44px;
+  min-height: 44px;
+  display: grid;
+  margin: 0 !important;
+  float: none !important;
+  padding: 0;
+  place-items: center;
+  border: 0;
+  border-radius: 50% !important;
+  color: var(--vs-purple, var(--purple, #64257d));
+  background: rgba(255, 255, 255, 0.9);
+  box-shadow: 0 6px 18px rgba(42, 22, 49, 0.16);
+  cursor: pointer;
+  font-size: 1.85rem;
+  font-weight: 400 !important;
+  line-height: 1;
+  transition: background-color 180ms ease, box-shadow 180ms ease, transform 180ms ease;
+}
+
+.experience-detail-dialog .experience-detail-close:hover {
+  background: #fff;
+  box-shadow: 0 8px 22px rgba(42, 22, 49, 0.2);
+  transform: translateY(-1px);
+}
+
+.experience-detail-dialog .experience-detail-close:focus-visible {
+  outline: 2px solid var(--vs-purple, var(--purple, #64257d));
+  outline-offset: 2px;
+  background: #fff;
+}
+
+.experience-detail-data {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+  margin: 0 0 24px;
+}
+
+.experience-detail-data div {
+  min-width: 0;
+  padding: 12px 14px;
+  border-radius: 12px;
+  background: #f8f3fa;
+}
+
+.experience-detail-data dt {
+  margin-bottom: 4px;
+  color: var(--vs-muted, var(--muted, #756779));
+  font-size: 0.72rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.experience-detail-data dd {
+  margin: 0;
+  overflow-wrap: anywhere;
+  font-weight: 600;
+}
+
+.experience-detail-description,
+.experience-detail-extra p {
+  margin: 0 0 26px;
+  overflow-wrap: anywhere;
+  color: #5f5762;
+  line-height: 1.75;
+  white-space: pre-line;
+}
+
+.experience-detail-extra h3 {
+  margin: 0 0 8px;
+  font-size: 1.25rem;
+}
+
+.experience-detail-dialog .experience-detail-reserve {
+  width: 100%;
+  justify-content: center;
+  margin-top: 8px;
+}
+
+@media (max-width: 700px) {
+  .experience-detail-dialog {
+    width: calc(100% - 20px);
+    max-height: 92dvh;
+    border-radius: 20px;
+  }
+
+  .experience-detail-panel {
+    grid-template-columns: 1fr;
+  }
+
+  .experience-detail-image {
+    height: 230px;
+    min-height: 0;
+  }
+
+  .experience-detail-body {
+    padding: 28px 20px 24px;
+  }
+
+  .experience-detail-body h2 {
+    margin-right: 44px;
+  }
+
+  .experience-detail-data {
+    grid-template-columns: 1fr;
+  }
+}

@@ -1,5 +1,6 @@
 import './style.css'
 import { supabase } from './supabase.js'
+import { installExperienceDetail } from './experience-detail.js'
 
 const PHONE = '34610056859'
 const LANDING_EVENTS_LIMIT = 3
@@ -481,11 +482,18 @@ const formatContribution = (value) => {
 }
 
 let experiencesSubscription = null
+let landingExperiences = []
+
+const landingExperienceDetail = installExperienceDetail({
+  getExperiences: () => landingExperiences,
+  getWhatsAppLink: getEventWhatsAppLink,
+  isReservable: isExperienceReservable,
+})
 
 const readExperiences = async () => {
   const { data, error } = await supabase
     .from('experiencias')
-    .select('id,titulo,fecha,hora,precio,lugar,descripcion,imagen_url,publicado,created_at')
+    .select('*')
     .eq('publicado', true)
     .order('fecha', { ascending: true })
     .order('hora', { ascending: true, nullsFirst: false })
@@ -495,6 +503,7 @@ const readExperiences = async () => {
 }
 
 const renderLandingEvent = (experience, isSingle = false) => {
+  const id = escapeHTML(experience.id)
   const title = escapeHTML(experience.titulo || 'Experiencia Viajes Sonoros')
   const date = escapeHTML(
     formatExperienceDate(experience.fecha) || 'Fecha por confirmar',
@@ -519,6 +528,7 @@ const renderLandingEvent = (experience, isSingle = false) => {
           href="${getEventWhatsAppLink(experience)}"
           target="_blank"
           rel="noopener noreferrer"
+          onclick="event.stopPropagation()"
         >
           ${icons.whatsapp}
           Reservar por WhatsApp
@@ -527,7 +537,7 @@ const renderLandingEvent = (experience, isSingle = false) => {
     : ''
 
   return `
-    <article class="event-card${isSingle ? ' event-card-single' : ''} reveal is-visible">
+    <article class="event-card${isSingle ? ' event-card-single' : ''} reveal is-visible" onclick="window.abrirExperiencia('${id}',this)">
       <div class="event-image">
         <img
           src="${escapeHTML(safeImageURL(experience.imagen_url))}"
@@ -545,7 +555,10 @@ const renderLandingEvent = (experience, isSingle = false) => {
           ${price ? `<li>${price}</li>` : ''}
         </ul>
         ${description ? `<p class="event-description">${description}</p>` : ''}
-        ${reserveButton}
+        <div class="event-actions">
+          <button class="experience-detail-button" type="button" onclick="event.stopPropagation();window.abrirExperiencia('${id}',this)">Ver experiencia</button>
+          ${reserveButton}
+        </div>
       </div>
     </article>
   `
@@ -1104,7 +1117,10 @@ app.innerHTML = `
   </footer>
 
   <button class="back-to-top" type="button" aria-label="Volver arriba">↑</button>
+  ${landingExperienceDetail.modalHTML}
 `
+
+landingExperienceDetail.bind()
 
 const eventsGrid = document.querySelector('#landing-events')
 const eventsAgendaLink = document.querySelector('#events-agenda-link')
@@ -1118,13 +1134,14 @@ const loadLandingEvents = async () => {
   try {
     const experiences = selectLandingExperiences(await readExperiences())
     if (requestId !== eventsRequestId) return
+    landingExperiences = experiences
 
-    eventsGrid.dataset.count = String(experiences.length)
-    eventsAgendaLink.hidden = experiences.length === 0
-    eventsGrid.innerHTML = experiences.length
-      ? experiences
+    eventsGrid.dataset.count = String(landingExperiences.length)
+    eventsAgendaLink.hidden = landingExperiences.length === 0
+    eventsGrid.innerHTML = landingExperiences.length
+      ? landingExperiences
           .map((experience) =>
-            renderLandingEvent(experience, experiences.length === 1),
+            renderLandingEvent(experience, landingExperiences.length === 1),
           )
           .join('')
       : `
