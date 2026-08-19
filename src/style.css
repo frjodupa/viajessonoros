@@ -46,9 +46,14 @@ html {
   scroll-padding-top: var(--header-height);
 }
 
+html,
+body {
+  max-width: 100%;
+  overflow-x: clip;
+}
+
 body {
   margin: 0;
-  overflow-x: hidden;
   color: var(--ink);
   background: var(--cream);
   font-family: var(--sans);
@@ -61,9 +66,16 @@ body.menu-open {
   overflow: hidden;
 }
 
-img {
-  display: block;
+img,
+video,
+svg {
   max-width: 100%;
+}
+
+img,
+video {
+  display: block;
+  height: auto;
 }
 
 a {
@@ -1343,6 +1355,7 @@ a {
 }
 
 .reviews-viewport {
+  contain: layout paint;
   overflow-x: auto;
   padding: 4px 2px 20px;
   scroll-behavior: smooth;
