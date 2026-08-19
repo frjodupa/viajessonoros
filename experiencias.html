@@ -47,6 +47,7 @@ const STORAGE_BUCKET='eventos'
 const whLink = (t)=>`https://api.whatsapp.com/send?phone=${WHATSAPP}&text=${encodeURIComponent(t)}`
 const UPCOMING_DATES_MESSAGE='Hola, me gustaría recibir información sobre las próximas experiencias de Viajes Sonoros y autorizo voluntariamente que me incluyáis en vuestra lista de difusión de WhatsApp. Sé que puedo solicitar la baja en cualquier momento.'
 const PASSWORD_RESET_REDIRECT='https://viajessonoros.es/reset-password.html'
+const AUTH_CONNECTION_MESSAGE='No se pudo conectar con el servicio de acceso. Inténtalo de nuevo en unos minutos.'
 const LOGO='/logo-oficial.png'
 const TEMPLATES=[
   {titulo:'Viaje Sonoro · Un espacio para volver a ti',precio:'Aportación voluntaria',lugar:'Cáceres · Espacio por confirmar',descripcion:'Una experiencia colectiva de sonido, vibración y presencia creada para detener el ritmo, respirar y escuchar. Handpan, cuencos, gong, voz e instrumentos orgánicos te acompañarán en un recorrido de relajación profunda y conexión interior. No necesitas experiencia previa. Plazas limitadas para cuidar la calidad del encuentro.'},
@@ -63,6 +64,9 @@ const isReservable=(ev,now=new Date())=>{const eventDate=parseLocalDate(ev.fecha
 const escapeHTML=(value)=>String(value??'').replace(/[&<>'"]/g,(character)=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[character]))
 const safeEventId=(value)=>String(value??'').replace(/[^a-zA-Z0-9_-]/g,'')
 const safeImageURL=(value)=>{try{const url=new URL(String(value||''),window.location.origin);return url.protocol==='https:'||(url.protocol==='http:'&&['localhost','127.0.0.1'].includes(url.hostname))?url.href:''}catch{return ''}}
+const authErrorDetails=(error)=>({message:error?.message||'Error desconocido',status:error?.status||null,code:error?.code||null})
+const isInvalidCredentials=(error)=>error?.code==='invalid_credentials'||error?.status===400&&/invalid login credentials/i.test(error?.message||'')
+const isAuthConnectionError=(error)=>!error?.status||/failed to fetch|fetch failed|network|load failed/i.test(error?.message||'')
 
 window.goInicio=()=>{ window.location.href='/' }
 window.goExperiencias=()=>{ view='experiencias'; render() }
@@ -82,7 +86,7 @@ window.reservarExperiencia=(id)=>{
 }
 
 const hasValidAdmin=async()=>{if(!supabase)return false;const {data,error}=await supabase.auth.getUser();user=error?null:data.user;return Boolean(user)}
-window.loginAdmin=async()=>{const errorElement=document.getElementById('login-error');if(!supabase){errorElement.textContent='Supabase no está configurado.';errorElement.style.display='block';return}const email=document.getElementById('email-input')?.value.trim();const password=document.getElementById('clave-input')?.value;const {data,error}=await supabase.auth.signInWithPassword({email,password});if(error){errorElement.textContent='Email o contraseña incorrectos.';errorElement.style.display='block';return}user=data.user;view='admin-panel';render()}
+window.loginAdmin=async()=>{const errorElement=document.getElementById('login-error');if(!supabase){errorElement.textContent='Supabase no está configurado.';errorElement.style.display='block';return}const email=document.getElementById('email-input')?.value.trim().toLowerCase();const password=document.getElementById('clave-input')?.value;try{const {data,error}=await supabase.auth.signInWithPassword({email,password});if(error)throw error;user=data.user;view='admin-panel';render()}catch(error){console.error('Supabase login error',authErrorDetails(error));errorElement.textContent=isInvalidCredentials(error)?'Email o contraseña incorrectos.':AUTH_CONNECTION_MESSAGE;errorElement.style.display='block'}}
 window.requestPasswordRecovery=async()=>{
   const email=document.getElementById('email-input')?.value.trim()||''
   const button=document.getElementById('recovery-button')
@@ -98,8 +102,10 @@ window.requestPasswordRecovery=async()=>{
     const {error}=await supabase.auth.resetPasswordForEmail(email,{redirectTo:PASSWORD_RESET_REDIRECT})
     if(error)throw error
     showMessage('Te hemos enviado un enlace para restablecer tu contraseña. Revisa también la carpeta de correo no deseado.','success')
-  }catch{
-    showMessage('No se pudo enviar el enlace de recuperación. Comprueba el correo e inténtalo de nuevo.')
+  }catch(error){
+    console.error('Supabase password recovery error',authErrorDetails(error))
+    const text=isAuthConnectionError(error)?AUTH_CONNECTION_MESSAGE:error?.status===429?'Se han realizado demasiados intentos. Espera unos minutos antes de volver a probar.':'No se pudo enviar el enlace. Comprueba la configuración de recuperación e inténtalo de nuevo.'
+    showMessage(text)
   }finally{
     button.disabled=false
     button.textContent='¿Has olvidado tu contraseña?'
