@@ -1,6 +1,9 @@
 import './style.css'
 import { supabase } from './supabase.js'
-import { installExperienceDetail } from './experience-detail.js'
+import {
+  installExperienceDetail,
+  linkifyBroadcastListMentions,
+} from './experience-detail.js'
 
 const PHONE = '34610056859'
 const LANDING_EVENTS_LIMIT = 3
@@ -824,8 +827,8 @@ app.innerHTML = `
     </section>
 
     <section class="events-section" id="eventos" aria-labelledby="events-title">
-      <div class="container editorial-layout">
-        <aside class="section-intro reveal">
+      <div class="container events-layout">
+        <header class="events-heading reveal">
           <p class="eyebrow">Próximas experiencias</p>
           <h2 id="events-title">Próximas experiencias</h2>
           <p>Próximas experiencias para encontrarte, respirar y volver a ti.</p>
@@ -833,11 +836,10 @@ app.innerHTML = `
             class="outline-link"
             id="events-agenda-link"
             href="/experiencias.html"
-            hidden
           >
             Ver agenda completa ${renderIcon('arrow', 'icon-arrow')}
           </a>
-        </aside>
+        </header>
 
         <div
           class="events-grid"
@@ -856,13 +858,14 @@ app.innerHTML = `
       <div class="container events-capture-inner reveal">
         <div>
           <h2 id="events-capture-title">Sé la primera persona en conocer nuestras próximas experiencias</h2>
-          <p>Apúntate a nuestra lista de difusión y recibe las nuevas fechas, lugares y propuestas de Viajes Sonoros directamente en WhatsApp.</p>
+          <p>Apúntate a nuestra <a class="broadcast-list-link" href="${links.upcomingDates}" target="_blank" rel="noopener noreferrer" aria-label="Apuntarse por WhatsApp a la lista de difusión de Viajes Sonoros">lista de difusión</a> y recibe las nuevas fechas, lugares y propuestas de Viajes Sonoros directamente en WhatsApp.</p>
         </div>
         <a
           class="button button-primary"
           href="${links.upcomingDates}"
           target="_blank"
           rel="noopener noreferrer"
+          aria-label="Apuntarse por WhatsApp a la lista de difusión de Viajes Sonoros"
         >
           ${renderIcon('whatsapp', 'icon-brand icon-whatsapp')}
           Unirme a la lista de difusión
@@ -1242,6 +1245,7 @@ const eventsSection = document.querySelector('.events-section')
 heroSection.after(shopSection)
 shopSection.after(purchaseGuideSection)
 purchaseGuideSection.after(eventsSection)
+linkifyBroadcastListMentions(app)
 
 landingExperienceDetail.bind()
 
@@ -1294,13 +1298,11 @@ productDialog.addEventListener('close', () => {
 })
 
 const eventsGrid = document.querySelector('#landing-events')
-const eventsAgendaLink = document.querySelector('#events-agenda-link')
 let eventsRequestId = 0
 
 const loadLandingEvents = async () => {
   const requestId = ++eventsRequestId
   eventsGrid.setAttribute('aria-busy', 'true')
-  eventsAgendaLink.hidden = true
 
   try {
     const experiences = selectLandingExperiences(await readExperiences())
@@ -1308,7 +1310,6 @@ const loadLandingEvents = async () => {
     landingExperiences = experiences
 
     eventsGrid.dataset.count = String(landingExperiences.length)
-    eventsAgendaLink.hidden = landingExperiences.length === 0
     eventsGrid.innerHTML = landingExperiences.length
       ? landingExperiences
           .map((experience) =>
@@ -1320,11 +1321,6 @@ const loadLandingEvents = async () => {
             <strong>Estamos preparando nuestras próximas experiencias</strong>
             <div class="events-empty-copy">
               <p>Muy pronto compartiremos nuevas fechas para volver a encontrarnos a través del sonido, la presencia y la calma.</p>
-            </div>
-            <div class="events-empty-actions">
-              <a class="outline-link" href="/experiencias.html">
-                Conocer todas las experiencias ${renderIcon('arrow', 'icon-arrow')}
-              </a>
             </div>
           </div>
         `
@@ -1342,6 +1338,7 @@ const loadLandingEvents = async () => {
     `
   } finally {
     if (requestId === eventsRequestId) {
+      linkifyBroadcastListMentions(eventsGrid)
       eventsGrid.setAttribute('aria-busy', 'false')
     }
   }
