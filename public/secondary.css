@@ -315,16 +315,15 @@ body.experience-detail-open {
   line-height: 1.02;
 }
 
-.experiences-page main .experience-detail-close {
-  position: absolute;
-  top: 16px;
-  right: 16px;
-  left: auto;
+.experiences-page .experience-detail-dialog .experience-detail-close {
+  position: absolute !important;
+  inset: 16px 16px auto auto !important;
   z-index: 10;
   width: 44px;
   min-height: 44px;
   display: grid;
-  margin: 0;
+  margin: 0 !important;
+  float: none !important;
   padding: 0;
   place-items: center;
   border: 0;
@@ -342,13 +341,13 @@ body.experience-detail-open {
     transform 180ms ease;
 }
 
-.experiences-page main .experience-detail-close:hover {
+.experiences-page .experience-detail-dialog .experience-detail-close:hover {
   background: #fff;
   box-shadow: 0 8px 22px rgba(42, 22, 49, 0.2);
   transform: translateY(-1px);
 }
 
-.experiences-page main .experience-detail-close:focus-visible {
+.experiences-page .experience-detail-dialog .experience-detail-close:focus-visible {
   outline: 2px solid var(--vs-purple);
   outline-offset: 2px;
   background: #fff;
