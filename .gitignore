@@ -12,6 +12,9 @@ dist
 .env
 .env.*
 !.env.example
+credentials*
+*credentials*.json
+service-account*.json
 dist-ssr
 *.local
 

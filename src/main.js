@@ -355,6 +355,21 @@ const isPublishedExperience = (experience) => {
 const getExperienceDate = (experience) =>
   parseExperienceDate(experience.fecha)
 
+const isExperienceReservable = (experience, now = new Date()) => {
+  const eventDate = getExperienceDate(experience)
+  if (!eventDate) return true
+
+  const timeMatch = String(experience.hora || '').match(/^(\d{1,2}):(\d{2})/)
+
+  if (timeMatch) {
+    eventDate.setHours(Number(timeMatch[1]), Number(timeMatch[2]), 0, 0)
+  } else {
+    eventDate.setHours(23, 59, 59, 999)
+  }
+
+  return eventDate >= now
+}
+
 const getExperienceIdentity = (experience) => {
   if (experience.id != null) return `id:${experience.id}`
 
@@ -488,6 +503,19 @@ const renderLandingEvent = (experience, isSingle = false) => {
       'Próxima experiencia',
   )
   const iconName = getEventIcon(experience)
+  const reserveButton = isExperienceReservable(experience)
+    ? `
+        <a
+          class="whatsapp-reserve-button"
+          href="${getEventWhatsAppLink(experience)}"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          ${icons.whatsapp}
+          Reservar por WhatsApp
+        </a>
+      `
+    : ''
 
   return `
     <article class="event-card${isSingle ? ' event-card-single' : ''} reveal is-visible">
@@ -508,15 +536,7 @@ const renderLandingEvent = (experience, isSingle = false) => {
           ${price ? `<li>${price}</li>` : ''}
         </ul>
         ${description ? `<p class="event-description">${description}</p>` : ''}
-        <a
-          class="whatsapp-reserve-button"
-          href="${getEventWhatsAppLink(experience)}"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          ${icons.whatsapp}
-          Reservar por WhatsApp
-        </a>
+        ${reserveButton}
       </div>
     </article>
   `

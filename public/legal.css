@@ -24,13 +24,23 @@
   --gold: #c8942f;
   --paper: #fffdf9;
   --line: #e7ddcf;
+  --shadow: 0 22px 64px rgba(57, 31, 67, .09);
 }
 
 * { box-sizing: border-box; }
 html { scroll-behavior: smooth; }
-body { margin: 0; line-height: 1.75; }
+body {
+  margin: 0;
+  color: #3f3742;
+  background:
+    radial-gradient(circle at 88% 8%, rgba(200, 148, 47, .11), transparent 24rem),
+    linear-gradient(180deg, #fffdf9, #faf7f1);
+  line-height: 1.8;
+  text-rendering: optimizeLegibility;
+}
 a { color: inherit; }
 img { display: block; max-width: 100%; }
+:focus-visible { outline: 3px solid rgba(200, 148, 47, .55); outline-offset: 4px; }
 
 .skip-link {
   position: fixed;
@@ -44,13 +54,18 @@ img { display: block; max-width: 100%; }
 .skip-link:focus { top: 12px; }
 
 .legal-header {
+  position: sticky;
+  top: 0;
+  z-index: 5;
   border-bottom: 1px solid var(--line);
-  background: rgba(255, 253, 249, .96);
+  background: rgba(255, 253, 249, .88);
+  box-shadow: 0 8px 32px rgba(57, 31, 67, .05);
+  backdrop-filter: blur(16px);
 }
 .header-inner,
 .legal-main,
 .footer-inner {
-  width: min(100% - 40px, 980px);
+  width: min(100% - 48px, 1080px);
   margin-inline: auto;
 }
 .header-inner {
@@ -62,15 +77,25 @@ img { display: block; max-width: 100%; }
 }
 .brand img { width: 112px; height: 76px; object-fit: contain; }
 .back {
+  min-height: 42px;
+  display: inline-flex;
+  align-items: center;
+  padding: 0 17px;
+  border: 1px solid rgba(100, 37, 125, .25);
+  border-radius: 999px;
   color: var(--purple);
   font-size: .82rem;
   font-weight: 600;
   text-decoration: none;
 }
 .back:hover,
-.back:focus-visible { text-decoration: underline; text-underline-offset: 4px; }
+.back:focus-visible {
+  border-color: var(--gold);
+  background: rgba(200, 148, 47, .07);
+  text-decoration: none;
+}
 
-.legal-main { padding: clamp(56px, 8vw, 96px) 0; }
+.legal-main { padding: clamp(64px, 9vw, 112px) 0; }
 .eyebrow {
   margin: 0 0 8px;
   color: var(--gold);
@@ -84,32 +109,41 @@ h1, h2 {
   font-family: "Cormorant Garamond", Georgia, serif;
   line-height: 1.08;
 }
-h1 { max-width: 780px; margin: 0 0 18px; font-size: clamp(2.7rem, 7vw, 4.8rem); }
-h2 { margin: 2.2rem 0 .7rem; font-size: clamp(1.65rem, 3vw, 2.2rem); }
+h1 { max-width: 860px; margin: 0 0 20px; font-size: clamp(2.9rem, 7vw, 5.2rem); letter-spacing: -.025em; }
+h2 { margin: 2.8rem 0 .85rem; font-size: clamp(1.75rem, 3vw, 2.35rem); }
 .updated { margin: 0 0 38px; color: #776d78; font-size: .8rem; }
 .legal-card {
   padding: clamp(26px, 5vw, 58px);
   border: 1px solid var(--line);
-  border-radius: 26px;
-  background: var(--paper);
-  box-shadow: 0 20px 55px rgba(57, 31, 67, .06);
+  border-radius: 30px;
+  background: rgba(255, 253, 249, .96);
+  box-shadow: var(--shadow);
 }
 .legal-card p,
-.legal-card li { font-size: .94rem; }
-.legal-card ul { padding-left: 1.25rem; }
-.legal-card a { color: var(--purple); }
+.legal-card li { font-size: 1rem; }
+.legal-card ul { padding-left: 1.35rem; }
+.legal-card li + li { margin-top: .45rem; }
+.legal-card a { color: var(--purple); font-weight: 600; text-underline-offset: 3px; }
+.legal-card a:hover { color: var(--gold); }
 .notice {
-  margin: 28px 0;
-  padding: 18px 20px;
+  margin: 32px 0;
+  padding: 22px 24px;
   border-left: 3px solid var(--gold);
-  background: #f7f0e4;
+  border-radius: 0 14px 14px 0;
+  background: linear-gradient(90deg, #f7f0e4, rgba(247, 240, 228, .45));
 }
 .table-wrap { overflow-x: auto; }
 table { width: 100%; border-collapse: collapse; font-size: .86rem; }
-th, td { padding: 12px; border: 1px solid var(--line); text-align: left; vertical-align: top; }
+th, td { padding: 15px; border: 1px solid var(--line); text-align: left; vertical-align: top; }
 th { color: var(--purple-dark); background: #f6f0f6; }
 
-.legal-footer { padding: 34px 0; color: #f8f2e9; background: var(--purple-dark); }
+.legal-footer {
+  padding: 42px 0;
+  color: #f8f2e9;
+  background:
+    radial-gradient(circle at 80% 0, rgba(200, 148, 47, .16), transparent 20rem),
+    var(--purple-dark);
+}
 .footer-inner { text-align: center; }
 .footer-inner nav { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px 22px; }
 .footer-inner a { font-size: .78rem; text-underline-offset: 3px; }
