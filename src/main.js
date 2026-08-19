@@ -1107,6 +1107,50 @@ app.innerHTML = `
       </div>
     </section>
 
+    <section class="product-comparison" aria-labelledby="product-comparison-title">
+      <div class="container product-comparison-inner">
+        <h2 id="product-comparison-title" class="reveal">¿Cuál es para ti?</h2>
+        <div class="product-comparison-grid">
+          <article class="product-comparison-item reveal">
+            <header>
+              <h3>Tarjeta USB</h3>
+              <strong>10 € <small>+ envío</small></strong>
+            </header>
+            <ul>
+              <li>Música del álbum Luz.</li>
+              <li>Meditaciones guiadas.</li>
+              <li>Viajes sonoros.</li>
+              <li>Formato sencillo y práctico.</li>
+            </ul>
+            <div class="product-comparison-actions">
+              <button class="product-detail-button" type="button" onclick="window.abrirProducto('tarjeta',this)">Ver detalles</button>
+              <a class="product-button" href="${links.usbCard}" target="_blank" rel="noopener noreferrer">Elegir Tarjeta USB</a>
+            </div>
+          </article>
+
+          <article class="product-comparison-item product-comparison-item-featured reveal">
+            <header>
+              <div>
+                <h3>Pendrive de madera</h3>
+                <span class="product-badge">Más completo</span>
+              </div>
+              <strong>20 € <small>+ envío</small></strong>
+            </header>
+            <ul>
+              <li>Todo el contenido de la Tarjeta USB.</li>
+              <li>Más de 2 GB de contenido.</li>
+              <li>Vídeos exclusivos, PDF y material de apoyo.</li>
+              <li>Presentación en madera natural.</li>
+            </ul>
+            <div class="product-comparison-actions">
+              <button class="product-detail-button" type="button" onclick="window.abrirProducto('pendrive',this)">Ver detalles</button>
+              <a class="product-button" href="${links.woodenDrive}" target="_blank" rel="noopener noreferrer">Elegir Pendrive de madera</a>
+            </div>
+          </article>
+        </div>
+      </div>
+    </section>
+
     <section class="purchase-guide" aria-labelledby="purchase-guide-title">
       <div class="container purchase-guide-inner">
         <div class="purchase-guide-heading reveal">
@@ -1239,11 +1283,13 @@ app.innerHTML = `
 
 const heroSection = document.querySelector('.hero')
 const shopSection = document.querySelector('.shop-section')
+const productComparisonSection = document.querySelector('.product-comparison')
 const purchaseGuideSection = document.querySelector('.purchase-guide')
 const eventsSection = document.querySelector('.events-section')
 
 heroSection.after(shopSection)
-shopSection.after(purchaseGuideSection)
+shopSection.after(productComparisonSection)
+productComparisonSection.after(purchaseGuideSection)
 purchaseGuideSection.after(eventsSection)
 linkifyBroadcastListMentions(app)
 
