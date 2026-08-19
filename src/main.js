@@ -168,6 +168,7 @@ const links = {
 const experiences = [
   {
     image: '/experiencia-grupo.jpg',
+    alt: 'Participantes recostados durante una experiencia sonora en grupo',
     icon: 'users',
     title: 'Viajes sonoros en grupo',
     description:
@@ -175,6 +176,7 @@ const experiences = [
   },
   {
     image: '/experiencia-privada.jpg',
+    alt: 'Sesión sonora privada acompañada con instrumentos acústicos',
     icon: 'person',
     title: 'Sesiones privadas',
     description:
@@ -182,6 +184,7 @@ const experiences = [
   },
   {
     image: '/experiencia-retiros.jpg',
+    alt: 'Encuentro de bienestar con música en directo al aire libre',
     icon: 'briefcase',
     title: 'Empresas, retiros y hoteles',
     description:
@@ -189,6 +192,7 @@ const experiences = [
   },
   {
     image: '/experiencia-conciertos.jpg',
+    alt: 'Concierto meditativo de María de la Osa y José Duque',
     icon: 'music',
     title: 'Conciertos temáticos',
     description:
@@ -200,22 +204,27 @@ const instruments = [
   {
     image: '/instrumentos-handpan.jpg',
     title: 'Handpan',
+    alt: 'Manos interpretando un handpan',
   },
   {
     image: '/instrumentos-kora.jpg',
     title: 'Kora africana',
+    alt: 'Kora africana utilizada en los paisajes sonoros',
   },
   {
     image: '/instrumentos-cuencos.jpg',
     title: 'Cuencos tibetanos y de cuarzo',
+    alt: 'Selección de cuencos tibetanos y de cuarzo',
   },
   {
     image: '/instrumentos-gong.jpg',
     title: 'Gong',
+    alt: 'Gong suspendido preparado para una sesión',
   },
   {
     image: '/instrumentos-naturaleza.jpg',
     title: 'Instrumentos de naturaleza',
+    alt: 'Instrumentos orgánicos que evocan sonidos de la naturaleza',
   },
 ]
 
@@ -581,7 +590,7 @@ app.innerHTML = `
     <section class="hero" id="inicio" aria-labelledby="hero-title">
       <div class="container hero-inner">
         <div class="hero-copy reveal">
-          <h1 id="hero-title">Detén el tiempo.<strong>Vuelve a ti.</strong></h1>
+          <h1 id="hero-title">Viajes sonoros en Cáceres.<strong>Vuelve a ti.</strong></h1>
           <p>
             Experiencias de sonido, meditación,<br>
             relajación profunda y conexión interior.
@@ -609,8 +618,10 @@ app.innerHTML = `
         <span class="lotus-mark" aria-hidden="true">${icons.lotus}</span>
         <h2 id="intro-title">Mucho más que un concierto</h2>
         <p>
-          Un viaje sonoro para recordar quién eres. Vibración, presencia y calma
-          para conectar contigo y con lo esencial.
+          Un viaje sonoro es una experiencia de escucha en la que la música en
+          directo y la vibración acompañan la meditación, la relajación y la
+          conexión interior. No necesitas experiencia previa: solo detenerte,
+          escuchar y dejarte llevar.
         </p>
         <span class="heart-mark" aria-hidden="true">${icons.heart}</span>
       </div>
@@ -622,16 +633,16 @@ app.innerHTML = `
         <h2 id="local-seo-title">Meditación y baños de sonido en Cáceres</h2>
         <div class="local-seo-copy">
           <p>
-            Viajes Sonoros crea experiencias de meditación, baños de sonido,
-            relajación profunda y escucha consciente principalmente en Cáceres
-            y Extremadura. A través del handpan, los cuencos, el gong, la voz,
+            Viajes Sonoros crea experiencias de bienestar y meditación con
+            sonido, baños de sonido y espacios de relajación principalmente en
+            Cáceres y Extremadura. A través del handpan, los cuencos, el gong, la voz,
             la kora y otros instrumentos acústicos, proponemos encuentros para
             detener el ritmo, respirar y volver al presente.
           </p>
           <p>
-            También nos desplazamos a otros lugares para participar en retiros,
-            eventos, hoteles, centros de bienestar, espacios culturales,
-            empresas, festivales y encuentros privados.
+            También creamos conciertos meditativos, kirtan y mantras, y nos
+            desplazamos para aportar música a clases de yoga, retiros, hoteles,
+            centros de bienestar, espacios culturales, empresas y eventos.
           </p>
           <p>
             Cada experiencia se adapta al espacio, al grupo y al propósito del
@@ -657,10 +668,10 @@ app.innerHTML = `
         <div class="experience-grid">
           ${experiences
             .map(
-              ({ image, icon, title, description }) => `
+              ({ image, alt, icon, title, description }) => `
                 <article class="experience-card reveal">
                   <div class="experience-image">
-                    <img src="${image}" alt="${title}" loading="lazy">
+                    <img src="${image}" alt="${alt}" loading="lazy" decoding="async">
                   </div>
                   <span class="round-icon" aria-hidden="true">${icons[icon]}</span>
                   <div class="experience-content">
@@ -685,10 +696,10 @@ app.innerHTML = `
         <div class="instrument-grid">
           ${instruments
             .map(
-              ({ image, title }) => `
+              ({ image, title, alt }) => `
                 <article class="instrument reveal">
                   <div class="instrument-image">
-                    <img src="${image}" alt="${title}" loading="lazy">
+                    <img src="${image}" alt="${alt}" loading="lazy" decoding="async">
                   </div>
                   <h3>${title}</h3>
                 </article>
@@ -1024,7 +1035,7 @@ app.innerHTML = `
       <div class="container shop-banner reveal">
         <img
           src="/banner-tienda.png"
-          alt="Tienda de Viajes Sonoros"
+          alt="Tarjeta y pendrive de madera con meditaciones y música de Viajes Sonoros"
           loading="lazy"
           width="1983"
           height="793"
