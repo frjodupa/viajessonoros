@@ -1,0 +1,169 @@
+@font-face {
+  font-family: 'Cormorant Garamond';
+  font-style: normal;
+  font-weight: 500 600;
+  font-display: swap;
+  src: url('/fonts/cormorant-garamond-latin.woff2') format('woff2');
+}
+
+@font-face {
+  font-family: 'Montserrat';
+  font-style: normal;
+  font-weight: 400 600;
+  font-display: swap;
+  src: url('/fonts/montserrat-latin.woff2') format('woff2');
+}
+
+:root {
+  --vs-cream: #fbf7f0;
+  --vs-paper: #fffdf9;
+  --vs-purple: #52206d;
+  --vs-purple-dark: #2d1742;
+  --vs-gold: #c59031;
+  --vs-muted: #6d6570;
+  --vs-line: rgba(197, 144, 49, 0.28);
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+
+body {
+  min-width: 0;
+  margin: 0;
+  overflow-x: hidden;
+  color: #29242c;
+  background: var(--vs-cream);
+  font-family: 'Montserrat', Arial, sans-serif;
+  line-height: 1.65;
+}
+
+a { color: inherit; }
+
+:focus-visible {
+  outline: 3px solid rgba(197, 144, 49, 0.58);
+  outline-offset: 3px;
+}
+
+.product-page-header {
+  border-bottom: 1px solid var(--vs-line);
+  background: rgba(255, 253, 249, 0.94);
+}
+
+.product-page-header-inner,
+.product-page-main,
+.product-page-footer-inner {
+  width: min(100% - 40px, 1120px);
+  margin-inline: auto;
+}
+
+.product-page-header-inner {
+  min-height: 82px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+}
+
+.product-page-logo img { width: 150px; display: block; }
+
+.product-page-back {
+  color: var(--vs-purple);
+  font-size: 12px;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.product-page-main { padding: clamp(42px, 7vw, 84px) 0; }
+
+.product-page-hero {
+  display: grid;
+  grid-template-columns: minmax(0, 0.95fr) minmax(0, 1.05fr);
+  overflow: hidden;
+  border: 1px solid var(--vs-line);
+  border-radius: 26px;
+  background: var(--vs-paper);
+  box-shadow: 0 24px 70px rgba(55, 31, 62, 0.1);
+}
+
+.product-page-media {
+  min-width: 0;
+  display: grid;
+  padding: clamp(24px, 4vw, 46px);
+  place-items: center;
+  background: #f7efe2;
+}
+
+.product-page-media img {
+  width: auto;
+  height: auto;
+  max-width: 100%;
+  max-height: 620px;
+  object-fit: contain;
+}
+
+.product-page-media .product-image-blended { mix-blend-mode: multiply; }
+
+.product-page-copy { min-width: 0; padding: clamp(32px, 5vw, 60px); }
+
+.product-page-eyebrow {
+  margin: 0 0 8px;
+  color: var(--vs-gold);
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+
+.product-page-copy h1,
+.product-samples-section h2 {
+  margin: 0;
+  color: var(--vs-purple);
+  font-family: 'Cormorant Garamond', Georgia, serif;
+  font-weight: 500;
+  line-height: 1;
+}
+
+.product-page-copy h1 { font-size: clamp(44px, 6vw, 70px); }
+.product-page-price { display: block; margin-top: 12px; color: var(--vs-purple-dark); font-size: 20px; }
+.product-page-price small { font-size: 11px; font-weight: 500; }
+.product-page-description { margin: 22px 0; color: var(--vs-muted); }
+.product-page-copy h2 { margin: 0 0 10px; color: var(--vs-purple-dark); font-size: 18px; }
+.product-page-copy ul { display: grid; gap: 7px; margin: 0; padding-left: 20px; color: var(--vs-muted); font-size: 13px; }
+
+.product-page-buy {
+  min-height: 50px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: 28px;
+  padding: 12px 20px;
+  border-radius: 999px;
+  color: #fff;
+  background: linear-gradient(135deg, #26b963, #169447);
+  box-shadow: 0 12px 28px rgba(31, 168, 85, 0.26);
+  font-size: 13px;
+  font-weight: 700;
+  text-align: center;
+  text-decoration: none;
+}
+
+.product-samples-section {
+  width: min(100%, 920px);
+  margin: clamp(42px, 6vw, 68px) auto 0;
+}
+
+.product-samples-section h2 { font-size: clamp(34px, 4vw, 48px); text-align: center; }
+.product-samples-section > p { max-width: 640px; margin: 12px auto 28px; color: var(--vs-muted); font-size: 13px; text-align: center; }
+
+.product-page-footer { padding: 26px 0; border-top: 1px solid var(--vs-line); background: var(--vs-paper); }
+.product-page-footer-inner { color: var(--vs-muted); font-size: 11px; text-align: center; }
+
+@media (max-width: 760px) {
+  .product-page-header-inner,
+  .product-page-main,
+  .product-page-footer-inner { width: min(100% - 30px, 560px); }
+  .product-page-logo img { width: 125px; }
+  .product-page-hero { grid-template-columns: 1fr; }
+  .product-page-media { min-height: 260px; padding: 22px; }
+  .product-page-media img { max-height: 330px; }
+  .product-page-copy { padding: 30px 22px 28px; }
+}

@@ -4,6 +4,10 @@ import {
   installExperienceDetail,
   linkifyBroadcastListMentions,
 } from './experience-detail.js'
+import {
+  installAudioPlayers,
+  productAudioSamplesHTML,
+} from './audio-player.js'
 
 const PHONE = '34610056859'
 const LANDING_EVENTS_LIMIT = 3
@@ -189,6 +193,7 @@ const productDetails = {
       'Viajes sonoros',
       'Recursos para tu práctica diaria',
     ],
+    page: '/tarjeta-usb.html',
     link: links.usbCard,
   },
   pendrive: {
@@ -208,6 +213,7 @@ const productDetails = {
       'Recursos adicionales de Viajes Sonoros',
       'Presentación en madera natural',
     ],
+    page: '/pendrive-madera.html',
     link: links.woodenDrive,
   },
 }
@@ -1308,10 +1314,16 @@ window.abrirProducto = (productId, trigger) => {
   if (!product) return
   productDetailTrigger = trigger || document.activeElement
   productDialogContent.innerHTML = `
+    <button class="product-detail-close" type="button" aria-label="Cerrar detalles del producto" onclick="window.cerrarProducto()">×</button>
     <article class="product-detail-panel">
-      <button class="product-detail-close" type="button" aria-label="Cerrar detalles del producto" onclick="window.cerrarProducto()">×</button>
-      <div class="product-detail-media">
-        <img class="${product.imageClass || ''}" src="${product.image}" alt="${product.alt}">
+      <div class="product-detail-visual">
+        <div class="product-detail-media">
+          <img class="${product.imageClass || ''}" src="${product.image}" alt="${product.alt}">
+        </div>
+        <section class="product-detail-samples" aria-labelledby="product-detail-samples-title">
+          <h3 id="product-detail-samples-title">Escucha las muestras</h3>
+          ${productAudioSamplesHTML(true)}
+        </section>
       </div>
       <div class="product-detail-body">
         <h2 id="product-detail-title">${product.name}</h2>
@@ -1321,6 +1333,7 @@ window.abrirProducto = (productId, trigger) => {
           <h3 id="product-detail-contents-title">Incluye</h3>
           <ul>${product.contents.map((item) => `<li>${item}</li>`).join('')}</ul>
         </section>
+        <a class="product-detail-button product-detail-page" href="${product.page}">Ver página completa</a>
         <a class="product-button product-detail-buy" href="${product.link}" target="_blank" rel="noopener noreferrer">
           ${renderIcon('whatsapp', 'icon-brand icon-whatsapp')}
           Comprar por WhatsApp
@@ -1328,6 +1341,7 @@ window.abrirProducto = (productId, trigger) => {
       </div>
     </article>
   `
+  installAudioPlayers(productDialogContent)
   productDialog.showModal()
   document.body.classList.add('product-detail-open')
   productDialog.querySelector('.product-detail-close')?.focus()
