@@ -2,10 +2,19 @@ import './product-page.css'
 import { installAudioPlayers, productAudioSamplesHTML } from './audio-player.js'
 
 const samples = document.querySelector('[data-product-samples]')
+const pageProductName = document.querySelector('.product-page-copy h1')?.textContent.trim() || ''
 if (samples) {
   samples.innerHTML = productAudioSamplesHTML()
-  installAudioPlayers(samples)
+  installAudioPlayers(samples, {
+    productName: pageProductName,
+    buttonLocation: 'product_page',
+  })
 }
+
+window.vsAnalytics?.track('product_detail_view', {
+  product_name: pageProductName,
+  button_location: 'product_page',
+})
 
 const mainBuyButton = document.querySelector('.product-page-buy')
 const productName = document.querySelector('.product-page-copy h1')

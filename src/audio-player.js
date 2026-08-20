@@ -55,7 +55,10 @@ const pauseOtherSamples = (activeAudio) => {
   })
 }
 
-export const installAudioPlayers = (root = document) => {
+export const installAudioPlayers = (
+  root = document,
+  { productName = '', buttonLocation = 'audio_player' } = {},
+) => {
   root.querySelectorAll('[data-audio-player]').forEach((player) => {
     if (player.dataset.audioPlayerReady === 'true') return
     player.dataset.audioPlayerReady = 'true'
@@ -110,6 +113,11 @@ export const installAudioPlayers = (root = document) => {
       audio.addEventListener('play', () => {
         pauseOtherSamples(audio)
         updateState()
+        window.vsAnalytics?.track('audio_sample_play', {
+          audio_name: title,
+          product_name: productName,
+          button_location: buttonLocation,
+        })
       })
       audio.addEventListener('pause', updateState)
       audio.addEventListener('ended', () => {

@@ -163,6 +163,10 @@ export const installExperienceDetail = ({ getExperiences, getWhatsAppLink, isRes
     if (!experience || !dialog || !content) return
     detailTrigger = trigger || document.activeElement
     content.innerHTML = detailHTML(experience)
+    window.vsAnalytics?.track('experience_view', {
+      experience_name: experience.titulo || '',
+      button_location: 'experience_modal',
+    })
     linkifyBroadcastListMentions(content)
     applyImageOrientation(content)
     dialog.showModal()

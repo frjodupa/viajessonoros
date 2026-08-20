@@ -1,0 +1,56 @@
+.analytics-consent {
+  position: fixed;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  z-index: 1000;
+  color: #2d1742;
+  background: rgba(255, 253, 249, 0.97);
+  border-top: 1px solid rgba(197, 144, 49, 0.32);
+  box-shadow: 0 -6px 24px rgba(45, 23, 66, 0.1);
+  font-family: Montserrat, Arial, sans-serif;
+  pointer-events: none;
+}
+
+.analytics-consent-inner {
+  width: min(calc(100% - 32px), 1120px);
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) max-content;
+  align-items: center;
+  gap: 16px;
+  margin-inline: auto;
+  padding: 6px 0 calc(6px + env(safe-area-inset-bottom));
+  pointer-events: auto;
+}
+
+.analytics-consent-copy {
+  min-width: 0;
+}
+.analytics-consent h2 { margin: 0 0 1px; color: #52206d; font: 600 12px/1.35 Montserrat, Arial, sans-serif; }
+.analytics-consent p { margin: 0; font-size: 10px; line-height: 1.4; }
+.analytics-consent a { display: inline-block; margin-top: 1px; color: #52206d; font-size: 9px; }
+.analytics-consent-actions { display: grid; grid-template-columns: repeat(2, max-content); gap: 7px; }
+.analytics-consent button { min-height: 36px; padding: 7px 14px; border: 1px solid #c59031; border-radius: 999px; color: #52206d; background: #fffdf9; cursor: pointer; font: 600 10px Montserrat, Arial, sans-serif; }
+.analytics-consent-actions button:last-child { border-color: #52206d; color: #fff; background: #52206d; }
+.analytics-consent button:focus-visible { outline: 3px solid rgba(197, 144, 49, 0.58); outline-offset: 3px; }
+
+.analytics-preferences { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 18px; }
+.analytics-preferences button { min-height: 42px; padding: 9px 15px; border: 1px solid #c59031; border-radius: 999px; color: #52206d; background: #fffdf9; cursor: pointer; font-weight: 600; }
+.analytics-preferences button:first-child { border-color: #52206d; color: #fff; background: #52206d; }
+.analytics-consent-status { margin-top: 10px; color: #6d6570; font-size: 12px; }
+
+@media (max-width: 768px) {
+  .analytics-consent-inner {
+    width: min(calc(100% - 24px), 720px);
+    max-height: 220px;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 5px;
+    padding: 6px 0 calc(6px + env(safe-area-inset-bottom));
+  }
+  .analytics-consent-copy { width: 100%; text-align: left; }
+  .analytics-consent h2,
+  .analytics-consent p,
+  .analytics-consent a { max-width: 100%; overflow-wrap: break-word; }
+  .analytics-consent-actions { display: grid; grid-template-columns: 1fr 1fr; }
+  .analytics-consent button { min-height: 34px; padding: 6px 12px; }
+}
