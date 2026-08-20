@@ -16,6 +16,68 @@ window.vsAnalytics?.track('product_detail_view', {
   button_location: 'product_page',
 })
 
+const shareButton = document.querySelector('[data-product-share]')
+const shareStatus = document.querySelector('[data-share-status]')
+const canonicalURL = document.querySelector('link[rel="canonical"]')?.href || window.location.href
+
+const copyProductURL = async () => {
+  if (navigator.clipboard?.writeText) {
+    await navigator.clipboard.writeText(canonicalURL)
+    return
+  }
+
+  const temporaryInput = document.createElement('textarea')
+  temporaryInput.value = canonicalURL
+  temporaryInput.setAttribute('readonly', '')
+  temporaryInput.style.position = 'fixed'
+  temporaryInput.style.opacity = '0'
+  document.body.append(temporaryInput)
+  temporaryInput.select()
+  const copied = document.execCommand('copy')
+  temporaryInput.remove()
+  if (!copied) throw new Error('No se pudo copiar el enlace')
+}
+
+shareButton?.addEventListener('click', async () => {
+  shareStatus.textContent = ''
+  const shareData = {
+    title: pageProductName,
+    text: shareButton.dataset.shareText,
+    url: canonicalURL,
+  }
+
+  if (navigator.share) {
+    try {
+      await navigator.share(shareData)
+      window.vsAnalytics?.track('product_share', {
+        product_name: pageProductName,
+        share_method: 'native',
+      })
+    } catch (error) {
+      if (error?.name !== 'AbortError') console.error('No se pudo compartir el producto', error)
+    }
+    return
+  }
+
+  try {
+    await copyProductURL()
+    shareStatus.textContent = 'Enlace copiado'
+    window.vsAnalytics?.track('product_share', {
+      product_name: pageProductName,
+      share_method: 'clipboard',
+    })
+  } catch (error) {
+    console.error('No se pudo copiar el enlace del producto', error)
+  }
+})
+
+document.querySelector('[data-product-recommendation]')?.addEventListener('click', (event) => {
+  window.vsAnalytics?.track('product_select', {
+    product_name: event.currentTarget.dataset.productName,
+    button_location: 'product_recommendation',
+  })
+})
+
 const mainBuyButton = document.querySelector('.product-page-buy')
 const productName = document.querySelector('.product-page-copy h1')
 const productPrice = document.querySelector('.product-page-price')
