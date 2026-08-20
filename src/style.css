@@ -661,6 +661,11 @@ a {
   overflow: hidden;
 }
 
+.experience-image picture {
+  height: 100%;
+  display: block;
+}
+
 .experience-image img,
 .event-image img,
 .product-image img {
@@ -1116,6 +1121,11 @@ a {
   overflow: visible;
   aspect-ratio: auto;
   background: rgba(247, 239, 226, 0.45);
+}
+
+.events-section .event-image picture {
+  width: 100%;
+  display: block;
 }
 
 .events-section .event-image img {
@@ -1961,6 +1971,8 @@ a {
   height: auto;
 }
 
+.shop-banner picture { display: block; }
+
 .shop-intro {
   padding-right: 17px;
   border-right: 1px solid var(--line);
@@ -1999,13 +2011,20 @@ a {
 }
 
 .product-image {
-  height: clamp(390px, 39vw, 540px);
+  height: clamp(340px, 28vw, 400px);
   display: grid;
   place-items: center;
   overflow: hidden;
   aspect-ratio: auto;
-  padding: 28px;
+  padding: 24px 28px;
   background: transparent;
+}
+
+.product-image picture {
+  width: 100%;
+  height: 100%;
+  display: grid;
+  place-items: center;
 }
 
 .product-image img {
@@ -2015,14 +2034,14 @@ a {
 }
 
 .product-card-usb .product-image img {
-  width: min(72%, 460px);
+  width: min(85%, 460px);
   height: auto;
   max-height: 100%;
   box-shadow: none;
 }
 
 .product-card-wood .product-image img {
-  width: min(95.7%, 508px);
+  width: min(100%, 400px);
   height: auto;
   max-height: 100%;
   object-fit: contain;
@@ -2216,6 +2235,12 @@ body.product-detail-open {
   max-width: 100%;
   max-height: 42vh;
   object-fit: contain;
+}
+
+.product-detail-media picture {
+  width: 100%;
+  display: grid;
+  place-items: center;
 }
 
 .product-detail-visual {
@@ -2440,6 +2465,11 @@ body.product-detail-open .back-to-top {
   color: var(--purple);
   text-decoration: underline;
   text-underline-offset: 3px;
+}
+
+.legal-links .private-access-link {
+  color: #756b76;
+  font-size: 11px;
 }
 
 .back-to-top {
@@ -2815,9 +2845,15 @@ body.experience-detail-open .back-to-top {
   }
 
   .product-image {
-    height: 390px;
+    height: 300px;
     min-height: 0;
     aspect-ratio: auto;
+    padding: 24px;
+  }
+
+  .product-card-usb .product-image img,
+  .product-card-wood .product-image img {
+    width: 100%;
   }
 
   .product-content {
@@ -3250,9 +3286,10 @@ body.experience-detail-open .back-to-top {
   }
 
   .product-image {
-    height: 330px;
+    height: 300px;
     min-height: 0;
     aspect-ratio: auto;
+    padding: 24px;
   }
 
   .product-content {
@@ -3314,9 +3351,10 @@ body.experience-detail-open .back-to-top {
   }
 
   .product-image {
-    height: 220px;
+    height: 250px;
     aspect-ratio: auto;
     min-height: 0;
+    padding: 20px;
   }
 
   .product-content {

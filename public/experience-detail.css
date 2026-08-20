@@ -78,6 +78,15 @@ body.experience-detail-open {
   background: var(--vs-cream, var(--cream, #f7efe2));
 }
 
+.experience-detail-media picture {
+  width: 100%;
+  height: 100%;
+  min-width: 0;
+  min-height: 0;
+  display: grid;
+  place-items: center;
+}
+
 .experience-detail-image {
   width: auto;
   height: auto;

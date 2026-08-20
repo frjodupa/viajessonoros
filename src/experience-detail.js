@@ -1,3 +1,5 @@
+import { getOptimizedExperienceImage } from './admin-image-optimizer.js'
+
 const escapeHTML = (value = '') =>
   String(value).replace(/[&<>'"]/g, (character) =>
     ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' })[character],
@@ -103,6 +105,7 @@ export const installExperienceDetail = ({ getExperiences, getWhatsAppLink, isRes
 
   const detailHTML = (experience) => {
     const image = safeImageURL(experience.imagen_url)
+    const optimizedImage = getOptimizedExperienceImage(image)
     const title = escapeHTML(experience.titulo)
     const description = escapeHTML(experience.descripcion || '')
     const date = escapeHTML(formatDate(experience.fecha))
@@ -116,7 +119,13 @@ export const installExperienceDetail = ({ getExperiences, getWhatsAppLink, isRes
       ? `<a class="whatsapp-reserve-button experience-detail-reserve" href="${escapeHTML(getWhatsAppLink(experience))}" target="_blank" rel="noopener noreferrer">${whatsappIcon}Reservar por WhatsApp</a>`
       : ''
 
-    return `<article class="experience-detail-panel ${image ? 'is-image-loading' : 'has-no-image'}"><button class="experience-detail-close" type="button" aria-label="Cerrar experiencia" onclick="window.cerrarExperiencia()">×</button><div class="experience-detail-media">${image ? `<img class="experience-detail-image" src="${escapeHTML(image)}" alt="Imagen de ${title}">` : ''}</div><div class="experience-detail-body"><h2 id="experience-detail-title">${title}</h2>${date || time || place || contribution || availability || duration ? `<dl class="experience-detail-data">${date ? `<div><dt>Fecha</dt><dd>${date}</dd></div>` : ''}${time ? `<div><dt>Hora</dt><dd>${time}</dd></div>` : ''}${place ? `<div><dt>Lugar</dt><dd>${place}</dd></div>` : ''}${contribution ? `<div><dt>Precio</dt><dd>${contribution}</dd></div>` : ''}${availability ? `<div><dt>Plazas o estado</dt><dd>${availability}</dd></div>` : ''}${duration ? `<div><dt>Duración</dt><dd>${duration}</dd></div>` : ''}</dl>` : ''}${description ? `<p class="experience-detail-description">${description}</p>` : ''}${extra ? `<section class="experience-detail-extra" aria-labelledby="experience-detail-extra-title"><h3 id="experience-detail-extra-title">Información adicional</h3><p>${extra}</p></section>` : ''}${reserveLink}</div></article>`
+    const imageHTML = optimizedImage
+      ? `<picture>${optimizedImage.cardURL ? `<source type="image/webp"${optimizedImage.isWebP ? '' : ' media="(max-width: 700px)"'} srcset="${escapeHTML(optimizedImage.cardURL)} ${optimizedImage.cardWidth}w${optimizedImage.isWebP ? `, ${escapeHTML(optimizedImage.url)} ${optimizedImage.width}w` : ''}" sizes="(max-width: 700px) calc(100vw - 20px), 46vw">` : ''}<img class="experience-detail-image" src="${escapeHTML(optimizedImage.url)}" alt="Imagen de ${title}" width="${optimizedImage.width}" height="${optimizedImage.height}" loading="lazy" decoding="async"></picture>`
+      : image
+        ? `<img class="experience-detail-image" src="${escapeHTML(image)}" alt="Imagen de ${title}" loading="lazy" decoding="async">`
+        : ''
+
+    return `<article class="experience-detail-panel ${image ? 'is-image-loading' : 'has-no-image'}"><button class="experience-detail-close" type="button" aria-label="Cerrar experiencia" onclick="window.cerrarExperiencia()">×</button><div class="experience-detail-media">${imageHTML}</div><div class="experience-detail-body"><h2 id="experience-detail-title">${title}</h2>${date || time || place || contribution || availability || duration ? `<dl class="experience-detail-data">${date ? `<div><dt>Fecha</dt><dd>${date}</dd></div>` : ''}${time ? `<div><dt>Hora</dt><dd>${time}</dd></div>` : ''}${place ? `<div><dt>Lugar</dt><dd>${place}</dd></div>` : ''}${contribution ? `<div><dt>Precio</dt><dd>${contribution}</dd></div>` : ''}${availability ? `<div><dt>Plazas o estado</dt><dd>${availability}</dd></div>` : ''}${duration ? `<div><dt>Duración</dt><dd>${duration}</dd></div>` : ''}</dl>` : ''}${description ? `<p class="experience-detail-description">${description}</p>` : ''}${extra ? `<section class="experience-detail-extra" aria-labelledby="experience-detail-extra-title"><h3 id="experience-detail-extra-title">Información adicional</h3><p>${extra}</p></section>` : ''}${reserveLink}</div></article>`
   }
 
   const applyImageOrientation = (content) => {

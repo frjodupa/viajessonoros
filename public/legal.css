@@ -147,6 +147,7 @@ th { color: var(--purple-dark); background: #f6f0f6; }
 .footer-inner { text-align: center; }
 .footer-inner nav { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px 22px; }
 .footer-inner a { font-size: .78rem; text-underline-offset: 3px; }
+.footer-inner .private-access-link { color: rgba(248, 242, 233, .78); font-size: .7rem; }
 .footer-inner p { margin: 18px 0 0; font-size: .72rem; opacity: .75; }
 
 @media (max-width: 600px) {

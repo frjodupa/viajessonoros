@@ -1,5 +1,6 @@
 import './style.css'
 import { supabase } from './supabase.js'
+import { getOptimizedExperienceImage } from './admin-image-optimizer.js'
 import {
   installExperienceDetail,
   linkifyBroadcastListMentions,
@@ -199,6 +200,10 @@ const productDetails = {
   pendrive: {
     name: 'Pendrive de madera',
     image: '/pendrive-oficial.jpg',
+    imageSources: {
+      avif: '/pendrive-oficial-640.avif 640w, /pendrive-oficial-960.avif 960w, /pendrive-oficial-1280.avif 1280w',
+      webp: '/pendrive-oficial-640.webp 640w, /pendrive-oficial-960.webp 960w, /pendrive-oficial-1280.webp 1280w',
+    },
     imageClass: 'product-image-blended',
     alt: 'Pendrive de madera de Viajes Sonoros',
     price: '20 €',
@@ -229,6 +234,11 @@ const experiences = [
   },
   {
     image: '/experiencia-privada.jpg',
+    imageSources: {
+      avif: '/experiencia-privada-640.avif 640w, /experiencia-privada-960.avif 960w',
+      webp: '/experiencia-privada-640.webp 640w, /experiencia-privada-960.webp 960w',
+      fallback: '/experiencia-privada.png',
+    },
     alt: 'Sesión sonora privada acompañada con instrumentos acústicos',
     icon: 'person',
     title: 'Sesiones privadas',
@@ -572,6 +582,14 @@ const renderLandingEvent = (experience, isSingle = false) => {
       'Próxima experiencia',
   )
   const isReservable = isExperienceReservable(experience)
+  const imageURL = safeImageURL(experience.imagen_url)
+  const optimizedImage = getOptimizedExperienceImage(imageURL)
+  const landingImage = optimizedImage
+    ? `<picture>
+        ${optimizedImage.cardURL ? `<source type="image/webp"${optimizedImage.isWebP ? '' : ' media="(max-width: 767px)"'} srcset="${escapeHTML(optimizedImage.cardURL)} ${optimizedImage.cardWidth}w${optimizedImage.isWebP ? `, ${escapeHTML(optimizedImage.url)} ${optimizedImage.width}w` : ''}" sizes="(max-width: 767px) calc(100vw - 40px), (max-width: 1100px) 45vw, 520px">` : ''}
+        <img src="${escapeHTML(optimizedImage.url)}" alt="${title}" width="${optimizedImage.width}" height="${optimizedImage.height}" loading="lazy" decoding="async" style="object-position:${optimizedImage.focusX}% ${optimizedImage.focusY}%">
+      </picture>`
+    : `<img src="${escapeHTML(imageURL)}" alt="${title}" loading="lazy" decoding="async">`
   const experienceAction = isReservable
     ? `
         <a
@@ -601,11 +619,7 @@ const renderLandingEvent = (experience, isSingle = false) => {
   return `
     <article class="event-card${isSingle ? ' event-card-single' : ''} reveal is-visible" onclick="window.abrirExperiencia('${id}',this)">
       <div class="event-image">
-        <img
-          src="${escapeHTML(safeImageURL(experience.imagen_url))}"
-          alt="${title}"
-          loading="lazy"
-        >
+        ${landingImage}
         <span class="event-tag">${status}</span>
       </div>
       <div class="event-content">
@@ -733,10 +747,14 @@ app.innerHTML = `
         <div class="experience-grid">
           ${experiences
             .map(
-              ({ image, alt, icon, title, description }) => `
+              ({ image, imageSources, alt, icon, title, description }) => `
                 <article class="experience-card reveal">
                   <div class="experience-image">
-                    <img src="${image}" alt="${alt}" loading="lazy" decoding="async">
+                    ${imageSources ? `<picture>
+                      <source type="image/avif" srcset="${imageSources.avif}" sizes="(max-width: 767px) calc(100vw - 40px), (max-width: 1100px) 45vw, 400px">
+                      <source type="image/webp" srcset="${imageSources.webp}" sizes="(max-width: 767px) calc(100vw - 40px), (max-width: 1100px) 45vw, 400px">
+                      <img src="${imageSources.fallback}" alt="${alt}" loading="lazy" decoding="async" width="960" height="504">
+                    </picture>` : `<img src="${image}" alt="${alt}" loading="lazy" decoding="async">`}
                   </div>
                   <span class="round-icon" aria-hidden="true">${icons[icon]}</span>
                   <div class="experience-content">
@@ -1066,12 +1084,11 @@ app.innerHTML = `
 
             <article class="product-card product-card-wood reveal" id="pendrive-madera">
               <div class="product-image">
-                <img
-                  class="product-image-blended"
-                  src="/pendrive-oficial.jpg"
-                  alt="Pendrive de madera de Viajes Sonoros"
-                  loading="lazy"
-                >
+                <picture>
+                  <source type="image/avif" srcset="/pendrive-oficial-640.avif 640w, /pendrive-oficial-960.avif 960w, /pendrive-oficial-1280.avif 1280w" sizes="(max-width: 620px) calc(100vw - 40px), (max-width: 980px) 50vw, 508px">
+                  <source type="image/webp" srcset="/pendrive-oficial-640.webp 640w, /pendrive-oficial-960.webp 960w, /pendrive-oficial-1280.webp 1280w" sizes="(max-width: 620px) calc(100vw - 40px), (max-width: 980px) 50vw, 508px">
+                  <img class="product-image-blended" src="/pendrive-oficial.jpg" alt="Pendrive de madera de Viajes Sonoros" loading="lazy" decoding="async" width="2560" height="2560">
+                </picture>
               </div>
               <div class="product-content">
                 <div class="product-heading">
@@ -1103,13 +1120,11 @@ app.innerHTML = `
           </div>
       </div>
       <div class="container shop-banner reveal">
-        <img
-          src="/banner-tienda.png"
-          alt="Tarjeta y pendrive de madera con meditaciones y música de Viajes Sonoros"
-          loading="lazy"
-          width="1983"
-          height="793"
-        >
+        <picture>
+          <source type="image/avif" srcset="/banner-tienda-640.avif 640w, /banner-tienda-960.avif 960w, /banner-tienda-1440.avif 1440w" sizes="(max-width: 1220px) calc(100vw - 40px), 1180px">
+          <source type="image/webp" srcset="/banner-tienda-640.webp 640w, /banner-tienda-960.webp 960w, /banner-tienda-1440.webp 1440w" sizes="(max-width: 1220px) calc(100vw - 40px), 1180px">
+          <img src="/banner-tienda.png" alt="Tarjeta y pendrive de madera con meditaciones y música de Viajes Sonoros" loading="lazy" decoding="async" width="1983" height="793">
+        </picture>
       </div>
     </section>
 
@@ -1231,6 +1246,7 @@ app.innerHTML = `
         <a href="/politica-privacidad.html">Privacidad</a>
         <a href="/politica-cookies.html">Cookies</a>
         <a href="/condiciones-reserva.html">Condiciones</a>
+        <a class="private-access-link" href="/experiencias.html#admin" rel="nofollow">Acceso privado</a>
       </nav>
       <p>© ${new Date().getFullYear()} Viajes Sonoros Feel · Todos los derechos reservados</p>
     </div>
@@ -1272,7 +1288,11 @@ window.abrirProducto = (productId, trigger) => {
     <article class="product-detail-panel">
       <div class="product-detail-visual">
         <div class="product-detail-media">
-          <img class="${product.imageClass || ''}" src="${product.image}" alt="${product.alt}">
+          ${product.imageSources ? `<picture>
+            <source type="image/avif" srcset="${product.imageSources.avif}" sizes="(max-width: 620px) calc(100vw - 68px), 520px">
+            <source type="image/webp" srcset="${product.imageSources.webp}" sizes="(max-width: 620px) calc(100vw - 68px), 520px">
+            <img class="${product.imageClass || ''}" src="${product.image}" alt="${product.alt}" decoding="async" width="2560" height="2560">
+          </picture>` : `<img class="${product.imageClass || ''}" src="${product.image}" alt="${product.alt}">`}
         </div>
         <section class="product-detail-samples" aria-labelledby="product-detail-samples-title">
           <h3 id="product-detail-samples-title">Escucha las muestras</h3>
