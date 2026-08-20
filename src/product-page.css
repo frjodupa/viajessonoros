@@ -157,7 +157,13 @@ a { color: inherit; }
 .product-page-footer { padding: 26px 0; border-top: 1px solid var(--vs-line); background: var(--vs-paper); }
 .product-page-footer-inner { color: var(--vs-muted); font-size: 11px; text-align: center; }
 
-@media (max-width: 760px) {
+.mobile-buy-bar { display: none; }
+
+@media (max-width: 768px) {
+  body.mobile-buy-bar-visible {
+    padding-bottom: calc(84px + env(safe-area-inset-bottom));
+  }
+
   .product-page-header-inner,
   .product-page-main,
   .product-page-footer-inner { width: min(100% - 30px, 560px); }
@@ -166,4 +172,72 @@ a { color: inherit; }
   .product-page-media { min-height: 260px; padding: 22px; }
   .product-page-media img { max-height: 330px; }
   .product-page-copy { padding: 30px 22px 28px; }
+
+  .mobile-buy-bar {
+    position: fixed;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    z-index: 80;
+    display: block;
+    padding: 10px 15px calc(10px + env(safe-area-inset-bottom));
+    border-top: 1px solid var(--vs-line);
+    background: rgba(255, 253, 249, 0.96);
+    box-shadow: 0 -10px 32px rgba(55, 31, 62, 0.12);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+  }
+
+  .mobile-buy-bar[hidden] { display: none; }
+
+  .mobile-buy-bar-inner {
+    width: min(100%, 560px);
+    min-width: 0;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: center;
+    gap: 12px;
+    margin-inline: auto;
+  }
+
+  .mobile-buy-bar p {
+    min-width: 0;
+    margin: 0;
+    line-height: 1.25;
+  }
+
+  .mobile-buy-bar strong,
+  .mobile-buy-bar span { display: block; }
+
+  .mobile-buy-bar strong {
+    overflow: hidden;
+    color: var(--vs-purple-dark);
+    font-size: 12px;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .mobile-buy-bar span {
+    margin-top: 3px;
+    color: var(--vs-muted);
+    font-size: 10px;
+  }
+
+  .mobile-buy-bar-button {
+    min-height: 44px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 10px 15px;
+    border-radius: 999px;
+    color: #fff;
+    background: linear-gradient(135deg, #26b963, #169447);
+    box-shadow: 0 8px 20px rgba(31, 168, 85, 0.22);
+    font-size: 11px;
+    font-weight: 700;
+    line-height: 1.2;
+    text-align: center;
+    text-decoration: none;
+    white-space: nowrap;
+  }
 }
