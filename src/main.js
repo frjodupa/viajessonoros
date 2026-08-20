@@ -667,11 +667,11 @@ app.innerHTML = `
           <h1 id="hero-title">Lleva la experiencia de <strong>Viajes Sonoros contigo</strong></h1>
           <p>Música, meditación y sonido para crear tu propio espacio de calma, estés donde estés</p>
           <div class="hero-actions">
-            <a class="button button-primary" href="#tarjeta-usb">
-              Descubrir la tarjeta ${renderIcon('arrow', 'icon-arrow')}
+            <a class="button button-primary" href="#tienda">
+              Escuchar y elegir formato ${renderIcon('arrow', 'icon-arrow')}
             </a>
-            <a class="button button-whatsapp" href="#pendrive-madera">
-              Descubrir el pendrive ${renderIcon('arrow', 'icon-arrow')}
+            <a class="button button-whatsapp" href="#eventos">
+              Ver próximas experiencias ${renderIcon('arrow', 'icon-arrow')}
             </a>
           </div>
         </div>
