@@ -129,14 +129,15 @@ export async function createExperienceStory({ experience, logoURL = '/logo-ofici
   ctx.font = '600 34px Montserrat, Arial, sans-serif'
   ctx.fillText('Reserva tu plaza', 82, 1640)
 
-  roundedRect(ctx, 82, 1690, 916, 112, 56)
+  roundedRect(ctx, 82, 1680, 916, 124, 56)
   ctx.fillStyle = '#5B3F98'
   ctx.fill()
+
   ctx.fillStyle = '#ffffff'
-  ctx.font = '600 34px Montserrat, Arial, sans-serif'
-  ctx.textAlign = 'center'
-  ctx.fillText('viajessonoros.es · WhatsApp 610 056 859', STORY_WIDTH / 2, 1760)
+  ctx.font = '600 30px Montserrat, Arial, sans-serif'
   ctx.textAlign = 'left'
+  ctx.fillText('🌐  viajessonoros.es', 128, 1733)
+  ctx.fillText('☎  Reservar por WhatsApp · 610 056 859', 128, 1780)
 
   ctx.fillStyle = '#665F6B'
   ctx.font = '500 25px Montserrat, Arial, sans-serif'
