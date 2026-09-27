@@ -2,6 +2,7 @@
   const MEASUREMENT_ID = 'G-V4CKPNWQGV'
   const CONSENT_KEY = 'vs_analytics_consent'
   const POLICY_VERSION = '2026-09-27'
+  const METRICOOL_HASH = 'aba1148a3ebf08d32a9f974953e95277'
   const pendingEvents = []
   let analyticsLoaded = false
 
@@ -23,6 +24,18 @@
       document.cookie = `${name}=; Max-Age=0; path=/; SameSite=Lax`
       document.cookie = `${name}=; Max-Age=0; path=/; domain=.viajessonoros.es; SameSite=Lax`
     })
+  }
+
+  const loadMetricool = () => {
+    if (document.querySelector('script[data-vs-metricool]')) return
+    const script = document.createElement('script')
+    script.async = true
+    script.src = 'https://tracker.metricool.com/resources/be.js'
+    script.dataset.vsMetricool = 'true'
+    script.onload = () => {
+      if (window.beTracker?.t) window.beTracker.t({ hash: METRICOOL_HASH })
+    }
+    document.head.append(script)
   }
 
   const loadAnalytics = () => {
@@ -160,6 +173,7 @@
 
   window.vsAnalytics = { track, accept: () => saveConsent('accepted'), reject: () => saveConsent('rejected') }
 
+  loadMetricool()
   if (consent === 'accepted') loadAnalytics()
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', () => {
