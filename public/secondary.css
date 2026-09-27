@@ -1246,3 +1246,100 @@ body.experience-detail-open {
     transition-duration: 0.01ms !important;
   }
 }
+
+.admin-background-gallery {
+  padding: 16px;
+  border: 1px solid rgba(82, 32, 109, 0.14);
+  border-radius: 14px;
+  background: #fffdf9;
+}
+
+.admin-background-gallery-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.admin-background-gallery-head span {
+  color: #8a641f;
+  font-size: .68rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .1em;
+}
+
+.admin-background-gallery-head h3 {
+  margin: 2px 0 4px;
+  font-size: 1.4rem;
+}
+
+.admin-background-gallery-head p {
+  margin: 0;
+  color: var(--vs-muted);
+  font-size: .76rem;
+}
+
+#background-gallery-toggle {
+  flex: 0 0 auto;
+  min-height: 42px;
+  padding: 8px 14px;
+  border: 1px solid rgba(82,32,109,.25);
+  border-radius: 10px;
+  color: var(--vs-purple);
+  background: #fff;
+  cursor: pointer;
+}
+
+.admin-background-gallery-grid {
+  display: grid;
+  grid-template-columns: repeat(5,minmax(0,1fr));
+  gap: 10px;
+  margin-top: 14px;
+}
+
+.admin-background-gallery-grid[hidden] {
+  display: none;
+}
+
+.admin-background-option {
+  min-width: 0;
+  padding: 6px;
+  border: 1px solid rgba(82,32,109,.14);
+  border-radius: 10px;
+  background: #fff;
+  cursor: pointer;
+  text-align: left;
+}
+
+.admin-background-option img {
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  display: block;
+  object-fit: cover;
+  border-radius: 7px;
+}
+
+.admin-background-option span {
+  display: block;
+  margin-top: 6px;
+  color: #51465a;
+  font-size: .68rem;
+  line-height: 1.3;
+}
+
+.admin-background-option.is-selected {
+  border-color: var(--vs-purple);
+  box-shadow: 0 0 0 2px rgba(82,32,109,.12);
+}
+
+@media (max-width: 720px) {
+  .admin-background-gallery-head {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .admin-background-gallery-grid {
+    grid-template-columns: repeat(2,minmax(0,1fr));
+  }
+}
