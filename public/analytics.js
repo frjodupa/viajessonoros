@@ -1,9 +1,11 @@
 (() => {
   const MEASUREMENT_ID = 'G-V4CKPNWQGV'
   const CONSENT_KEY = 'vs_analytics_consent'
-  const POLICY_VERSION = '2026-08-20'
+  const POLICY_VERSION = '2026-09-27'
+  const METRICOOL_HASH = 'aba1148a3ebf08d32a9f974953e95277'
   const pendingEvents = []
   let analyticsLoaded = false
+  let metricoolLoaded = false
 
   const readConsent = () => {
     try {
@@ -25,6 +27,18 @@
     })
   }
 
+  const loadMetricool = () => {
+    if (metricoolLoaded || consent !== 'accepted') return
+    metricoolLoaded = true
+    const script = document.createElement('script')
+    script.async = true
+    script.src = 'https://tracker.metricool.com/resources/be.js'
+    script.onload = () => {
+      if (window.beTracker?.t) window.beTracker.t({ hash: METRICOOL_HASH })
+    }
+    document.head.append(script)
+  }
+
   const loadAnalytics = () => {
     if (analyticsLoaded || consent !== 'accepted') return
     analyticsLoaded = true
@@ -41,6 +55,8 @@
     script.src = `https://www.googletagmanager.com/gtag/js?id=${MEASUREMENT_ID}`
     script.dataset.vsAnalytics = 'true'
     document.head.append(script)
+
+    loadMetricool()
 
     pendingEvents.splice(0).forEach(({ name, parameters }) => {
       window.gtag('event', name, parameters)
@@ -101,7 +117,7 @@
       <div class="analytics-consent-inner">
         <div class="analytics-consent-copy">
           <h2>Ayúdanos a mejorar tu experiencia</h2>
-          <p id="analytics-consent-description">Nos gustaría conocer, de forma anónima, qué contenidos te resultan más útiles para seguir mejorando Viajes Sonoros. Solo activaremos Google Analytics si nos das permiso. Gracias por ayudarnos a cuidar este espacio.</p>
+          <p id="analytics-consent-description">Nos gustaría conocer, de forma anónima, qué contenidos te resultan más útiles para seguir mejorando Viajes Sonoros. Solo activaremos Google Analytics y Metricool si nos das permiso. Gracias por ayudarnos a cuidar este espacio.</p>
           <a href="/politica-cookies.html">Más información sobre privacidad</a>
         </div>
         <div class="analytics-consent-actions">
