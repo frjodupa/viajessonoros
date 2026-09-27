@@ -2,6 +2,8 @@ const COVER_MAX_WIDTH = 1600
 const COVER_RATIO = 3 / 2
 const COVER_TARGET_BYTES = 500 * 1024
 const COVER_QUALITIES = [0.84, 0.8, 0.76, 0.72]
+const COVER_JPEG_QUALITIES = [0.9, 0.86, 0.82, 0.78]
+const COVER_JPEG_TARGET_BYTES = 700 * 1024
 
 const TEXT_VARIANTS = {
   viaje: [
@@ -122,6 +124,13 @@ const canvasToBlob = (canvas, quality) => new Promise((resolve, reject) => {
   }, 'image/webp', quality)
 })
 
+const canvasToJPEG = (canvas, quality) => new Promise((resolve, reject) => {
+  canvas.toBlob((blob) => {
+    if (blob?.type === 'image/jpeg') resolve(blob)
+    else reject(new Error('Este navegador no permite exportar la portada en JPEG.'))
+  }, 'image/jpeg', quality)
+})
+
 const loadBitmap = async (source) => {
   if (source instanceof Blob && 'createImageBitmap' in window) {
     return createImageBitmap(source, { imageOrientation: 'from-image' })
@@ -181,6 +190,16 @@ const encodeCover = async (canvas) => {
   return result
 }
 
+const encodeCoverJPEG = async (canvas) => {
+  let result = null
+  for (const quality of COVER_JPEG_QUALITIES) {
+    const blob = await canvasToJPEG(canvas, quality)
+    result = { blob, quality }
+    if (blob.size <= COVER_JPEG_TARGET_BYTES) break
+  }
+  return result
+}
+
 export const createExperienceCover = async ({
   photo,
   logoURL,
@@ -233,7 +252,7 @@ export const createExperienceCover = async ({
     context.fillText([timeText, locality].filter(Boolean).join(' · ').slice(0, 62), safeX, Math.round(height * 0.895), width * 0.86)
     context.shadowBlur = 0
 
-    const encoded = await encodeCover(canvas)
+    const encoded = await encodeCoverJPEG(canvas)
     const cardCanvas = document.createElement('canvas')
     cardCanvas.width = 640
     cardCanvas.height = Math.round(640 / COVER_RATIO)
@@ -250,8 +269,8 @@ export const createExperienceCover = async ({
       sourceWidth,
       sourceHeight,
       fullBlob: encoded.blob,
-      fullType: 'image/webp',
-      fullExtension: 'webp',
+      fullType: 'image/jpeg',
+      fullExtension: 'jpg',
       width,
       height,
       cardBlob,
