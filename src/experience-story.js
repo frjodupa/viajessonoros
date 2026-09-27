@@ -1,7 +1,7 @@
 const STORY_WIDTH = 1080
 const STORY_HEIGHT = 1920
-const PHOTO_Y = 760
-const PHOTO_HEIGHT = 790
+const PHOTO_Y = 720
+const PHOTO_HEIGHT = 830
 const FOOTER_Y = PHOTO_Y + PHOTO_HEIGHT
 
 const loadImage = (src) => new Promise((resolve, reject) => {
@@ -88,34 +88,41 @@ export async function createExperienceStory({ experience, logoURL = '/logo-ofici
   ctx.fillStyle = topGradient
   ctx.fillRect(0, 0, STORY_WIDTH, PHOTO_Y)
 
-  const logoW = 330
+  const logoW = 300
   const logoH = logo.height * (logoW / logo.width)
-  ctx.drawImage(logo, 82, 82, logoW, logoH)
+  ctx.drawImage(logo, 82, 72, logoW, logoH)
 
   ctx.fillStyle = '#5B3F98'
-  ctx.font = '600 38px Montserrat, Arial, sans-serif'
-  ctx.fillText('EXPERIENCIA VIAJES SONOROS', 82, 300)
+  ctx.font = '700 30px Montserrat, Arial, sans-serif'
+  ctx.fillText('EXPERIENCIA VIAJES SONOROS', 82, 285)
 
   ctx.fillStyle = '#34255F'
-  ctx.font = '600 78px "Cormorant Garamond", Georgia, serif'
+  ctx.font = '600 72px "Cormorant Garamond", Georgia, serif'
   const titleLines = wrapLines(ctx, experience.titulo || 'Viaje Sonoro', 900, 3)
-  let y = 400
+  let y = 380
   titleLines.forEach((line) => {
     ctx.fillText(line, 82, y)
-    y += 82
+    y += 76
   })
 
   const dateText = [formatDate(experience.fecha), String(experience.hora || '').slice(0, 5)].filter(Boolean).join(' · ')
   const placeText = [experience.lugar, experience.localidad].filter(Boolean).join(' · ')
   const priceText = String(experience.precio || '').trim()
-  const info = [dateText, placeText, priceText].filter(Boolean)
 
-  ctx.font = '600 31px Montserrat, Arial, sans-serif'
-  info.slice(0, 3).forEach((text, index) => {
-    const py = 610 + index * 58
-    ctx.fillStyle = index === 0 ? '#D5007F' : '#34255F'
-    ctx.fillText(text, 86, py)
-  })
+  ctx.font = '700 28px Montserrat, Arial, sans-serif'
+  ctx.fillStyle = '#D5007F'
+  if (dateText) ctx.fillText(dateText, 86, 560)
+
+  ctx.font = '600 27px Montserrat, Arial, sans-serif'
+  ctx.fillStyle = '#34255F'
+  const placeLines = wrapLines(ctx, placeText, 900, 2)
+  placeLines.forEach((line, index) => ctx.fillText(line, 86, 612 + index * 38))
+
+  if (priceText) {
+    ctx.font = '700 28px Montserrat, Arial, sans-serif'
+    ctx.fillStyle = '#34255F'
+    ctx.fillText(priceText, 86, placeLines.length > 1 ? 698 : 660)
+  }
 
   drawCover(ctx, photo, 0, PHOTO_Y, STORY_WIDTH, PHOTO_HEIGHT)
 
@@ -126,21 +133,21 @@ export async function createExperienceStory({ experience, logoURL = '/logo-ofici
   ctx.fillRect(0, FOOTER_Y, STORY_WIDTH, STORY_HEIGHT - FOOTER_Y)
 
   ctx.fillStyle = '#34255F'
-  ctx.font = '600 34px Montserrat, Arial, sans-serif'
-  ctx.fillText('Reserva tu plaza', 82, 1640)
+  ctx.font = '700 34px Montserrat, Arial, sans-serif'
+  ctx.fillText('Reserva tu plaza', 82, 1636)
 
-  roundedRect(ctx, 82, 1680, 916, 124, 56)
+  roundedRect(ctx, 82, 1672, 916, 132, 56)
   ctx.fillStyle = '#5B3F98'
   ctx.fill()
 
   ctx.fillStyle = '#ffffff'
-  ctx.font = '600 30px Montserrat, Arial, sans-serif'
+  ctx.font = '700 28px Montserrat, Arial, sans-serif'
   ctx.textAlign = 'left'
-  ctx.fillText('🌐  viajessonoros.es', 128, 1733)
-  ctx.fillText('☎  Reservar por WhatsApp · 610 056 859', 128, 1780)
+  ctx.fillText('🌐  viajessonoros.es', 126, 1724)
+  ctx.fillText('💬  Reservar por WhatsApp · 610 056 859', 126, 1774)
 
   ctx.fillStyle = '#665F6B'
-  ctx.font = '500 25px Montserrat, Arial, sans-serif'
+  ctx.font = '500 24px Montserrat, Arial, sans-serif'
   ctx.fillText('Meditar es pasar tiempo con tu alma', 82, 1860)
 
   const blob = await canvasToBlob(canvas)
