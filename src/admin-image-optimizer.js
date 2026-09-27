@@ -263,8 +263,19 @@ export const getOptimizedExperienceImage = (value) => {
   const height = Number(match[4])
   const cardWidth = Math.min(CARD_IMAGE_WIDTH, width)
   const cardHeight = Math.max(1, Math.round(height * cardWidth / width))
-  const focusX = Math.min(100, Math.max(0, Number(match[1] || 50)))
-  const focusY = Math.min(100, Math.max(0, Number(match[2] || 50)))
+  let focusX = Math.min(100, Math.max(0, Number(match[1] || 50)))
+  let focusY = Math.min(100, Math.max(0, Number(match[2] || 50)))
+  try {
+    const parsedURL = new URL(url, window.location.origin)
+    const storedFocus = parsedURL.searchParams.get('focus')
+    const focusMatch = storedFocus?.match(/^(\d{1,3})-(\d{1,3})$/)
+    if (focusMatch) {
+      focusX = Math.min(100, Math.max(0, Number(focusMatch[1])))
+      focusY = Math.min(100, Math.max(0, Number(focusMatch[2])))
+    }
+  } catch {
+    // Conserva el foco codificado en el nombre si la URL no se puede analizar.
+  }
 
   return {
     url,
