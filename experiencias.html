@@ -102,6 +102,11 @@ const escapeHTML=(value)=>String(value??'').replace(/[&<>'"]/g,(character)=>({'&
 const safeEventId=(value)=>String(value??'').replace(/[^a-zA-Z0-9_-]/g,'')
 const safeImageURL=(value)=>{try{const url=new URL(String(value||''),window.location.origin);return url.protocol==='https:'||(url.protocol==='http:'&&['localhost','127.0.0.1'].includes(url.hostname))?url.href:''}catch{return ''}}
 const BACKGROUND_GALLERY=[
+  {label:'Gong y cuencos',url:'/fondos/vs-fondo-gong-cuencos.jpg'},
+  {label:'Baño sonoro',url:'/fondos/vs-fondo-bano-sonoro.jpg'},
+  {label:'Estudio zen',url:'/fondos/vs-fondo-estudio-zen.jpg'},
+  {label:'Santuario sonoro',url:'/fondos/vs-fondo-santuario-sonoro.jpg'},
+  {label:'Círculo de velas',url:'/fondos/vs-fondo-circulo-velas.jpg'},
   {label:'Experiencia privada',url:'/experiencia-privada.jpg'},
   {label:'Retiros',url:'/experiencia-retiros.jpg'},
   {label:'Conciertos',url:'/experiencia-conciertos.jpg'},
@@ -260,12 +265,25 @@ window.guardarEvento=async()=>{
       }catch{}
     }
     const payload={titulo,fecha,hora:hora||null,precio,lugar,descripcion,imagen_url:imagen_url||null,publicado}
-    const result=editId?await supabase.from('experiencias').update(payload).eq('id',editId):await supabase.from('experiencias').insert(payload)
+    const editingId=editId
+    const result=editingId
+      ?await supabase.from('experiencias').update(payload).eq('id',editingId).select('id,titulo,fecha,hora,precio,lugar,descripcion,imagen_url,publicado').single()
+      :await supabase.from('experiencias').insert(payload).select('id,titulo,fecha,hora,precio,lugar,descripcion,imagen_url,publicado').single()
     if(result.error){if(uploadedPaths.length)await supabase.storage.from(STORAGE_BUCKET).remove(uploadedPaths);throw result.error}
-    window.cancelarEdicion(); alert('¡Experiencia guardada!'); view='experiencias'; render()
+    if(!result.data?.id){if(uploadedPaths.length)await supabase.storage.from(STORAGE_BUCKET).remove(uploadedPaths);throw new Error('Supabase no confirmó el guardado de la experiencia.')}
+    window.cancelarEdicion()
+    if(view==='admin-panel'){
+      await window.renderAdminList()
+      const notice=document.getElementById('form-error')
+      if(notice){notice.textContent=editingId?'Cambios guardados correctamente.':'Experiencia creada correctamente.';notice.style.display='block';notice.style.color='#166534'}
+      window.scrollTo({top:0,behavior:'smooth'})
+    }else{
+      view='experiencias'
+      render()
+    }
   }catch(err){ if(errorElement){errorElement.textContent='No se pudo guardar: '+err.message;errorElement.style.display='block'} } finally{ if(btn){ btn.textContent='Guardar experiencia'; btn.disabled=false } }
 }
-window.editarEvento=async(id)=>{ if(!(await hasValidAdmin())){view='admin-login';render();return} const ev=eventos.find(e=>e.id==id); if(!ev) return; editId=id;fileToUpload=null;selectedTemplateKey='';assistantDraft=null;assistantVariant=0;if(optimizedImage)releaseOptimizedImage(optimizedImage);if(sourceOptimizedImage&&sourceOptimizedImage!==optimizedImage)releaseOptimizedImage(sourceOptimizedImage);optimizedImage=null;sourceOptimizedImage=null;existingImageFocus=null; document.getElementById('f-titulo').value=ev.titulo||''; document.getElementById('f-fecha').value=ev.fecha||''; document.getElementById('f-hora').value=String(ev.hora||'').slice(0,5); document.getElementById('f-precio').value=ev.precio||''; document.getElementById('f-lugar').value=ev.lugar||'';document.getElementById('f-localidad').value='';document.getElementById('f-card-text').value=''; document.getElementById('f-desc').value=ev.descripcion||'';document.getElementById('f-additional').value=''; document.getElementById('f-imagen').value=ev.imagen_url||''; document.getElementById('f-publicado').value=String(ev.publicado===true); if(ev.imagen_url){const parsed=getOptimizedExperienceImage(ev.imagen_url);existingImageFocus={focusX:parsed?.focusX??50,focusY:parsed?.focusY??50};setPreviewSources(ev.imagen_url);document.querySelectorAll('[data-focus-preview]').forEach(image=>{image.style.objectPosition=`${existingImageFocus.focusX}% ${existingImageFocus.focusY}%`});document.getElementById('image-details').textContent='Imagen actual. Puedes ajustar el punto focal en directo y guardar el nuevo encuadre sin volver a subirla.';document.getElementById('preview-img').style.display='grid'} imageDataUrl=ev.imagen_url||null;window.updateAssistantState(); window.scrollTo({top:0,behavior:'smooth'}) }
+window.editarEvento=async(id)=>{ if(!(await hasValidAdmin())){view='admin-login';render();return} const ev=eventos.find(e=>e.id==id); if(!ev) return; editId=id;fileToUpload=null;selectedTemplateKey='';assistantDraft=null;assistantVariant=0;if(optimizedImage)releaseOptimizedImage(optimizedImage);if(sourceOptimizedImage&&sourceOptimizedImage!==optimizedImage)releaseOptimizedImage(sourceOptimizedImage);optimizedImage=null;sourceOptimizedImage=null;existingImageFocus=null; document.getElementById('f-titulo').value=ev.titulo||''; document.getElementById('f-fecha').value=ev.fecha||''; document.getElementById('f-hora').value=String(ev.hora||'').slice(0,5); document.getElementById('f-precio').value=ev.precio||''; document.getElementById('f-lugar').value=ev.lugar||'';document.getElementById('f-localidad').value='';document.getElementById('f-card-text').value=''; document.getElementById('f-desc').value=ev.descripcion||'';document.getElementById('f-additional').value=''; document.getElementById('f-imagen').value=ev.imagen_url||''; document.getElementById('f-publicado').value=String(ev.publicado===true); if(ev.imagen_url){const parsed=getOptimizedExperienceImage(ev.imagen_url);existingImageFocus={focusX:parsed?.focusX??50,focusY:parsed?.focusY??50};setPreviewSources(ev.imagen_url);document.querySelectorAll('[data-focus-preview]').forEach(image=>{image.style.objectPosition=`${existingImageFocus.focusX}% ${existingImageFocus.focusY}%`});document.getElementById('image-details').textContent='Imagen actual. Puedes cambiar cualquier dato y guardar la edición sin volver a subir la imagen.';document.getElementById('preview-img').style.display='grid'} imageDataUrl=ev.imagen_url||null;window.updateAssistantState(); window.scrollTo({top:0,behavior:'smooth'}) }
 window.borrarEvento=async(id)=>{ if(!(await hasValidAdmin())){view='admin-login';render();return} if(!confirm('¿Borrar?')) return; const {error}=await supabase.from('experiencias').delete().eq('id',id); if(error){alert('Error: '+error.message);return} renderAdminList() }
 window.renderAdminList=async()=>{ if(!(await hasValidAdmin())){view='admin-login';render();return} const r=await supabase.from('experiencias').select('*').order('fecha',{ascending:false}).order('hora',{ascending:false,nullsFirst:false});if(r.error)throw r.error;const data=r.data||[]; eventos=data; const c=document.getElementById('lista-admin'); if(!c) return; c.innerHTML=data.map(ev=>{const id=safeEventId(ev.id);const image=safeImageURL(ev.imagen_url);return `<div style="background:white;border-radius:16px;padding:14px;display:flex;gap:12px;border:1px solid #EDE8F3">${image?`<img src="${escapeHTML(image)}" alt="" style="width:64px;height:64px;object-fit:cover;border-radius:10px"/>`:''}<div style="flex:1"><strong style="color:#412A6B">${escapeHTML(ev.titulo)}</strong> <span style="display:inline-block;padding:2px 7px;border-radius:999px;background:${ev.publicado?'#DCFCE7':'#F5F0E8'};color:${ev.publicado?'#166534':'#6B5A78'};font-size:10px;font-weight:700">${ev.publicado?'Publicada':'Borrador'}</span><br/><small style="color:#8A7AA8">${escapeHTML(eventMeta(ev))}</small></div><button onclick="window.editarEvento('${id}')" style="background:#F5F0E8;border:none;padding:6px 10px;border-radius:8px;cursor:pointer">Editar</button><button onclick="window.borrarEvento('${id}')" style="background:#FEE2E2;border:none;padding:6px 10px;border-radius:8px;cursor:pointer;color:#B42318">Borrar</button></div>`}).join('') }
 
