@@ -44,3 +44,16 @@ Auditoría revisada: 27 de septiembre de 2026.
 2. **Documentación antigua**: se ha corregido la referencia obsoleta a la tabla `eventos` y a páginas administrativas que ya no forman parte de la arquitectura actual.
 3. **Integraciones externas**: cualquier automatización futura de redes sociales debe aislarse del gestor de experiencias y procesar un único ID seleccionado por operación.
 4. **Secretos**: no se publicarán claves `service_role`, tokens privados, contraseñas ni secretos de administración.
+
+
+## Políticas versionadas
+
+El repositorio incluye `supabase/security-policies.sql` con la política prevista para la arquitectura actual:
+
+- lectura anónima únicamente de experiencias con `publicado = true`;
+- lectura completa para usuarios autenticados;
+- altas, modificaciones y borrados solo para usuarios autenticados;
+- lectura pública del bucket `eventos` para imágenes servidas mediante `getPublicUrl()`;
+- escritura y borrado del bucket `eventos` únicamente para usuarios autenticados.
+
+Estas políticas quedan versionadas para evitar configuraciones ambiguas, pero su aplicación efectiva debe verificarse en el proyecto Supabase correspondiente.
