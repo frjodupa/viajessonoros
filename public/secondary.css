@@ -179,7 +179,8 @@ body.operational-page a:hover {
   width: 100%;
   height: 100%;
   display: block;
-  object-fit: cover;
+  object-fit: contain;
+  background: #f5f0e8;
 }
 
 .experiences-page .experience-card-image picture {
@@ -647,11 +648,8 @@ body.operational-page a:hover {
   max-height: none;
   display: block;
   border-radius: 0;
-  object-fit: cover;
-}
-
-.admin-image-preview .admin-image-frame.is-detail img {
   object-fit: contain;
+  background: #f5f0e8;
 }
 
 .admin-safe-zone {
@@ -662,44 +660,6 @@ body.operational-page a:hover {
   box-shadow: 0 0 0 1px rgba(82, 32, 109, 0.62);
 }
 
-.admin-focus-controls {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 8px 14px;
-  margin: 0;
-  padding: 10px 12px;
-  border: 1px solid rgba(82, 32, 109, 0.14);
-  border-radius: 10px;
-}
-
-.admin-focus-controls legend {
-  padding: 0 5px;
-  color: var(--vs-purple);
-  font-size: 0.78rem;
-  font-weight: 700;
-}
-
-.admin-focus-controls p {
-  grid-column: 1 / -1;
-  margin: 0;
-  color: #6d6570;
-  font-size: 0.72rem;
-}
-
-.admin-focus-controls label {
-  display: grid;
-  grid-template-columns: auto minmax(60px, 1fr) 34px;
-  align-items: center;
-  gap: 7px;
-  color: #5f536b;
-  font-size: 0.72rem;
-}
-
-.admin-focus-controls input[type='range'] {
-  width: 100%;
-  min-height: 30px;
-  padding: 0;
-}
 
 .experiences-page .experience-card-content {
   min-width: 0;
@@ -814,7 +774,8 @@ body.experience-detail-open {
   height: 100%;
   min-height: 480px;
   display: block;
-  object-fit: cover;
+  object-fit: contain;
+  background: #f5f0e8;
 }
 
 .experience-detail-media {
