@@ -8,6 +8,8 @@ const MAX_IMAGE_SIDE = 1600
 const CARD_IMAGE_WIDTH = 640
 const TARGET_IMAGE_BYTES = 500 * 1024
 const WEBP_QUALITIES = [0.82, 0.78, 0.74]
+const JPEG_QUALITIES = [0.9, 0.86, 0.82, 0.78]
+const SOCIAL_IMAGE_TARGET_BYTES = 700 * 1024
 const MIN_IMAGE_WIDTH = 640
 const MIN_IMAGE_HEIGHT = 427
 const IDEAL_RATIO_MIN = 381 / 260
@@ -96,6 +98,19 @@ const encodeWebP = async (canvas, originalSize) => {
   return selected
 }
 
+const encodeJPEG = async (canvas) => {
+  let selected = null
+  for (const quality of JPEG_QUALITIES) {
+    const blob = await canvasToBlob(canvas, 'image/jpeg', quality)
+    if (blob.type !== 'image/jpeg') {
+      throw new Error('Este navegador no permite crear imágenes JPEG.')
+    }
+    selected = { blob, quality }
+    if (blob.size <= SOCIAL_IMAGE_TARGET_BYTES) break
+  }
+  return selected
+}
+
 const extensionForType = (type) =>
   ({ 'image/jpeg': 'jpg', 'image/png': 'png', 'image/webp': 'webp' })[type]
 
@@ -166,25 +181,10 @@ export const optimizeExperienceImage = async (file) => {
       fullDimensions.width,
       fullDimensions.height,
     )
-    const webp = await encodeWebP(fullCanvas, file.size)
-    const needsPixelNormalization =
-      fullDimensions.width !== decoded.width ||
-      fullDimensions.height !== decoded.height
-
-    let fullBlob
-    let fullType
-    let quality = null
-
-    if (webp.blob.size < file.size || needsPixelNormalization) {
-      fullBlob = webp.blob
-      fullType = 'image/webp'
-      quality = webp.quality
-    } else {
-      // Si WebP no ahorra y no hay que redimensionar, el original es el fallback
-      // más fiel. Los navegadores aplican su orientación EXIF al mostrarlo.
-      fullBlob = file
-      fullType = file.type
-    }
+    const jpeg = await encodeJPEG(fullCanvas)
+    const fullBlob = jpeg.blob
+    const fullType = 'image/jpeg'
+    const quality = jpeg.quality
 
     let cardBlob = null
     let cardDimensions = null
