@@ -126,22 +126,36 @@ window.toggleBackgroundGallery=()=>{
     grid.dataset.ready='true'
   }
 }
-window.selectBackgroundGallery=(index)=>{
+window.selectBackgroundGallery=async(index)=>{
   const item=BACKGROUND_GALLERY[index]
   if(!item)return
-  const input=document.getElementById('f-imagen')
-  if(input)input.value=item.url
-  fileToUpload=null
-  imageDataUrl=item.url
-  optimizedImage=null
-  sourceOptimizedImage=null
-  existingImageFocus=null
-  setPreviewSources(item.url)
-  const preview=document.getElementById('preview-img')
-  if(preview)preview.style.display='grid'
-  const details=document.getElementById('image-details')
-  if(details)details.innerHTML=`<span>Fondo seleccionado: <strong>${escapeHTML(item.label)}</strong></span>`
+  showImageError('')
   document.querySelectorAll('.admin-background-option').forEach((button,buttonIndex)=>button.classList.toggle('is-selected',buttonIndex===index))
+  try{
+    const response=await fetch(item.url,{cache:'force-cache'})
+    if(!response.ok)throw new Error('No se pudo cargar el fondo seleccionado.')
+    const blob=await response.blob()
+    const file=new File([blob],item.url.split('/').pop()||'fondo-viajes-sonoros.jpg',{type:blob.type||'image/jpeg'})
+    if(optimizedImage)releaseOptimizedImage(optimizedImage)
+    if(sourceOptimizedImage&&sourceOptimizedImage!==optimizedImage)releaseOptimizedImage(sourceOptimizedImage)
+    const result=await optimizeExperienceImage(file)
+    fileToUpload=file
+    sourceOptimizedImage=result
+    optimizedImage=result
+    existingImageFocus=null
+    imageDataUrl=result.previewURL
+    const input=document.getElementById('f-imagen')
+    if(input)input.value=''
+    updateImagePreview(result)
+    const details=document.getElementById('image-details')
+    if(details)details.insertAdjacentHTML('afterbegin',`<span>Fondo corporativo: <strong>${escapeHTML(item.label)}</strong></span>`)
+  }catch(error){
+    fileToUpload=null
+    imageDataUrl=null
+    optimizedImage=null
+    sourceOptimizedImage=null
+    showImageError(error.message||'No se pudo preparar el fondo seleccionado.')
+  }
   window.updateAssistantState()
 }
 
