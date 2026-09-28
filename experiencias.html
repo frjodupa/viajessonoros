@@ -404,7 +404,7 @@ function renderAdminPanel(){ return `${headerHTML()}<main class="admin-premium-s
     <div>
       <span class="admin-premium-kicker">ADMIN · EXPERIENCIAS</span>
       <h2>Crear y gestionar experiencias</h2>
-      <p>Completa los datos, elige el fondo y revisa el resultado antes de guardar o publicar.</p>
+      <p>Completa los datos, selecciona la imagen y revisa el resultado antes de guardar o publicar.</p>
     </div>
     <button onclick="window.logout()" class="admin-logout">Cerrar sesión</button>
   </div>
@@ -417,7 +417,7 @@ function renderAdminPanel(){ return `${headerHTML()}<main class="admin-premium-s
   </section>
 
   <div class="admin-premium-grid">
-    <div class="admin-premium-column">
+    <div class="admin-main-column">
       <section class="admin-premium-card">
         <div class="admin-section-heading"><span>01</span><div><h3>Información principal</h3><p>Los datos esenciales de la experiencia.</p></div></div>
         <label class="admin-title-field">Título de la experiencia<input id="f-titulo" placeholder="Escribe un título claro y atractivo"/></label>
@@ -448,32 +448,21 @@ function renderAdminPanel(){ return `${headerHTML()}<main class="admin-premium-s
         <label>Descripción principal<textarea id="f-desc" rows="5" placeholder="Se generará con el asistente"></textarea></label>
         <label>Plazas o información adicional<textarea id="f-additional" rows="2" placeholder="Incluye únicamente información confirmada"></textarea></label>
       </section>
-
-      <section class="admin-premium-card">
-        <div class="admin-section-heading"><span>04</span><div><h3>Imagen</h3><p>Sube una fotografía o selecciona un fondo corporativo.</p></div></div>
-        <label class="admin-file-picker">Seleccionar fotografía real<input type="file" id="f-file" accept="image/jpeg,image/png,image/webp" onchange="window.previewFile(event)"/></label>
-        <p id="image-error" role="alert" class="admin-form-error"></p>
-        <div id="preview-img" class="admin-image-preview" style="display:none"><img id="img-prev" alt="Vista previa de la fotografía optimizada"/><div id="image-details" class="admin-image-details" aria-live="polite"></div></div>
-        <section class="admin-background-gallery" aria-labelledby="background-gallery-title">
-          <div class="admin-background-gallery-head">
-            <div>
-              <span>Fondos reutilizables</span>
-              <h3 id="background-gallery-title">Galería de fondos</h3>
-              <p>Selecciona un fondo corporativo para reutilizarlo en la experiencia.</p>
-            </div>
-            <button type="button" id="background-gallery-toggle" onclick="window.toggleBackgroundGallery()" aria-expanded="false">Abrir galería</button>
-          </div>
-          <div id="background-gallery-grid" class="admin-background-gallery-grid" hidden></div>
-          <input id="f-imagen" type="hidden" />
-        </section>
-      </section>
     </div>
 
-    <aside class="admin-premium-column admin-preview-column">
+    <aside class="admin-side-column">
       <section class="admin-premium-card admin-preview-sticky">
         <div class="admin-section-heading"><span>PREVIEW</span><div><h3>Vista previa premium</h3><p>Se actualiza mientras editas.</p></div></div>
         <article class="admin-live-card" id="admin-live-card">
-          <div class="admin-live-card-media"><img id="live-preview-image" src="" alt="" hidden/></div>
+          <div class="admin-live-card-media">
+            <div id="live-preview-placeholder" class="admin-preview-placeholder">
+              <div>
+                <strong>Vista previa de portada</strong>
+                <span>Selecciona una fotografía o un fondo corporativo.</span>
+              </div>
+            </div>
+            <img id="live-preview-image" alt="Vista previa de la experiencia" hidden/>
+          </div>
           <div class="admin-live-card-body">
             <span class="admin-live-eyebrow">VIAJES SONOROS · EXPERIENCIA</span>
             <h2 id="live-preview-title">Título de la experiencia</h2>
@@ -507,6 +496,29 @@ function renderAdminPanel(){ return `${headerHTML()}<main class="admin-premium-s
     </aside>
   </div>
 
+  <section class="admin-premium-card admin-image-section-full">
+    <div class="admin-section-heading"><span>04</span><div><h3>Imagen y fondos</h3><p>Sube una fotografía o reutiliza un fondo corporativo.</p></div></div>
+    <div class="admin-image-workspace">
+      <div class="admin-image-upload-column">
+        <label class="admin-file-picker">Seleccionar fotografía real<input type="file" id="f-file" accept="image/jpeg,image/png,image/webp" onchange="window.previewFile(event)"/></label>
+        <p id="image-error" role="alert" class="admin-form-error"></p>
+        <div id="preview-img" class="admin-image-preview" style="display:none"><img id="img-prev" alt="Vista previa de la fotografía optimizada"/><div id="image-details" class="admin-image-details" aria-live="polite"></div></div>
+      </div>
+      <section class="admin-background-gallery" aria-labelledby="background-gallery-title">
+        <div class="admin-background-gallery-head">
+          <div>
+            <span>Fondos reutilizables</span>
+            <h3 id="background-gallery-title">Galería de fondos</h3>
+            <p>Selecciona un fondo corporativo para reutilizarlo en la experiencia.</p>
+          </div>
+          <button type="button" id="background-gallery-toggle" onclick="window.toggleBackgroundGallery()" aria-expanded="false">Abrir galería</button>
+        </div>
+        <div id="background-gallery-grid" class="admin-background-gallery-grid" hidden></div>
+        <input id="f-imagen" type="hidden" />
+      </section>
+    </div>
+  </section>
+
   <section class="admin-list-section">
     <div class="admin-section-heading"><span>GESTIÓN</span><div><h3>Experiencias creadas</h3><p>Edita, genera historias o elimina experiencias.</p></div></div>
     <div id="lista-admin"></div>
@@ -529,10 +541,21 @@ window.updateAdminLivePreview=()=>{
   set('live-preview-price',price?('🎟 '+price):'🎟 Reserva tu plaza')
   set('live-preview-text',cardText)
   const preview=document.getElementById('live-preview-image')
+  const placeholder=document.getElementById('live-preview-placeholder')
   const source=document.getElementById('img-prev')
-  if(preview&&source){
-    const src=source.currentSrc||source.src||''
-    if(src){preview.src=src;preview.hidden=false}else preview.hidden=true
+  const hiddenImage=document.getElementById('f-imagen')
+  const sourceSrc=source&&!source.closest('#preview-img')?.style.display.includes('none')?(source.currentSrc||source.getAttribute('src')||''):''
+  const src=sourceSrc||hiddenImage?.value?.trim()||''
+  if(preview){
+    if(src){
+      preview.src=src
+      preview.hidden=false
+      if(placeholder)placeholder.hidden=true
+    }else{
+      preview.removeAttribute('src')
+      preview.hidden=true
+      if(placeholder)placeholder.hidden=false
+    }
   }
 }
 function render(){ const robots=document.querySelector('meta[name="robots"]');if(robots)robots.content=view==='experiencias'?'index,follow':'noindex,nofollow';const app=document.getElementById('app'); if(view==='experiencias'){ app.innerHTML=renderExperiencias(); experienceDetail.bind(); cargarEventos() } else if(view==='admin-login'){ app.innerHTML=renderAdminLogin() } else if(view==='admin-panel'){ app.innerHTML=renderAdminPanel(); prepareAdminImageGuide(); ['f-titulo','f-publicado','f-precio','f-fecha','f-hora','f-lugar','f-localidad','f-card-text','f-desc','f-additional'].forEach(id=>document.getElementById(id)?.addEventListener('input',window.updateAdminLivePreview)); setTimeout(()=>{window.renderAdminList();window.updateAdminLivePreview()},100) } }
