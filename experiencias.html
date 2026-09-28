@@ -106,7 +106,18 @@ body.operational-page {
 </script>
 </head>
 <body class="operational-page experiences-page">
-<div id="app"></div>
+<div id="app">
+  <main id="seo-fallback">
+    <h1>Experiencias y baños de sonido en Cáceres</h1>
+    <p>Consulta las próximas experiencias de Viajes Sonoros en Cáceres y Extremadura: viajes sonoros, baños de sonido, conciertos meditativos y sesiones de música en directo orientadas al descanso, la presencia y la relajación.</p>
+    <p>Las experiencias se actualizan periódicamente con fecha, lugar e información para reservar.</p>
+    <nav aria-label="Enlaces principales">
+      <a href="/">Inicio</a>
+      <a href="/tarjeta-usb.html">Tarjeta USB</a>
+      <a href="/pendrive-madera.html">Pendrive de madera</a>
+    </nav>
+  </main>
+</div>
 <script type="module">
 import { supabase } from '/src/supabase.js'
 import { installExperienceDetail, linkifyBroadcastListMentions } from '/src/experience-detail.js'
