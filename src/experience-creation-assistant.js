@@ -216,10 +216,12 @@ export const createExperienceCover = async ({
   try {
     const sourceWidth = image.width || image.naturalWidth
     const sourceHeight = image.height || image.naturalHeight
-    const { width, height } = getExperienceCoverDimensions(sourceWidth, sourceHeight)
-    if (width < 640 || height < 427) {
+    const width = Math.min(COVER_MAX_WIDTH, Math.max(1200, sourceWidth))
+    const height = Math.round(width / COVER_RATIO)
+    if (sourceWidth < 640 || sourceHeight < 427) {
       throw new Error('La fotografía no tiene resolución suficiente para crear la portada.')
     }
+
     const canvas = document.createElement('canvas')
     canvas.width = width
     canvas.height = height
@@ -227,35 +229,72 @@ export const createExperienceCover = async ({
     if (!context) throw new Error('El navegador no permite componer la portada.')
     context.imageSmoothingEnabled = true
     context.imageSmoothingQuality = 'high'
-    drawCoverImage(context, image, width, height, focusX, focusY)
 
-    const shade = context.createLinearGradient(0, 0, 0, height)
-    shade.addColorStop(0, 'rgba(30, 15, 38, 0.28)')
-    shade.addColorStop(0.46, 'rgba(30, 15, 38, 0.03)')
-    shade.addColorStop(1, 'rgba(30, 15, 38, 0.76)')
-    context.fillStyle = shade
+    // Arquitectura editorial: fotografía y contenido nunca comparten la misma zona.
+    // El 57% izquierdo se reserva a imagen y el 43% derecho a identidad y datos.
+    const photoWidth = Math.round(width * 0.57)
+    const textX = photoWidth
+    const textWidth = width - photoWidth
+
+    context.fillStyle = '#fffaf5'
     context.fillRect(0, 0, width, height)
 
-    const safeX = Math.round(width * 0.07)
-    const logoSize = fitLogo(logo, width * 0.18, height * 0.14)
-    context.drawImage(logo, safeX, Math.round(height * 0.055), logoSize.width, logoSize.height)
+    const sourceScale = Math.max(photoWidth / sourceWidth, height / sourceHeight)
+    const visibleWidth = photoWidth / sourceScale
+    const visibleHeight = height / sourceScale
+    const maxX = Math.max(0, sourceWidth - visibleWidth)
+    const maxY = Math.max(0, sourceHeight - visibleHeight)
+    const sourceX = maxX * Math.min(100, Math.max(0, focusX)) / 100
+    const sourceY = maxY * Math.min(100, Math.max(0, focusY)) / 100
+    context.drawImage(image, sourceX, sourceY, visibleWidth, visibleHeight, 0, 0, photoWidth, height)
 
-    context.fillStyle = '#fffdf9'
+    const panelGradient = context.createLinearGradient(textX, 0, width, height)
+    panelGradient.addColorStop(0, '#fffaf5')
+    panelGradient.addColorStop(0.72, '#fffdf9')
+    panelGradient.addColorStop(1, '#f4e8f7')
+    context.fillStyle = panelGradient
+    context.fillRect(textX, 0, textWidth, height)
+
+    const pad = Math.round(textWidth * 0.12)
+    const contentX = textX + pad
+    const maxContentWidth = textWidth - pad * 2
+    const logoSize = fitLogo(logo, textWidth * 0.48, height * 0.17)
+    const logoX = textX + Math.round((textWidth - logoSize.width) / 2)
+    const logoY = Math.round(height * 0.09)
+    context.drawImage(logo, logoX, logoY, logoSize.width, logoSize.height)
+
+    context.fillStyle = '#5b236f'
     context.textBaseline = 'alphabetic'
-    context.shadowColor = 'rgba(25, 12, 31, 0.35)'
-    context.shadowBlur = Math.max(4, width * 0.006)
-    context.font = `600 ${Math.round(width * 0.049)}px Georgia, serif`
-    context.fillText(String(title || '').slice(0, 42), safeX, Math.round(height * 0.75), width * 0.86)
-    context.font = `600 ${Math.round(width * 0.022)}px Montserrat, Arial, sans-serif`
-    context.fillText(String(dateText || '').slice(0, 54), safeX, Math.round(height * 0.835), width * 0.86)
-    context.font = `500 ${Math.round(width * 0.018)}px Montserrat, Arial, sans-serif`
-    context.fillText([timeText, locality].filter(Boolean).join(' · ').slice(0, 62), safeX, Math.round(height * 0.895), width * 0.86)
     context.shadowBlur = 0
+    context.font = `600 ${Math.round(width * 0.046)}px Georgia, serif`
+    const cleanTitle = String(title || '').slice(0, 42)
+    context.fillText(cleanTitle, contentX, Math.round(height * 0.53), maxContentWidth)
+
+    context.fillStyle = '#b36a19'
+    context.font = `600 ${Math.round(width * 0.020)}px Montserrat, Arial, sans-serif`
+    context.fillText('▣', contentX, Math.round(height * 0.66))
+    context.fillStyle = '#5b236f'
+    context.font = `500 ${Math.round(width * 0.020)}px Montserrat, Arial, sans-serif`
+    context.fillText(String(dateText || '').slice(0, 48), contentX + Math.round(width * 0.032), Math.round(height * 0.66), maxContentWidth - Math.round(width * 0.032))
+
+    context.fillStyle = '#b36a19'
+    context.font = `600 ${Math.round(width * 0.020)}px Montserrat, Arial, sans-serif`
+    context.fillText('⌖', contentX, Math.round(height * 0.75))
+    context.fillStyle = '#5b236f'
+    context.font = `500 ${Math.round(width * 0.020)}px Montserrat, Arial, sans-serif`
+    context.fillText([timeText, locality].filter(Boolean).join(' · ').slice(0, 48), contentX + Math.round(width * 0.032), Math.round(height * 0.75), maxContentWidth - Math.round(width * 0.032))
+
+    context.strokeStyle = 'rgba(179,106,25,.38)'
+    context.lineWidth = Math.max(1, Math.round(width * 0.0012))
+    context.beginPath()
+    context.moveTo(contentX, Math.round(height * 0.84))
+    context.lineTo(contentX + maxContentWidth, Math.round(height * 0.84))
+    context.stroke()
 
     const encoded = await encodeCoverJPEG(canvas)
     const cardCanvas = document.createElement('canvas')
-    cardCanvas.width = 640
-    cardCanvas.height = Math.round(640 / COVER_RATIO)
+    cardCanvas.width = 960
+    cardCanvas.height = Math.round(960 / COVER_RATIO)
     const cardContext = cardCanvas.getContext('2d', { alpha: false })
     if (!cardContext) throw new Error('No se pudo generar la variante para tarjetas.')
     cardContext.imageSmoothingEnabled = true
