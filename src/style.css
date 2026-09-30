@@ -413,7 +413,7 @@ a {
   width: 54%;
   max-width: 650px;
   padding: 70px 0 72px;
-  text-align: center;
+  text-align: left;
 }
 
 .hero h1 {
@@ -442,7 +442,7 @@ a {
 
 .hero-actions {
   display: flex;
-  justify-content: center;
+  justify-content: flex-start;
   flex-wrap: wrap;
   gap: 16px;
   margin-top: 31px;
@@ -492,7 +492,7 @@ a {
 .local-seo-section {
   position: relative;
   overflow: hidden;
-  padding: 92px 0;
+  padding: 68px 0;
   border-top: 1px solid var(--line);
   background:
     radial-gradient(circle at 88% 18%, rgba(197, 144, 49, 0.13), transparent 25%),
@@ -514,7 +514,7 @@ a {
 .local-seo-inner {
   position: relative;
   max-width: 1080px;
-  padding: clamp(42px, 5vw, 72px);
+  padding: clamp(34px, 4vw, 56px);
   border: 1px solid rgba(197, 144, 49, 0.28);
   border-radius: 30px;
   background: rgba(255, 253, 249, 0.84);
@@ -3098,6 +3098,11 @@ body.experience-detail-open .back-to-top {
 
   .hero-copy {
     padding: calc(var(--header-height) + 10px) 0 18px;
+    text-align: center;
+  }
+
+  .hero-actions {
+    justify-content: center;
   }
 
   .hero h1 {
@@ -3140,7 +3145,7 @@ body.experience-detail-open .back-to-top {
   }
 
   .local-seo-section {
-    padding: 58px 0;
+    padding: 46px 0;
   }
 
   .local-seo-section::before {
