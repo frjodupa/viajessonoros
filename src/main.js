@@ -140,6 +140,14 @@ const icons = {
       <path d="M3.5 9h17M3.5 15h17M12 3c2.3 2.5 3.5 5.5 3.5 9S14.3 18.5 12 21M12 3C9.7 5.5 8.5 8.5 8.5 12s1.2 6.5 3.5 9" />
     </svg>
   `,
+  share: `
+    <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+      <circle cx="18" cy="5" r="3" />
+      <circle cx="6" cy="12" r="3" />
+      <circle cx="18" cy="19" r="3" />
+      <path d="m8.7 10.7 6.6-4.1M8.7 13.3l6.6 4.1" />
+    </svg>
+  `,
   diamond: `
     <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
       <path d="m12 3 7 9-7 9-7-9 7-9Z" />
@@ -1239,6 +1247,11 @@ app.innerHTML = `
         <small>Web</small>
         <strong>viajessonoros.es</strong>
       </a>
+      <button class="contact-item share-site-button" type="button" aria-label="Compartir la web de Viajes Sonoros">
+        ${renderIcon('share', 'contact-icon')}
+        <small>Compartir</small>
+        <strong>Enviar esta web</strong>
+      </button>
     </div>
     <div class="footer-bottom">
       <nav class="legal-links" aria-label="Información legal">
@@ -1263,6 +1276,37 @@ const heroSection = document.querySelector('.hero')
 const shopSection = document.querySelector('.shop-section')
 const purchaseGuideSection = document.querySelector('.purchase-guide')
 const eventsSection = document.querySelector('.events-section')
+const shareSiteButton = document.querySelector('.share-site-button')
+
+shareSiteButton?.addEventListener('click', async () => {
+  const shareData = {
+    title: 'Viajes Sonoros',
+    text: 'Descubre Viajes Sonoros: experiencias de sonido, presencia y bienestar.',
+    url: window.location.origin,
+  }
+
+  if (navigator.share) {
+    try {
+      await navigator.share(shareData)
+      return
+    } catch (error) {
+      if (error?.name === 'AbortError') return
+    }
+  }
+
+  try {
+    await navigator.clipboard.writeText(shareData.url)
+    const label = shareSiteButton.querySelector('strong')
+    if (!label) return
+    const previousLabel = label.textContent
+    label.textContent = 'Enlace copiado'
+    window.setTimeout(() => {
+      label.textContent = previousLabel
+    }, 2200)
+  } catch {
+    window.prompt('Copia este enlace para compartir Viajes Sonoros:', shareData.url)
+  }
+})
 
 heroSection.after(shopSection)
 shopSection.after(purchaseGuideSection)
