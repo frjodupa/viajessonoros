@@ -2386,7 +2386,7 @@ body.product-detail-open .back-to-top {
 .footer-grid {
   min-height: 126px;
   display: grid;
-  grid-template-columns: 150px repeat(4, minmax(0, 1fr));
+  grid-template-columns: 150px repeat(5, minmax(0, 1fr));
   align-items: center;
   gap: 0;
 }
@@ -2439,6 +2439,22 @@ body.product-detail-open .back-to-top {
 
 .contact-item:hover strong {
   color: var(--purple);
+}
+
+.share-site-button {
+  width: 100%;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  background: transparent;
+  border: 0;
+  border-left: 1px solid var(--line);
+  cursor: pointer;
+}
+
+.share-site-button:focus-visible {
+  outline: 2px solid var(--purple);
+  outline-offset: -2px;
 }
 
 .footer-bottom {
