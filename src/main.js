@@ -672,9 +672,9 @@ app.innerHTML = `
 
       <nav class="main-nav" id="main-nav" aria-label="Navegación principal">
         <a class="active" href="#inicio">Inicio</a>
-        <a href="#tienda">Tienda</a>
         <a href="#eventos">Próximas experiencias</a>
         <a href="#experiencias">Experiencias</a>
+        <a href="#tienda">Tienda</a>
         <a href="#instrumentos">Instrumentos</a>
         <a href="#nosotros">Sobre nosotros</a>
         <a href="#contacto">Contacto</a>
@@ -686,14 +686,14 @@ app.innerHTML = `
     <section class="hero" id="inicio" aria-labelledby="hero-title">
       <div class="container hero-inner">
         <div class="hero-copy reveal">
-          <h1 id="hero-title">Lleva la experiencia de <strong>Viajes Sonoros contigo</strong></h1>
-          <p>Música, meditación y sonido para crear tu propio espacio de calma, estés donde estés</p>
+          <h1 id="hero-title">Experiencias de sonido para <strong>volver a ti</strong></h1>
+          <p>Música en directo, meditación y vibración para crear espacios de calma, presencia y conexión.</p>
           <div class="hero-actions">
-            <a class="button button-primary" href="#tienda">
-              Escuchar y elegir formato ${renderIcon('arrow', 'icon-arrow')}
-            </a>
-            <a class="button button-whatsapp" href="#eventos">
+            <a class="button button-primary" href="#eventos">
               Ver próximas experiencias ${renderIcon('arrow', 'icon-arrow')}
+            </a>
+            <a class="button button-whatsapp" href="#experiencias">
+              Descubrir Viajes Sonoros ${renderIcon('arrow', 'icon-arrow')}
             </a>
           </div>
         </div>
@@ -1276,6 +1276,7 @@ const heroSection = document.querySelector('.hero')
 const shopSection = document.querySelector('.shop-section')
 const purchaseGuideSection = document.querySelector('.purchase-guide')
 const eventsSection = document.querySelector('.events-section')
+const eventsCaptureSection = document.querySelector('.events-capture')
 const shareSiteButton = document.querySelector('.share-site-button')
 
 shareSiteButton?.addEventListener('click', async () => {
@@ -1308,9 +1309,8 @@ shareSiteButton?.addEventListener('click', async () => {
   }
 })
 
-heroSection.after(shopSection)
-shopSection.after(purchaseGuideSection)
-purchaseGuideSection.after(eventsSection)
+heroSection.after(eventsSection)
+eventsSection.after(eventsCaptureSection)
 linkifyBroadcastListMentions(app)
 
 landingExperienceDetail.bind()
