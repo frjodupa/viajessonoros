@@ -1,0 +1,15 @@
+import assert from 'node:assert/strict';
+import {bookingStore} from '../src/booking-store.js';
+const calls=[];
+const db={prepare(sql){const row={sql,params:[]};calls.push(row);return {bind(...values){row.params=values;return {async all(){return {results:[{status:'confirmed',seats:2}]};},async run(){return {meta:{changes:1}};}};}};}};
+const store=bookingStore(db);
+assert.deepEqual(await store.counts('exp'),{pending:0,confirmed:2,waitlist:0,cancelled:0});
+assert.deepEqual(await store.confirm({id:'r-1',eventId:'exp'}),{changed:true});
+assert.deepEqual(await store.cancel({id:'r-1',eventId:'exp'}),{changed:true});
+assert.equal(calls.length,3);
+assert.deepEqual(calls[1].params,['r-1','exp']);
+assert.match(calls[1].sql,/status IN \('pending','waitlist'\)/);
+assert.ok(calls.every(call=>!call.sql.includes('r-1')));
+await assert.rejects(()=>store.confirm({id:'',eventId:'exp'}),/requeridos/);
+assert.throws(()=>bookingStore(null),/D1/);
+console.log('PASS: adaptador interno D1; SQL parametrizado y sin rutas públicas');
