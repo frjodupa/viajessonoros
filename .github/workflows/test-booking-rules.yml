@@ -1,0 +1,17 @@
+name: Validate booking rules
+on:
+  pull_request:
+    paths:
+      - 'src/booking-rules.js'
+      - 'scripts/test-booking-rules.mjs'
+      - '.github/workflows/test-booking-rules.yml'
+  workflow_dispatch:
+jobs:
+  booking-rules:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: node scripts/test-booking-rules.mjs
