@@ -47,3 +47,24 @@ export function checkMinimumAttendance({minimum,confirmedSeats}){
     throw Error('Mínimo y asistentes confirmados requeridos');
   return {minimumReached:confirmedSeats>=minimum,missing:Math.max(0,minimum-confirmedSeats)};
 }
+
+/**
+ * Prevalidación de una confirmación. Debe ejecutarse DENTRO de una transacción
+ * con bloqueo o control de revisión; por sí sola NO garantiza aforo concurrente.
+ * Se usa un ID interno, no datos personales, para identificar la solicitud.
+ */
+export function evaluateConfirmation({reservationId,eventId,capacity,reservations=[]}){
+  if(!reservationId)throw Error('Identificador interno requerido');
+  if(!Number.isSafeInteger(capacity)||capacity<1)throw Error('Aforo no confirmado');
+  if(!Array.isArray(reservations))throw Error('Inventario inválido');
+  const items=reservations.map(item=>({...normalizeReservation(item),id:String(item.id??'')}));
+  const target=items.find(item=>item.id===String(reservationId)&&item.eventId===String(eventId));
+  if(!target)return {allowed:false,reason:'NOT_FOUND'};
+  if(target.status===BOOKING_STATES.CONFIRMED)return {allowed:true,alreadyConfirmed:true};
+  if(!validateTransition(target.status,BOOKING_STATES.CONFIRMED))
+    return {allowed:false,reason:'INVALID_TRANSITION'};
+  const occupied=items.filter(item=>item.eventId===target.eventId&&item.status===BOOKING_STATES.CONFIRMED)
+    .reduce((sum,item)=>sum+item.seats,0);
+  if(occupied+target.seats>capacity)return {allowed:false,reason:'FULL',availableSeats:Math.max(0,capacity-occupied)};
+  return {allowed:true,alreadyConfirmed:false,availableSeats:capacity-occupied-target.seats};
+}
