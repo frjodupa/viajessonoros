@@ -9,6 +9,8 @@ on:
       - 'src/booking-supabase-auth.js'
       - 'src/booking-private-controller.js'
       - 'src/booking-http-handler.js'
+      - 'src/booking-worker.js'
+      - 'scripts/test-booking-worker.mjs'
       - 'src/booking-dashboard.js'
       - 'src/booking-messages.js'
       - 'src/booking-message-action.js'
@@ -46,6 +48,7 @@ jobs:
       - run: node scripts/test-booking-supabase-auth.mjs
       - run: node scripts/test-booking-private-controller.mjs
       - run: node scripts/test-booking-http-handler.mjs
+      - run: node scripts/test-booking-worker.mjs
       - run: node scripts/test-booking-dashboard.mjs
       - run: node scripts/test-booking-messages.mjs
       - run: node scripts/test-booking-message-action.mjs
