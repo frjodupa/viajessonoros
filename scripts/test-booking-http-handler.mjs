@@ -1,0 +1,22 @@
+import assert from 'node:assert/strict';
+import {createBookingHttpHandler} from '../src/booking-http-handler.js';
+let reads=0;
+const db={prepare(){reads++;return {bind(){return {async all(){return {results:[]};},async run(){return {meta:{changes:1}};}}}}}};
+const handler=createBookingHttpHandler({db,authorize:async token=>({authorized:token==='Bearer test'})});
+const url='https://example.test/api/private/bookings';
+const req=(body,headers={'content-type':'application/json'},method='POST')=>
+  new Request(url,{method,headers,body:method==='POST'?JSON.stringify(body):undefined});
+let response=await handler(req({action:'counts',eventId:'evt'}));
+assert.equal(response.status,401);
+assert.equal(reads,0,'No se consulta D1 sin autorización');
+response=await handler(req({action:'counts',eventId:'evt'},{'content-type':'application/json',authorization:'Bearer test'}));
+assert.equal(response.status,200);
+assert.equal((await response.json()).counts.confirmed,0);
+assert.equal(response.headers.get('Cache-Control'),'no-store');
+response=await handler(req({}, {},'GET'));
+assert.equal(response.status,405);
+response=await handler(req({action:'counts',eventId:'evt'},{'content-type':'text/plain'}));
+assert.equal(response.status,415);
+response=await handler(new Request(url,{method:'POST',headers:{'content-type':'application/json'},body:'{invalid'}));
+assert.equal(response.status,400);
+console.log('PASS: private HTTP adapter denies anonymous access and invalid requests');
