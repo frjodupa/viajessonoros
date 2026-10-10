@@ -11,6 +11,8 @@ on:
       - 'src/booking-http-handler.js'
       - 'src/booking-dashboard.js'
       - 'src/booking-messages.js'
+      - 'src/booking-message-action.js'
+      - 'scripts/test-booking-message-action.mjs'
       - 'scripts/test-booking-messages.mjs'
       - 'scripts/test-booking-dashboard.mjs'
       - 'scripts/test-booking-http-handler.mjs'
@@ -38,5 +40,6 @@ jobs:
       - run: node scripts/test-booking-http-handler.mjs
       - run: node scripts/test-booking-dashboard.mjs
       - run: node scripts/test-booking-messages.mjs
+      - run: node scripts/test-booking-message-action.mjs
       - name: Test SQLite/D1 capacity triggers
         run: python3 scripts/test-d1-reservation-sql.py
