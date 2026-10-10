@@ -9,6 +9,8 @@ on:
       - 'src/booking-supabase-auth.js'
       - 'src/booking-private-controller.js'
       - 'src/booking-http-handler.js'
+      - 'src/booking-dashboard.js'
+      - 'scripts/test-booking-dashboard.mjs'
       - 'scripts/test-booking-http-handler.mjs'
       - 'scripts/test-booking-private-controller.mjs'
       - 'scripts/test-booking-supabase-auth.mjs'
@@ -32,5 +34,6 @@ jobs:
       - run: node scripts/test-booking-supabase-auth.mjs
       - run: node scripts/test-booking-private-controller.mjs
       - run: node scripts/test-booking-http-handler.mjs
+      - run: node scripts/test-booking-dashboard.mjs
       - name: Test SQLite/D1 capacity triggers
         run: python3 scripts/test-d1-reservation-sql.py
