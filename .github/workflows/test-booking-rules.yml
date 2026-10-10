@@ -26,6 +26,7 @@ on:
       - 'scripts/test-booking-admin-auth.mjs'
       - 'scripts/test-booking-store.mjs'
       - 'scripts/test-d1-reservation-sql.py'
+      - 'scripts/test-d1-concurrent-confirmation.py'
       - 'migrations/d1/**'
       - '.github/workflows/test-booking-rules.yml'
   workflow_dispatch:
@@ -51,3 +52,5 @@ jobs:
       - run: node scripts/test-booking-lifecycle.mjs
       - name: Test SQLite/D1 capacity triggers
         run: python3 scripts/test-d1-reservation-sql.py
+      - name: Test competing confirmations on SQLite
+        run: python3 scripts/test-d1-concurrent-confirmation.py
