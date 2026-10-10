@@ -4,6 +4,8 @@ on:
     paths:
       - 'src/booking-rules.js'
       - 'scripts/test-booking-rules.mjs'
+      - 'scripts/test-d1-reservation-sql.py'
+      - 'migrations/d1/**'
       - '.github/workflows/test-booking-rules.yml'
   workflow_dispatch:
 jobs:
@@ -15,3 +17,5 @@ jobs:
         with:
           node-version: '22'
       - run: node scripts/test-booking-rules.mjs
+      - name: Test SQLite/D1 capacity triggers
+        run: python3 scripts/test-d1-reservation-sql.py
