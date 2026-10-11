@@ -5,6 +5,8 @@ on:
       - 'src/booking-rules.js'
       - 'src/booking-public-request.js'
       - 'src/booking-test-api.js'
+      - 'src/booking-demo-journey.js'
+      - 'scripts/test-booking-demo-journey.mjs'
       - 'scripts/test-booking-test-api.mjs'
       - 'scripts/test-booking-public-request.mjs'
       - 'scripts/test-booking-rules.mjs'
@@ -67,6 +69,7 @@ jobs:
       - run: node scripts/test-booking-rules.mjs
       - run: node scripts/test-booking-public-request.mjs
       - run: node scripts/test-booking-test-api.mjs
+      - run: node scripts/test-booking-demo-journey.mjs
       - run: node scripts/test-booking-store.mjs
       - run: node scripts/test-booking-admin-auth.mjs
       - run: node scripts/test-booking-supabase-auth.mjs
