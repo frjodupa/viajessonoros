@@ -23,6 +23,7 @@ export function createBookingPanelClient({endpoint, getAccessToken, fetchImpl=fe
  }
  return Object.freeze({
    counts:eventId=>request('counts',eventId),
+   status:(eventId,id)=>request('status',eventId,id),
    confirm:(eventId,id)=>request('confirm',eventId,id),
    cancel:(eventId,id)=>request('cancel',eventId,id)
  });
