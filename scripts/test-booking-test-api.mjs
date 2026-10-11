@@ -1,0 +1,16 @@
+import assert from 'node:assert/strict';
+import {createIsolatedBookingTestApi} from '../src/booking-test-api.js';
+for(const environment of ['production','preview','staging',undefined])assert.throws(()=>createIsolatedBookingTestApi({environment,hostname:'localhost'}),/ISOLATED_TEST_ONLY/);
+for(const hostname of ['viajessonoros.es','test.viajessonoros.es','192.168.1.1'])assert.throws(()=>createIsolatedBookingTestApi({environment:'local-test',hostname}),/ISOLATED_TEST_ONLY/);
+const api=createIsolatedBookingTestApi({environment:'local-test',hostname:'localhost'});
+const req=(url,body,opts={})=>new Request(url,{method:'POST',headers:{'content-type':'application/json',...opts.headers},body:JSON.stringify(body)});
+const payload={eventId:'demo',name:'Persona Ficticia',phone:'000000000',seats:1};
+let res=await api(req('http://localhost/api/demo/bookings',payload));
+assert.equal(res.status,202);
+let json=await res.json();
+assert.deepEqual(json,{accepted:true,mode:'demo',status:'pending',seats:1});
+assert.equal(JSON.stringify(json).includes('000000000'),false);
+assert.equal((await api(req('https://viajessonoros.es/api/demo/bookings',payload))).status,403);
+assert.equal((await api(req('http://localhost/api/demo/bookings',payload,{headers:{origin:'https://viajessonoros.es'}}))).status,403);
+assert.equal((await api(req('http://localhost/api/demo/bookings',{...payload,seats:0}))).status,400);
+console.log('PASS: isolated test API blocks production and never persists personal data');
