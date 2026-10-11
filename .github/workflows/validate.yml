@@ -29,3 +29,12 @@ jobs:
 
       - name: Validar y compilar
         run: npm run build
+
+      - name: Guardar web compilada para pruebas sin despliegue
+        if: github.event_name == 'pull_request'
+        uses: actions/upload-artifact@v4
+        with:
+          name: viajessonoros-web-preview
+          path: dist/
+          retention-days: 7
+          if-no-files-found: error
