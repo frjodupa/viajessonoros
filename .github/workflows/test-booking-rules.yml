@@ -78,6 +78,7 @@ on:
       - 'scripts/test-booking-dashboard.mjs'
       - 'scripts/test-booking-http-handler.mjs'
       - 'scripts/test-booking-private-controller.mjs'
+      - 'scripts/test-booking-private-status.mjs'
       - 'scripts/test-booking-supabase-auth.mjs'
       - 'scripts/test-booking-admin-auth.mjs'
       - 'scripts/test-booking-store.mjs'
@@ -106,6 +107,7 @@ jobs:
       - run: node scripts/test-booking-admin-auth.mjs
       - run: node scripts/test-booking-supabase-auth.mjs
       - run: node scripts/test-booking-private-controller.mjs
+      - run: node scripts/test-booking-private-status.mjs
       - run: node scripts/test-booking-http-handler.mjs
       - run: node scripts/test-booking-worker.mjs
       - run: node scripts/test-booking-worker-security.mjs
