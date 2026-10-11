@@ -12,4 +12,8 @@ assert.throws(()=>createPublicBookingHttpHandler({register:async()=>({})}),/PUBL
 assert.equal((await handler(new Request('https://example.test/',{method:'GET'}))).status,405);
 const fails=createPublicBookingHttpHandler({verifyAbuse:async()=>true,register:async()=>({saved:false,error:'DUPLICATE_ACTIVE_REQUEST'})});
 assert.equal((await fails(request({}))).status,409);
+const wrongEvent=createPublicBookingHttpHandler({verifyAbuse:async()=>true,register:async()=>({saved:true,status:'pending',eventId:'wrong',reference:'BOOK-987654'})});
+assert.equal((await wrongEvent(request({eventId:'e1'}))).status,503);
+const badReference=createPublicBookingHttpHandler({verifyAbuse:async()=>true,register:async()=>({saved:true,status:'pending',eventId:'e1',reference:'x'})});
+assert.equal((await badReference(request({eventId:'e1'}))).status,503);
 console.log('PASS: public HTTP adapter guarded, no false registration, no deployed route');
