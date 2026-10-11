@@ -31,6 +31,7 @@ button:disabled{opacity:.5}button:focus-visible{outline:3px solid #dc9f28}
 </main><script type="module">
 import {buildAttendeeRows} from '../src/booking-attendee-list.js';
 import {prepareBookingMessage} from '../src/booking-messages.js';
+import {prepareManualBookingReply} from '../src/booking-manual-reply.js';
 import {createDemoMobilePanel} from '../src/booking-mobile-demo-controller.js';
 const event={title:'Viaje sonoro de demostración',date:'24/10/2026',time:'19:00',place:'Sala de pruebas'};
 const root=document.getElementById('bookings'),feedback=document.getElementById('feedback');
@@ -70,6 +71,21 @@ function draw(){
     await demo.presenter.change(action,row.id);
    });
    item.append(button);
+  }
+  if(row.status==='pending'||row.status==='confirmed'){
+   const reply=document.createElement('button');reply.type='button';reply.className='secondary';
+   reply.textContent=row.status==='confirmed'?'Preparar confirmación WhatsApp':'Preparar aviso pendiente';
+   reply.disabled=busy;
+   reply.addEventListener('click',()=>{
+    const decision=row.status==='confirmed'?'confirmed':'pending';
+    const prepared=prepareManualBookingReply({
+     event:{id:'DEMO-EVENT',titulo:event.title},
+     reservation:{id:row.id,eventId:'DEMO-EVENT',name:'Participante ficticio',phone:'600000000',persisted:true,status:row.status},
+     decision
+    });
+    feedback.textContent=prepared.text+' (DEMO: mensaje no enviado)';
+   });
+   item.append(reply);
   }
   if(row.status!=='waitlist'){
    const draft=document.createElement('button');draft.type='button';draft.className='secondary';draft.textContent='Ver borrador';
