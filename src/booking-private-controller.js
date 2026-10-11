@@ -25,6 +25,12 @@ export function createPrivateBookingController({db,authorize}){
           const result=await capacityStore.update({eventId,capacity,minimum});
           return {status:result.changed?200:409,body:result.changed?{changed:true}:{changed:false,error:result.reason||'EVENT_NOT_CONFIGURED'}};
         }
+        case 'status':{
+          if(typeof reservationId!=='string'||!reservationId.trim()||reservationId.length>128)
+            return {status:400,body:{error:'INVALID_RESERVATION'}};
+          const reservation=await store.status({id:reservationId,eventId});
+          return reservation?{status:200,body:{reservation}}:{status:404,body:{error:'NOT_FOUND'}};
+        }
         case 'counts':
           return {status:200,body:{eventId,counts:await store.counts(eventId)}};
         case 'confirm':
