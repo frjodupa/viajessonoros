@@ -34,5 +34,23 @@ export function createBookingMobilePresenter({gateway,eventId,capacity,minimum,o
    }finally{busy=false;}
    return refresh();
  }
- return Object.freeze({refresh,change});
+ async function checkReply(reservationId,decision){
+   if(busy)return false;
+   if(typeof reservationId!=='string'||!reservationId.trim()||!['pending','confirmed'].includes(decision))return false;
+   busy=true;
+   notify({phase:'checking'});
+   try{
+     const eligibility=await panel.checkReplyEligibility({eventId,reservationId,decision});
+     if(!eligibility.allowed){
+       notify({phase:'error',message:'El estado de la reserva ha cambiado. Actualiza antes de preparar el mensaje.'});
+       return false;
+     }
+     notify({phase:'reply-eligible',reservationId,decision,delivered:false,requiresPrivateContact:true});
+     return true;
+   }catch{
+     notify({phase:'error',message:'No se ha podido verificar la reserva con el servidor.'});
+     return false;
+   }finally{busy=false;}
+ }
+ return Object.freeze({refresh,change,checkReply});
 }
