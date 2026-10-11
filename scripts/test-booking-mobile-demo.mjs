@@ -1,0 +1,11 @@
+import assert from 'node:assert/strict';
+import {readFileSync} from 'node:fs';
+const html=readFileSync(new URL('../demos/booking-admin-mobile.html',import.meta.url),'utf8');
+assert.match(html,/<meta name="viewport"/);
+assert.match(html,/DEMOSTRACIÓN/);
+assert.match(html,/aria-live="polite"/);
+assert.match(html,/buildBookingDashboard/);
+assert.match(html,/buildAttendeeRows/);
+assert.match(html,/prepareBookingMessage/);
+assert.doesNotMatch(html,/https:\/\/wa\.me|supabase\.co|fetch\s*\(/);
+console.log('PASS: standalone mobile demo uses fake bookings, no network or messages sent');
