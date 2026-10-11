@@ -5,7 +5,7 @@ export function buildBookingWhatsAppDraft({event,request}){
  if(!Number.isSafeInteger(seats)||seats<1||seats>10)throw Error('SEATS_INVALID');
  const clean=value=>String(value??'').replace(/[\r\n\t]+/g,' ').trim();
  return [
- 'Solicitud de reserva · Viajes Sonoros'
+ 'Solicitud de reserva · Viajes Sonoros',
  'Experiencia: '+clean(event.titulo),
  'Fecha y hora: '+[clean(event.fecha),clean(event.hora)].filter(Boolean).join(' · '),
  'Lugar: '+(clean(event.lugar)||'Por confirmar'),
