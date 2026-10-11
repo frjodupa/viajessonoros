@@ -1,0 +1,72 @@
+<!doctype html>
+<html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex,nofollow"><title>Demo aislada · Panel de reservas</title>
+<style>
+:root{font-family:system-ui,-apple-system,sans-serif;color:#20312f;background:#f5f3ee}
+*{box-sizing:border-box}body{margin:0}main{max-width:720px;margin:auto;padding:20px}
+header{margin-bottom:24px}.eyebrow{font-size:.8rem;letter-spacing:.08em;text-transform:uppercase;color:#53776f}
+h1{font-size:clamp(1.6rem,5vw,2.3rem);margin:.3em 0}h2{font-size:1.15rem}
+.notice{background:#fff2cf;border-radius:10px;padding:12px;margin:16px 0}
+.card{background:#fff;border-radius:18px;padding:20px;margin:14px 0;box-shadow:0 2px 18px #26312d0b}
+.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.metric{background:#f4f7f5;padding:14px;border-radius:12px}
+.metric strong{display:block;font-size:1.7rem}.metric span{font-size:.83rem}
+progress{width:100%;height:16px;accent-color:#326b5a}
+.booking{border-top:1px solid #e6e7e3;padding:14px 0}.booking:first-child{border:0}
+.booking h3{font-size:1rem;margin:0 0 8px}.booking p{margin:0 0 10px}
+button{min-height:44px;border:0;border-radius:10px;padding:10px 15px;background:#225e50;color:white;font:inherit;margin:3px 6px 3px 0}
+button.secondary{background:#e8efed;color:#225e50}
+button:disabled{opacity:.5}button:focus-visible{outline:3px solid #dc9f28}
+#feedback{min-height:24px}small{color:#54645f}
+@media(max-width:360px){main{padding:12px}.card{padding:14px}}
+</style></head><body><main>
+<header><div class="eyebrow">Viajes Sonoros · Prototipo local</div><h1>Gestión de asistentes</h1>
+<p>Experiencia ficticia · 24 de octubre · Sala de pruebas</p></header>
+<div class="notice"><strong>DEMOSTRACIÓN.</strong> Sin asistentes reales, sin conexión a Supabase/D1 y sin envío de WhatsApp.</div>
+<section class="card" aria-labelledby="capacity-title"><h2 id="capacity-title">Ocupación</h2><p id="summary"></p>
+<progress id="capacity" max="12" value="0" aria-label="Plazas confirmadas"></progress>
+<div class="grid" id="metrics"></div><p id="minimum"></p></section>
+<section class="card" aria-labelledby="bookings-title"><h2 id="bookings-title">Solicitudes de ejemplo</h2>
+<div id="bookings"></div></section>
+<p id="feedback" role="status" aria-live="polite"></p>
+</main><script type="module">
+import {buildBookingDashboard} from '../src/booking-dashboard.js';
+import {buildAttendeeRows} from '../src/booking-attendee-list.js';
+import {prepareBookingMessage} from '../src/booking-messages.js';
+const event={title:'Viaje sonoro de demostración',date:'24/10/2026',time:'19:00',place:'Sala de pruebas'};
+const reservations=[
+{id:'DEMO-01',seats:2,status:'confirmed'},
+{id:'DEMO-02',seats:1,status:'pending'},
+{id:'DEMO-03',seats:2,status:'waitlist'}
+];
+const root=document.getElementById('bookings'),feedback=document.getElementById('feedback');
+const counts=()=>Object.fromEntries(['pending','confirmed','waitlist','cancelled'].map(status=>[status,reservations.filter(r=>r.status===status).reduce((a,r)=>a+r.seats,0)]));
+function draw(){
+const m=buildBookingDashboard({capacity:12,minimum:6,counts:counts()});
+document.getElementById('summary').textContent=m.confirmed+' de '+m.capacity+' plazas confirmadas';
+const p=document.getElementById('capacity');p.max=m.capacity;p.value=m.confirmed;
+document.getElementById('metrics').replaceChildren(...[
+['Disponibles',m.available],['Pendientes',m.pending],['Lista de espera',m.waitlist],['Canceladas',m.cancelled]
+].map(([label,value])=>{const d=document.createElement('div');d.className='metric';const num=document.createElement('strong');num.textContent=String(value);const span=document.createElement('span');span.textContent=label;d.append(num,span);return d;}));
+document.getElementById('minimum').textContent=m.minimumReached?'Aforo mínimo alcanzado':'Faltan '+m.missingMinimum+' plazas para el mínimo';
+root.replaceChildren(...buildAttendeeRows(reservations).map(row=>{
+const item=document.createElement('article');item.className='booking';
+const h=document.createElement('h3');h.textContent=row.id+' · '+row.label;
+const p=document.createElement('p');p.textContent=row.seats+' plaza(s)';
+item.append(h,p);
+for(const [label,allowed,status] of [['Confirmar',row.canConfirm,'confirmed'],['Cancelar',row.canCancel,'cancelled']]){
+if(!allowed)continue;const b=document.createElement('button');b.type='button';b.textContent=label;
+if(status==='cancelled')b.className='secondary';
+b.addEventListener('click',()=>{
+if(status==='confirmed'&&m.available<row.seats){feedback.textContent='No hay plazas suficientes';return;}
+const record=reservations.find(r=>r.id===row.id);record.status=status;feedback.textContent='Cambio ficticio aplicado a '+row.id;draw();
+});item.append(b);
+}
+const draft=document.createElement('button');draft.type='button';draft.className='secondary';draft.textContent='Ver borrador';
+draft.addEventListener('click',()=>{
+try{feedback.textContent=prepareBookingMessage({type:row.status==='waitlist'?'pending':row.status,title:event.title,date:event.date,time:event.time,place:event.place,seats:row.seats});}
+catch{feedback.textContent='No hay borrador para este estado';}
+});item.append(draft);return item;
+}));
+}
+draw();
+</script></body></html>
