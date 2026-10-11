@@ -4,7 +4,9 @@ const html=readFileSync(new URL('../demos/booking-admin-mobile.html',import.meta
 assert.match(html,/<meta name="viewport"/);
 assert.match(html,/DEMOSTRACIÓN/);
 assert.match(html,/aria-live="polite"/);
-assert.match(html,/buildBookingDashboard/);
+assert.match(html,/createDemoMobilePanel/);
+assert.match(html,/demo\.presenter\.change/);
+assert.match(html,/demo\.presenter\.refresh/);
 assert.match(html,/buildAttendeeRows/);
 assert.match(html,/prepareBookingMessage/);
 assert.doesNotMatch(html,/https:\/\/wa\.me|supabase\.co|fetch\s*\(/);
