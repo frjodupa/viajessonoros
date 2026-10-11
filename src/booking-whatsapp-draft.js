@@ -5,15 +5,14 @@ export function buildBookingWhatsAppDraft({event,request}){
  if(!Number.isSafeInteger(seats)||seats<1||seats>10)throw Error('SEATS_INVALID');
  const clean=value=>String(value??'').replace(/[\r\n\t]+/g,' ').trim();
  return [
- 'Hola, quiero solicitar una reserva para Viajes Sonoros.',
+ 'Solicitud de reserva · Viajes Sonoros'
  'Experiencia: '+clean(event.titulo),
- 'Fecha: '+(clean(event.fecha)||'Por confirmar'),
- 'Hora: '+(clean(event.hora)||'Por confirmar'),
+ 'Fecha y hora: '+[clean(event.fecha),clean(event.hora)].filter(Boolean).join(' · '),
  'Lugar: '+(clean(event.lugar)||'Por confirmar'),
  'Aportación: '+(clean(event.precio)||'Por confirmar'),
  'Nombre: '+clean(request.name),
  'Teléfono: '+clean(request.phone),
  'Plazas solicitadas: '+seats,
- 'Quedo pendiente de vuestra confirmación.'
+ 'Pendiente de confirmación por el organizador.'
  ].join('\n');
 }
