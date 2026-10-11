@@ -1,0 +1,15 @@
+import assert from 'node:assert/strict';
+import {createDemoMobilePanel} from '../src/booking-mobile-demo-controller.js';
+const states=[];
+const demo=createDemoMobilePanel({onState:s=>states.push(s)});
+assert.equal(await demo.presenter.refresh(),true);
+assert.equal(states.at(-1).overview.confirmed,2);
+assert.equal(await demo.presenter.change('confirm','DEMO-02'),true);
+assert.equal(states.at(-1).overview.confirmed,3);
+assert.equal(demo.bookings()[1].status,'confirmed');
+assert.equal(await demo.presenter.change('confirm','DEMO-02'),false);
+assert.equal(states.at(-1).phase,'error');
+assert.equal(await demo.presenter.change('cancel','DEMO-01'),true);
+assert.equal(states.at(-1).overview.available,11);
+assert.equal(demo.bookings()[0].status,'cancelled');
+console.log('PASS: demo mobile panel performs fake bookings through private presenter interface');
