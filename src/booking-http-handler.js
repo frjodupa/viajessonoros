@@ -22,7 +22,8 @@ export function createBookingHttpHandler({db,authorize}){
     }catch{return Response.json({error:'INVALID_JSON'},{status:400});}
     const result=await controller.run({
       authorization:request.headers.get('authorization'),
-      action:body.action,eventId:body.eventId,reservationId:body.reservationId
+      action:body.action,eventId:body.eventId,reservationId:body.reservationId,
+      capacity:body.capacity,minimum:body.minimum
     });
     return Response.json(result.body,{status:result.status,headers:{'Cache-Control':'no-store','X-Content-Type-Options':'nosniff'}});
   };
