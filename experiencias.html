@@ -305,7 +305,7 @@ window.reservarExperiencia=(id)=>{
   // Conserva el botón existente; abre el formulario contextual de la experiencia.
   window.location.href='/reserva.html?experiencia='+encodeURIComponent(String(ev.id))
 }
-const experienceDetail=installExperienceDetail({getExperiences:()=>eventos,getWhatsAppLink:getExperienceWhatsAppLink,isReservable})
+const experienceDetail=installExperienceDetail({getExperiences:()=>eventos,getWhatsAppLink:(ev)=>'/reserva.html?experiencia='+encodeURIComponent(String(ev.id)),isReservable})
 
 const hasValidAdmin=async()=>{if(!supabase)return false;const {data,error}=await supabase.auth.getUser();user=error?null:data.user;return Boolean(user)}
 window.loginAdmin=async()=>{const errorElement=document.getElementById('login-error');if(!supabase){errorElement.textContent='Supabase no está configurado.';errorElement.style.display='block';return}const email=document.getElementById('email-input')?.value.trim().toLowerCase();const password=document.getElementById('clave-input')?.value;try{const {data,error}=await supabase.auth.signInWithPassword({email,password});if(error)throw error;user=data.user;view='admin-panel';render()}catch(error){console.error('Supabase login error',authErrorDetails(error));errorElement.textContent=isInvalidCredentials(error)?'Email o contraseña incorrectos.':AUTH_CONNECTION_MESSAGE;errorElement.style.display='block'}}
