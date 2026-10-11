@@ -15,5 +15,9 @@ const invalidEvent=createProtectedBookingRegistration({db,protector,idFactory:()
 assert.deepEqual(await invalidEvent.register(input),{saved:false,error:'EVENT_NOT_AVAILABLE'});
 assert.equal(writes,1);
 const failure=createProtectedBookingRegistration({db:{prepare:()=>({bind:()=>({run:async()=>({meta:{changes:0}})})})},protector,idFactory:()=> 'BOOK-12345',verifyEvent:async()=>true});
-await assert.rejects(()=>failure.register(input),/BOOKING_NOT_PERSISTED/);
+assert.deepEqual(await failure.register(input),{saved:false,error:'BOOKING_STORAGE_UNAVAILABLE'});
+const duplicate=createProtectedBookingRegistration({db:{prepare:()=>({bind:()=>({run:async()=>{throw Error('UNIQUE constraint failed: reservations.experience_id, reservations.contact_hash')}})})},protector,idFactory:()=> 'BOOK-12345',verifyEvent:async()=>true});
+assert.deepEqual(await duplicate.register(input),{saved:false,error:'DUPLICATE_ACTIVE_REQUEST'});
+const unexpected=createProtectedBookingRegistration({db:{prepare:()=>({bind:()=>({run:async()=>{throw Error('secret internal failure')}})})},protector,idFactory:()=> 'BOOK-12345',verifyEvent:async()=>true});
+assert.deepEqual(await unexpected.register(input),{saved:false,error:'BOOKING_STORAGE_UNAVAILABLE'});
 console.log('PASS: protected booking flow validates, checks event, encrypts and only acknowledges saved pending record');
