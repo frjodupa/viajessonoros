@@ -69,6 +69,7 @@ on:
       - 'scripts/test-booking-full-sqlite-lifecycle.py'
       - 'scripts/test-d1-concurrent-confirmation.py'
       - 'scripts/test-d1-wrangler-local.mjs'
+      - 'scripts/test-d1-capacity-update-local.mjs'
       - 'tests/d1/**'
       - 'migrations/d1/**'
       - '.github/workflows/test-booking-rules.yml'
@@ -120,5 +121,7 @@ jobs:
         run: python3 scripts/test-booking-full-sqlite-lifecycle.py
       - name: Test competing confirmations on SQLite
         run: python3 scripts/test-d1-concurrent-confirmation.py
+      - name: Test Cloudflare D1 local capacity editing
+        run: node scripts/test-d1-capacity-update-local.mjs
       - name: Test Cloudflare D1 local with Wrangler
         run: node scripts/test-d1-wrangler-local.mjs
