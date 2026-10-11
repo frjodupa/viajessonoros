@@ -5,6 +5,7 @@ import {buildBookingDashboard} from './booking-dashboard.js';
 import {getExperienceBookingLimits} from './booking-experience-capacity.js';
 import {buildAttendeeRows} from './booking-attendee-list.js';
 import {prepareReservationWhatsAppDraft} from './booking-message-action.js';
+import {prepareManualBookingReply} from './booking-manual-reply.js';
 export function createBookingAdminPanel({gateway}){
  if(!gateway||typeof gateway.counts!=='function'||typeof gateway.confirm!=='function'||typeof gateway.cancel!=='function')
   throw Error('Gateway administrativo requerido');
@@ -27,6 +28,7 @@ export function createBookingAdminPanel({gateway}){
   overviewForExperience,
   changeStatus,
   attendeeRows:buildAttendeeRows,
-  whatsappDraft:prepareReservationWhatsAppDraft
+  whatsappDraft:prepareReservationWhatsAppDraft,
+  manualReply:prepareManualBookingReply
  });
 }
