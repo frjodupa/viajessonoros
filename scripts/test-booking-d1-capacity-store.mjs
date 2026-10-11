@@ -1,0 +1,13 @@
+import assert from 'node:assert/strict';
+import {createD1CapacityStore} from '../src/booking-d1-capacity-store.js';
+let query='',bindings=[];
+const db={prepare(sql){query=sql;return {bind(...items){bindings=items;return {async run(){return {meta:{changes:1}}}}}}}};
+const store=createD1CapacityStore(db);
+assert.deepEqual(await store.update({eventId:'demo',capacity:10,minimum:4}),{changed:true});
+assert.match(query,/UPDATE reservation_events/);
+assert.deepEqual(bindings,[10,4,'demo']);
+await assert.rejects(()=>store.update({eventId:'demo',capacity:2,minimum:3}),/CAPACITY_INVALID/);
+await assert.rejects(()=>store.update({eventId:'',capacity:2,minimum:1}),/EVENT_INVALID/);
+const full=createD1CapacityStore({prepare(){return {bind(){return {run:async()=>{throw Error('RESERVATION_CAPACITY_BELOW_CONFIRMED')}}}}}});
+assert.deepEqual(await full.update({eventId:'demo',capacity:2,minimum:1}),{changed:false,reason:'BELOW_CONFIRMED'});
+console.log('PASS: D1 capacity update uses same database and guards confirmed occupancy');
