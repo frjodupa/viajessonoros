@@ -27,6 +27,8 @@ on:
       - 'scripts/test-booking-mobile-demo-controller.mjs'
       - 'scripts/test-booking-mobile-presenter.mjs'
       - 'demos/booking-admin-mobile.html'
+      - 'demos/booking-customer-flow.html'
+      - 'scripts/test-booking-customer-flow.mjs'
       - 'scripts/test-booking-mobile-demo.mjs'
       - 'scripts/test-booking-admin-panel.mjs'
       - 'scripts/test-booking-admin-gateway.mjs'
@@ -77,6 +79,7 @@ jobs:
       - run: node scripts/test-booking-mobile-demo-controller.mjs
       - run: node scripts/test-booking-panel-mode.mjs
       - run: node scripts/test-booking-mobile-demo.mjs
+      - run: node scripts/test-booking-customer-flow.mjs
       - run: node scripts/test-booking-lifecycle.mjs
       - name: Test SQLite/D1 capacity triggers
         run: python3 scripts/test-d1-reservation-sql.py
