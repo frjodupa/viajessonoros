@@ -5,6 +5,7 @@ assert.deepEqual({...getExperienceBookingLimits(experience)},{eventId:'evt-demo'
 assert.equal(validateExperienceCapacityEdit({experience,nextCapacity:4,confirmedSeats:5}).reason,'BELOW_CONFIRMED');
 assert.equal(validateExperienceCapacityEdit({experience,nextCapacity:5,nextMinimum:6}).reason,'MINIMUM_ABOVE_CAPACITY');
 assert.equal(validateExperienceCapacityEdit({experience,nextCapacity:15,confirmedSeats:5}).allowed,true);
+assert.throws(()=>validateExperienceCapacityEdit({experience,nextCapacity:15}),/CONFIRMED_INVALID/);
 assert.throws(()=>getExperienceBookingLimits({...experience,aforo:undefined}),/CAPACITY_INVALID/);
 assert.throws(()=>getExperienceBookingLimits({...experience,aforo:0}),/CAPACITY_INVALID/);
 assert.throws(()=>getExperienceBookingLimits({...experience,aforo_minimo:20}),/MINIMUM_ABOVE_CAPACITY/);
