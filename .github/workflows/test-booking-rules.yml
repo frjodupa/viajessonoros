@@ -20,6 +20,8 @@ on:
       - 'scripts/test-booking-worker-security.mjs'
       - 'src/booking-dashboard.js'
       - 'src/booking-experience-capacity.js'
+      - 'src/booking-experience-capacity-update.js'
+      - 'scripts/test-booking-experience-capacity-update.mjs'
       - 'supabase/migrations/20261011_experiencias_aforo_propuesta.sql'
       - 'scripts/test-experience-capacity-migration.mjs'
       - 'scripts/test-booking-experience-capacity.mjs'
@@ -83,6 +85,7 @@ jobs:
       - run: node scripts/test-booking-worker-security.mjs
       - run: node scripts/test-booking-dashboard.mjs
       - run: node scripts/test-booking-experience-capacity.mjs
+      - run: node scripts/test-booking-experience-capacity-update.mjs
       - run: node scripts/test-experience-capacity-migration.mjs
       - run: node scripts/test-booking-messages.mjs
       - run: node scripts/test-booking-message-action.mjs
