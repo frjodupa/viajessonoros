@@ -25,6 +25,7 @@ on:
       - 'scripts/test-booking-public-request.mjs'
       - 'scripts/test-booking-rules.mjs'
       - 'src/booking-store.js'
+      - 'scripts/test-booking-admin-list.mjs'
       - 'src/booking-admin-auth.js'
       - 'src/booking-supabase-auth.js'
       - 'src/booking-private-controller.js'
@@ -156,6 +157,7 @@ jobs:
       - run: node scripts/test-booking-admin-session.mjs
       - run: node scripts/test-booking-admin-gateway.mjs
       - run: node scripts/test-booking-admin-panel.mjs
+      - run: node scripts/test-booking-admin-list.mjs
       - run: node scripts/test-booking-mobile-presenter.mjs
       - run: node scripts/test-booking-mobile-demo-controller.mjs
       - run: node scripts/test-booking-panel-mode.mjs
