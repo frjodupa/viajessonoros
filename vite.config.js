@@ -10,6 +10,7 @@ export default defineConfig({
         tarjetaUsb: resolve('tarjeta-usb.html'),
         pendriveMadera: resolve('pendrive-madera.html'),
         resetPassword: resolve('reset-password.html'),
+        bookingDemo: resolve('demos/booking-customer-flow.html'),
       },
     },
   },
