@@ -4,6 +4,7 @@ const page=readFileSync(new URL('../reserva.html',import.meta.url),'utf8');
 const experiences=readFileSync(new URL('../experiencias.html',import.meta.url),'utf8');
 const vite=readFileSync(new URL('../vite.config.js',import.meta.url),'utf8');
 assert.match(experiences,/window\.location\.href='\/reserva\.html\?experiencia='/);
+assert.match(experiences,/getWhatsAppLink:\(ev\)=>'\/reserva\.html\?experiencia='/);
 assert.match(vite,/reserva: resolve\('reserva\.html'\)/);
 assert.match(page,/validatePublicBookingRequest/);
 assert.match(page,/\.eq\('publicado',true\)/);
