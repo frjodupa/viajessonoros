@@ -6,6 +6,7 @@ export function createBookingAdminGateway({supabase,endpoint='/api/private/booki
  const client=createBookingPanelClient({endpoint,getAccessToken:()=>session.getAccessToken(),fetchImpl});
  return Object.freeze({
    counts:eventId=>client.counts(eventId),
+   status:(eventId,id)=>client.status(eventId,id),
    confirm:(eventId,id)=>client.confirm(eventId,id),
    cancel:(eventId,id)=>client.cancel(eventId,id),
    signOut:()=>session.signOut()
