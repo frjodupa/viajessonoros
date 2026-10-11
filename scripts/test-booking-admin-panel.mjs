@@ -8,6 +8,12 @@ const panel=createBookingAdminPanel({gateway:{
  cancel:async(eventId,id)=>{calls.push(['cancel',eventId,id]);return {changed:true}}
 }});
 assert.equal((await panel.reservationStatus({eventId:'event-test',reservationId:'r1'})).status,'pending');
+const eligibility=await panel.checkReplyEligibility({eventId:'event-test',reservationId:'r1',decision:'pending'});
+assert.equal(eligibility.allowed,true);
+assert.equal(eligibility.delivered,false);
+assert.equal(eligibility.requiresPrivateContact,true);
+assert.equal((await panel.checkReplyEligibility({eventId:'event-test',reservationId:'r1',decision:'confirmed'})).allowed,false);
+await assert.rejects(()=>panel.checkReplyEligibility({eventId:'event-test',reservationId:'r1',decision:'cancelled'}),/inválida/);
 const data=await panel.overview({eventId:'event-test',capacity:10,minimum:5});
 assert.equal(data.available,7);
 assert.equal(data.missingMinimum,2);
