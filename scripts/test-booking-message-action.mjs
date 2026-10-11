@@ -1,0 +1,15 @@
+import assert from 'node:assert/strict';
+import {prepareReservationWhatsAppDraft} from '../src/booking-message-action.js';
+const event={title:'Viaje sonoro',date:'24/10/2026',time:'19:00',place:'Sala de pruebas'};
+const phone='+34 600 000 000';
+const pending=prepareReservationWhatsAppDraft({event,phone,reservation:{status:'pending',seats:1}});
+assert.equal(pending.type,'pending');
+assert.match(pending.message,/pendiente de confirmación/);
+const confirmed=prepareReservationWhatsAppDraft({event,phone,reservation:{status:'confirmed',seats:2}});
+assert.equal(confirmed.type,'confirmed');
+assert.match(confirmed.message,/aforo mínimo/);
+assert.equal(new URL(confirmed.url).searchParams.get('text'),confirmed.message);
+assert.match(prepareReservationWhatsAppDraft({event,phone,reservation:{status:'cancelled',seats:1}}).message,/cancelada/);
+assert.throws(()=>prepareReservationWhatsAppDraft({event,phone,reservation:{status:'waitlist',seats:1}}),/no permite/);
+assert.throws(()=>prepareReservationWhatsAppDraft({event,phone:'bad',reservation:{status:'confirmed',seats:1}}),/inválido/);
+console.log('PASS: WhatsApp drafts follow reservation status without sending');

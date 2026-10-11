@@ -1,0 +1,16 @@
+import assert from 'node:assert/strict';
+import {prepareBookingMessage,makeWhatsAppDraftUrl} from '../src/booking-messages.js';
+const event={title:'Viaje sonoro',date:'24/10/2026',time:'19:00',place:'Sala de prueba',seats:2};
+const pending=prepareBookingMessage({...event,type:'pending'});
+assert.match(pending,/todavía no tienes la plaza confirmada/);
+const confirmed=prepareBookingMessage({...event,type:'confirmed'});
+assert.match(confirmed,/aforo mínimo/);
+assert.match(confirmed,/devolución/);
+assert.match(confirmed,/otro evento/);
+assert.match(prepareBookingMessage({...event,type:'minimum_not_reached'}),/no se celebrará/);
+assert.match(prepareBookingMessage({...event,type:'cancelled'}),/cancelada/);
+assert.equal(new URL(makeWhatsAppDraftUrl({phone:'+34 600 000 000',message:pending})).searchParams.get('text'),pending);
+assert.throws(()=>makeWhatsAppDraftUrl({phone:'abc',message:pending}));
+assert.throws(()=>prepareBookingMessage({...event,type:'confirmed',seats:0}));
+assert.throws(()=>prepareBookingMessage({...event,type:'unknown'}));
+console.log('PASS: mensajes manuales preparados sin envíos');

@@ -1,0 +1,12 @@
+import assert from 'node:assert/strict';
+import {readFileSync} from 'node:fs';
+const html=readFileSync(new URL('../experiencias.html',import.meta.url),'utf8');
+assert.match(html,/id="f-aforo"[^>]*disabled/);
+assert.match(html,/id="f-aforo-minimo"[^>]*disabled/);
+assert.match(html,/getElementById\('f-aforo'\)\.value=ev\.aforo/);
+assert.match(html,/getElementById\('f-aforo-minimo'\)\.value=ev\.aforo_minimo/);
+assert.match(html,/Todavía no se guardan cambios de aforo/);
+assert.doesNotMatch(html,/payload\.aforo\s*=/);
+assert.match(html,/Aforo pendiente de configurar/);
+assert.match(html,/Aforo: \$\{ev\.aforo\} plazas/);
+console.log('PASS: editor shows inherited capacity but cannot persist without safe schema and guard');

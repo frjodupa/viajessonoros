@@ -1,0 +1,15 @@
+import assert from 'node:assert/strict';
+import {createBookingWorker} from '../src/booking-worker.js';
+const db={prepare(){return {bind(){return {async all(){return {results:[]}}}}}}};
+assert.throws(()=>createBookingWorker({db}),/Configuración/);
+const worker=createBookingWorker({db,supabaseUrl:'https://example.supabase.co',anonKey:'public-test',adminUserIds:'admin-id',fetchImpl:async()=>({ok:true,json:async()=>({id:'admin-id'})})});
+const url='https://site.example/api/private/bookings';
+const body=JSON.stringify({action:'counts',eventId:'demo'});
+let r=await worker(new Request(url,{method:'POST',headers:{'content-type':'application/json',authorization:'Bearer test',origin:'https://evil.example'},body}));
+assert.equal(r.status,403);
+r=await worker(new Request('https://site.example/api/public/bookings',{method:'POST',headers:{'content-type':'application/json',authorization:'Bearer test'},body}));
+assert.equal(r.status,404);
+r=await worker(new Request(url,{method:'POST',headers:{'content-type':'application/json',authorization:'Bearer test',origin:'https://site.example'},body}));
+assert.equal(r.status,200);
+assert.equal((await r.json()).counts.confirmed,0);
+console.log('PASS: worker blocks cross-origin and invalid paths; authenticates admin');

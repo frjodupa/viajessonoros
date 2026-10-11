@@ -1,0 +1,21 @@
+import assert from 'node:assert/strict';
+import {readFileSync} from 'node:fs';
+const html=readFileSync(new URL('../demos/booking-customer-flow.html',import.meta.url),'utf8');
+for(const id of ['reservationForm','demoCapacity','demoMinimum','saveDemoCapacity','customerWhatsAppDraft','fillDemo','nombre','telefono','plazas','step1','step2','step3','step4','step5','showCompleted','confirm','cancel','draft','reset'])
+ assert.match(html,new RegExp('id="'+id+'"'));
+assert.match(html,/Mensaje de solicitud preparado/);
+assert.match(html,/logo-oficial\.png/);
+assert.match(html,/Persona de prueba/);
+assert.match(html,/000000000/);
+assert.match(html,/--vs-purple:#52206d/);
+assert.match(html,/--vs-gold:#c59031/);
+assert.match(html,/var sections=\['step1','step2','step3','step4','step5'\]/);
+assert.match(html,/Borrador de WhatsApp \(no enviado\)/);
+assert.match(html,/Simular recepción en mi WhatsApp/);
+assert.match(html,/Abrir WhatsApp no significa haber reservado/);
+assert.match(html,/registra manualmente la solicitud/);
+assert.match(html,/Aforo ficticio actualizado para esta experiencia/);
+assert.match(html,/no se guardan en Supabase/);
+assert.match(html,/form\.addEventListener\('submit'/);
+assert.doesNotMatch(html,/\bfetch\s*\(|XMLHttpRequest|localStorage|sessionStorage|https:\/\/wa\.me|supabase\.co/);
+console.log('PASS: fictional complete booking flow has no network or persistence');

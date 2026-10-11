@@ -1,0 +1,14 @@
+import assert from 'node:assert/strict';
+import {webcrypto} from 'node:crypto';
+import {createBookingContactProtector} from '../src/booking-contact-protection.js';
+const enc=Buffer.alloc(32,23).toString('base64'),hash=Buffer.alloc(32,71).toString('base64');
+const protector=await createBookingContactProtector({encryptionKeyBase64:enc,hashKeyBase64:hash,cryptoImpl:webcrypto});
+const input={eventId:'demo-event',name:'Persona de prueba',phone:'600000000'};
+const a=await protector.protect(input),b=await protector.protect(input);
+assert.equal(a.contactHash,b.contactHash);
+assert.notEqual(a.encryptedContact,b.encryptedContact);
+assert.equal(a.encryptedContact.includes(input.name),false);
+assert.match(a.contactHash,/^[a-f0-9]{64}$/);
+assert.notEqual((await protector.protect({...input,eventId:'other-event'})).contactHash,a.contactHash);
+await assert.rejects(()=>createBookingContactProtector({encryptionKeyBase64:'',hashKeyBase64:'',cryptoImpl:webcrypto}),/INVALID_CONTACT_KEY/);
+console.log('PASS: per-event HMAC prevents plain phone index; random authenticated contact encryption');

@@ -1,0 +1,12 @@
+import assert from 'node:assert/strict';
+import {isBookingEventUpcoming as upcoming} from '../src/booking-event-availability.js';
+const now=new Date(2026,9,11,12,0);
+assert.equal(upcoming({fecha:'2026-10-12',hora:'18:00',publicado:true},now),true);
+assert.equal(upcoming({fecha:'2026-10-10',hora:'18:00',publicado:true},now),false);
+assert.equal(upcoming({fecha:'2026-10-11',hora:'11:00',publicado:true},now),false);
+assert.equal(upcoming({fecha:'2026-10-11',hora:'18:00',publicado:true},now),true);
+assert.equal(upcoming({fecha:'2026-10-11',publicado:true},now),true);
+assert.equal(upcoming({fecha:'2026-02-30',publicado:true},now),false);
+assert.equal(upcoming({fecha:'2026-10-12',hora:'25:00',publicado:true},now),false);
+assert.equal(upcoming({fecha:'2026-10-12',publicado:false},now),false);
+console.log('PASS: reservation page rejects unpublished and past experiences');

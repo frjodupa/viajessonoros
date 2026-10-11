@@ -1,0 +1,14 @@
+import assert from 'node:assert/strict';
+import {prepareManualBookingReply} from '../src/booking-manual-reply.js';
+const event={id:'e1',titulo:'Viaje Sonoro'};
+const reservation={eventId:'e1',id:'r1',name:'Persona de prueba',phone:'600000000',status:'pending',persisted:true};
+const pending=prepareManualBookingReply({event,reservation,decision:'pending'});
+assert.match(pending.text,/pendiente de confirmación/);
+assert.equal(pending.delivered,false);
+assert.match(pending.url,/api\.whatsapp\.com\/send\?phone=600000000/);
+assert.throws(()=>prepareManualBookingReply({event,reservation,decision:'confirmed'}),/NOT_CONFIRMED/);
+const confirmed=prepareManualBookingReply({event,reservation:{...reservation,status:'confirmed'},decision:'confirmed'});
+assert.match(confirmed.text,/Confirmamos tu reserva/);
+assert.equal(confirmed.delivered,false);
+assert.throws(()=>prepareManualBookingReply({event,reservation:{...reservation,persisted:false},decision:'pending'}),/BOOKING_NOT_PERSISTED/);
+console.log('PASS: WhatsApp manual reply only matches saved server status and never claims delivery');

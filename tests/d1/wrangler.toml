@@ -1,0 +1,7 @@
+# Exclusivamente para pruebas locales de reservas. NO usar --remote.
+name = "viajessonoros-booking-local-test"
+compatibility_date = "2026-10-10"
+[[d1_databases]]
+binding = "BOOKINGS_DB"
+database_name = "viajessonoros-bookings-local-test"
+database_id = "00000000-0000-4000-8000-000000000001"

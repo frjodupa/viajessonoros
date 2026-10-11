@@ -7,9 +7,11 @@ export default defineConfig({
       input: {
         main: resolve('index.html'),
         experiencias: resolve('experiencias.html'),
+        reserva: resolve('reserva.html'),
         tarjetaUsb: resolve('tarjeta-usb.html'),
         pendriveMadera: resolve('pendrive-madera.html'),
         resetPassword: resolve('reset-password.html'),
+        bookingDemo: resolve('demos/booking-customer-flow.html'),
       },
     },
   },

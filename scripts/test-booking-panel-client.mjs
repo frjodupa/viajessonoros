@@ -1,0 +1,20 @@
+import assert from 'node:assert/strict';
+import {createBookingPanelClient} from '../src/booking-panel-client.js';
+const calls=[];
+const client=createBookingPanelClient({endpoint:'/api/private/bookings',getAccessToken:async()=> 'test-token',
+fetchImpl:async(url,options)=>{calls.push({url,options});return {ok:true,json:async()=>({eventId:'e1',counts:{confirmed:2}})};}});
+assert.equal((await client.counts('e1')).counts.confirmed,2);
+assert.equal(calls[0].url,'/api/private/bookings');
+assert.equal(calls[0].options.credentials,'same-origin');
+assert.equal(calls[0].options.cache,'no-store');
+assert.deepEqual(JSON.parse(calls[0].options.body),{action:'counts',eventId:'e1'});
+await client.confirm('e1','r1');
+assert.equal(JSON.parse(calls[1].options.body).action,'confirm');
+await client.cancel('e1','r1');
+assert.equal(JSON.parse(calls[2].options.body).action,'cancel');
+await client.status('e1','r1');
+assert.deepEqual(JSON.parse(calls[3].options.body),{action:'status',eventId:'e1',reservationId:'r1'});
+assert.throws(()=>createBookingPanelClient({endpoint:'https://external.example/api',getAccessToken:async()=>''}),/relativo/);
+const anonymous=createBookingPanelClient({endpoint:'/private',getAccessToken:async()=>null,fetchImpl:async()=>{throw Error('No network allowed');}});
+await assert.rejects(()=>anonymous.counts('e1'),/Sesión/);
+console.log('PASS: private same-origin booking panel client; no anonymous requests');

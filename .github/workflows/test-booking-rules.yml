@@ -1,0 +1,176 @@
+name: Validate booking rules
+on:
+  pull_request:
+    paths:
+      - 'src/booking-rules.js'
+      - 'src/booking-public-request.js'
+      - 'src/booking-submission-receipt.js'
+      - 'src/booking-public-client.js'
+      - 'src/booking-public-store.js'
+      - 'src/booking-contact-protection.js'
+      - 'src/booking-protected-registration.js'
+      - 'src/booking-public-http-handler.js'
+      - 'src/booking-public-service.js'
+      - 'scripts/test-booking-public-service.mjs'
+      - 'scripts/test-booking-public-http-handler.mjs'
+      - 'scripts/test-booking-protected-registration.mjs'
+      - 'scripts/test-booking-contact-protection.mjs'
+      - 'scripts/test-booking-public-store.mjs'
+      - 'scripts/test-booking-public-client.mjs'
+      - 'scripts/test-booking-submission-receipt.mjs'
+      - 'src/booking-test-api.js'
+      - 'src/booking-demo-journey.js'
+      - 'scripts/test-booking-demo-journey.mjs'
+      - 'scripts/test-booking-test-api.mjs'
+      - 'scripts/test-booking-public-request.mjs'
+      - 'scripts/test-booking-rules.mjs'
+      - 'src/booking-store.js'
+      - 'scripts/test-booking-admin-list.mjs'
+      - 'src/booking-admin-auth.js'
+      - 'src/booking-supabase-auth.js'
+      - 'src/booking-private-controller.js'
+      - 'src/booking-http-handler.js'
+      - 'src/booking-worker.js'
+      - 'scripts/test-booking-worker.mjs'
+      - 'scripts/test-booking-worker-security.mjs'
+      - 'src/booking-dashboard.js'
+      - 'src/booking-experience-capacity.js'
+      - 'src/booking-experience-capacity-update.js'
+      - 'src/booking-experience-capacity-editor.js'
+      - 'src/booking-capacity-sync.js'
+      - 'src/booking-d1-capacity-store.js'
+      - 'scripts/test-booking-d1-capacity-store.mjs'
+      - 'scripts/test-booking-capacity-sync.mjs'
+      - 'scripts/test-booking-capacity-race.mjs'
+      - 'scripts/test-booking-experience-capacity-editor.mjs'
+      - 'scripts/test-booking-experience-capacity-update.mjs'
+      - 'supabase/migrations/20261011_experiencias_aforo_propuesta.sql'
+      - 'scripts/test-experience-capacity-migration.mjs'
+      - 'experiencias.html'
+      - 'reserva.html'
+      - 'scripts/test-reservation-entrypoint.mjs'
+      - 'src/booking-event-availability.js'
+      - 'scripts/test-booking-event-availability.mjs'
+      - 'src/booking-whatsapp-draft.js'
+      - 'src/booking-receipt-template.js'
+      - 'src/booking-admin-notice.js'
+      - 'src/booking-notifications.js'
+      - 'src/booking-manual-reply.js'
+      - 'src/booking-verified-reply.js'
+      - 'scripts/test-booking-verified-reply.mjs'
+      - 'scripts/test-booking-manual-reply.mjs'
+      - 'scripts/test-booking-notifications.mjs'
+      - 'scripts/test-booking-admin-notice.mjs'
+      - 'scripts/test-booking-receipt-template.mjs'
+      - 'scripts/test-booking-whatsapp-draft.mjs'
+      - 'scripts/test-experience-admin-capacity-fields.mjs'
+      - 'scripts/test-booking-experience-capacity.mjs'
+      - 'src/booking-messages.js'
+      - 'src/booking-message-action.js'
+      - 'src/booking-attendee-list.js'
+      - 'src/booking-panel-client.js'
+      - 'src/booking-admin-session.js'
+      - 'src/booking-admin-gateway.js'
+      - 'src/booking-admin-panel.js'
+      - 'src/booking-mobile-presenter.js'
+      - 'src/booking-mobile-demo-controller.js'
+      - 'src/booking-panel-mode.js'
+      - 'scripts/test-booking-panel-mode.mjs'
+      - 'scripts/test-booking-mobile-demo-controller.mjs'
+      - 'scripts/test-booking-mobile-presenter.mjs'
+      - 'demos/booking-admin-mobile.html'
+      - 'demos/booking-customer-flow.html'
+      - 'scripts/test-booking-customer-flow.mjs'
+      - 'scripts/test-booking-mobile-demo.mjs'
+      - 'scripts/test-booking-admin-panel.mjs'
+      - 'scripts/test-booking-admin-gateway.mjs'
+      - 'scripts/test-booking-admin-session.mjs'
+      - 'scripts/test-booking-panel-client.mjs'
+      - 'scripts/test-booking-lifecycle.mjs'
+      - 'scripts/test-booking-attendee-list.mjs'
+      - 'scripts/test-booking-message-action.mjs'
+      - 'scripts/test-booking-messages.mjs'
+      - 'scripts/test-booking-dashboard.mjs'
+      - 'scripts/test-booking-http-handler.mjs'
+      - 'scripts/test-booking-private-controller.mjs'
+      - 'scripts/test-booking-private-status.mjs'
+      - 'scripts/test-booking-supabase-auth.mjs'
+      - 'scripts/test-booking-admin-auth.mjs'
+      - 'scripts/test-booking-store.mjs'
+      - 'scripts/test-d1-reservation-sql.py'
+      - 'scripts/test-booking-full-sqlite-lifecycle.py'
+      - 'scripts/test-d1-concurrent-confirmation.py'
+      - 'scripts/test-d1-wrangler-local.mjs'
+      - 'scripts/test-d1-capacity-update-local.mjs'
+      - 'tests/d1/**'
+      - 'migrations/d1/**'
+      - '.github/workflows/test-booking-rules.yml'
+  workflow_dispatch:
+jobs:
+  booking-rules:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: node scripts/test-booking-rules.mjs
+      - run: node scripts/test-booking-public-request.mjs
+      - run: node scripts/test-booking-submission-receipt.mjs
+      - run: node scripts/test-booking-public-client.mjs
+      - run: node scripts/test-booking-public-store.mjs
+      - run: node scripts/test-booking-contact-protection.mjs
+      - run: node scripts/test-booking-protected-registration.mjs
+      - run: node scripts/test-booking-public-http-handler.mjs
+      - run: node scripts/test-booking-public-service.mjs
+      - run: node scripts/test-booking-test-api.mjs
+      - run: node scripts/test-booking-demo-journey.mjs
+      - run: node scripts/test-booking-store.mjs
+      - run: node scripts/test-booking-admin-auth.mjs
+      - run: node scripts/test-booking-supabase-auth.mjs
+      - run: node scripts/test-booking-private-controller.mjs
+      - run: node scripts/test-booking-private-status.mjs
+      - run: node scripts/test-booking-http-handler.mjs
+      - run: node scripts/test-booking-worker.mjs
+      - run: node scripts/test-booking-worker-security.mjs
+      - run: node scripts/test-booking-dashboard.mjs
+      - run: node scripts/test-booking-experience-capacity.mjs
+      - run: node scripts/test-booking-experience-capacity-update.mjs
+      - run: node scripts/test-booking-experience-capacity-editor.mjs
+      - run: node scripts/test-booking-capacity-sync.mjs
+      - run: node scripts/test-booking-d1-capacity-store.mjs
+      - run: node scripts/test-booking-capacity-race.mjs
+      - run: node scripts/test-experience-capacity-migration.mjs
+      - run: node scripts/test-experience-admin-capacity-fields.mjs
+      - run: node scripts/test-reservation-entrypoint.mjs
+      - run: node scripts/test-booking-event-availability.mjs
+      - run: node scripts/test-booking-whatsapp-draft.mjs
+      - run: node scripts/test-booking-receipt-template.mjs
+      - run: node scripts/test-booking-admin-notice.mjs
+      - run: node scripts/test-booking-notifications.mjs
+      - run: node scripts/test-booking-manual-reply.mjs
+      - run: node scripts/test-booking-verified-reply.mjs
+      - run: node scripts/test-booking-messages.mjs
+      - run: node scripts/test-booking-message-action.mjs
+      - run: node scripts/test-booking-attendee-list.mjs
+      - run: node scripts/test-booking-panel-client.mjs
+      - run: node scripts/test-booking-admin-session.mjs
+      - run: node scripts/test-booking-admin-gateway.mjs
+      - run: node scripts/test-booking-admin-panel.mjs
+      - run: node scripts/test-booking-admin-list.mjs
+      - run: node scripts/test-booking-mobile-presenter.mjs
+      - run: node scripts/test-booking-mobile-demo-controller.mjs
+      - run: node scripts/test-booking-panel-mode.mjs
+      - run: node scripts/test-booking-mobile-demo.mjs
+      - run: node scripts/test-booking-customer-flow.mjs
+      - run: node scripts/test-booking-lifecycle.mjs
+      - name: Test SQLite/D1 capacity triggers
+        run: python3 scripts/test-d1-reservation-sql.py
+      - name: Test complete booking lifecycle on isolated SQLite
+        run: python3 scripts/test-booking-full-sqlite-lifecycle.py
+      - name: Test competing confirmations on SQLite
+        run: python3 scripts/test-d1-concurrent-confirmation.py
+      - name: Test Cloudflare D1 local capacity editing
+        run: node scripts/test-d1-capacity-update-local.mjs
+      - name: Test Cloudflare D1 local with Wrangler
+        run: node scripts/test-d1-wrangler-local.mjs

@@ -1,0 +1,12 @@
+import assert from 'node:assert/strict';
+import {buildBookingDashboard} from '../src/booking-dashboard.js';
+const m=buildBookingDashboard({capacity:15,minimum:8,counts:{confirmed:6,pending:3,waitlist:2,cancelled:1}});
+assert.equal(m.available,9);
+assert.equal(m.missingMinimum,2);
+assert.equal(m.minimumReached,false);
+assert.equal(m.occupancyPercent,40);
+assert.equal(buildBookingDashboard({capacity:8,minimum:5,counts:{confirmed:5}}).minimumReached,true);
+assert.throws(()=>buildBookingDashboard({capacity:3,minimum:2,counts:{confirmed:4}}),/superior/);
+assert.throws(()=>buildBookingDashboard({capacity:3,minimum:2,counts:{confirmed:-1}}),/inválido/);
+assert.throws(()=>buildBookingDashboard({capacity:3,minimum:4,counts:{}}),/inválido/);
+console.log('PASS: panel agregado sin datos personales');

@@ -1,0 +1,12 @@
+import assert from 'node:assert/strict';
+import {requireBookingAdmin} from '../src/booking-admin-auth.js';
+const verifyUser=async token=>token==='valid'?{id:'admin-1'}:null;
+const isAdmin=async id=>id==='admin-1';
+const authorize=authorization=>requireBookingAdmin({authorization,verifyUser,isAdmin});
+assert.deepEqual(await authorize('Bearer valid'),{authorized:true,userId:'admin-1'});
+assert.equal((await authorize('Bearer invalid')).reason,'UNAUTHENTICATED');
+assert.equal((await authorize('Basic valid')).reason,'UNAUTHENTICATED');
+assert.equal((await requireBookingAdmin({authorization:'Bearer valid',verifyUser,isAdmin:async()=>false})).reason,'FORBIDDEN');
+assert.equal((await requireBookingAdmin({authorization:'Bearer valid',verifyUser:async()=>{throw Error('network');},isAdmin})).reason,'UNAUTHENTICATED');
+await assert.rejects(()=>requireBookingAdmin({authorization:'Bearer valid',verifyUser}),/obligatorios/);
+console.log('PASS: booking admin auth is fail-closed');

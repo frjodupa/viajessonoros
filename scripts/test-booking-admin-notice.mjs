@@ -1,0 +1,13 @@
+import assert from 'node:assert/strict';
+import {prepareBookingAdminNotice} from '../src/booking-admin-notice.js';
+const reservation={persisted:true,status:'pending',id:'sol-001',eventId:'e1',name:'Persona de prueba',phone:'600000000',seats:2};
+const event={id:'e1',titulo:'Viaje Sonoro'};
+const result=prepareBookingAdminNotice({reservation,event});
+assert.equal(result.reference,'sol-001');
+assert.match(result.text,/Acción necesaria: revisar disponibilidad/);
+assert.match(result.text,/Plazas: 2/);
+assert.equal(result.requiresAdminAction,true);
+assert.throws(()=>prepareBookingAdminNotice({reservation:{...reservation,persisted:false},event}),/BOOKING_NOT_PERSISTED/);
+assert.throws(()=>prepareBookingAdminNotice({reservation:{...reservation,status:'confirmed'},event}),/BOOKING_NOT_PERSISTED/);
+assert.throws(()=>prepareBookingAdminNotice({reservation,event:{id:'e2'}}),/EVENT_MISMATCH/);
+console.log('PASS: admin notice exists only for persisted pending booking');

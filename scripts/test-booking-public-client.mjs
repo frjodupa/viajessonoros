@@ -1,0 +1,24 @@
+import assert from 'node:assert/strict';
+import {createPublicBookingClient} from '../src/booking-public-client.js';
+let calls=0;
+const client=createPublicBookingClient({fetchImpl:async(url,opts)=>{
+ calls++;
+ assert.equal(url,'/api/public/bookings');
+ assert.equal(opts.credentials,'same-origin');
+ assert.equal(Object.hasOwn(opts.headers,'authorization'),false);
+ assert.deepEqual(Object.keys(JSON.parse(opts.body)).sort(),['eventId','name','phone','seats']);
+ return {ok:true,json:async()=>({saved:true,eventId:'evt',status:'pending',reference:'BOOK-123456'})};
+}});
+const input={eventId:'evt',name:'Persona Ficticia',phone:'600000000',seats:2};
+assert.equal((await client.submit(input)).registered,true);
+assert.equal(calls,1);
+assert.equal((await client.submit({...input,name:'A'})).registered,false);
+assert.equal(calls,1);
+const offline=createPublicBookingClient({fetchImpl:async()=>{throw Error('offline')}});
+assert.equal((await offline.submit(input)).registered,false);
+const unsaved=createPublicBookingClient({fetchImpl:async()=>({ok:true,json:async()=>({accepted:true,mode:'demo',status:'pending'})})});
+assert.equal((await unsaved.submit(input)).registered,false);
+const denied=createPublicBookingClient({fetchImpl:async()=>({ok:false,status:429})});
+assert.equal((await denied.submit(input)).registered,false);
+assert.throws(()=>createPublicBookingClient({endpoint:'https://other.example'}),/PUBLIC_ENDPOINT_INVALID/);
+console.log('PASS: public booking client refuses unverified receipt and does not leak admin credentials');
