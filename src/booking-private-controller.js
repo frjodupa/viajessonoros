@@ -4,11 +4,13 @@
  * No devuelve teléfonos, emails ni hashes a los clientes.
  */
 import {bookingStore} from './booking-store.js';
+import {createD1CapacityStore} from './booking-d1-capacity-store.js';
 
 export function createPrivateBookingController({db,authorize}){
   if(typeof authorize!=='function')throw Error('Autorización obligatoria');
   const store=bookingStore(db);
-  async function run({authorization,action,eventId,reservationId}){
+  const capacityStore=createD1CapacityStore(db);
+  async function run({authorization,action,eventId,reservationId,capacity,minimum}){
     let identity;
     try{identity=await authorize(authorization);}
     catch{return {status:503,body:{error:'AUTH_UNAVAILABLE'}};}
@@ -17,6 +19,12 @@ export function createPrivateBookingController({db,authorize}){
       return {status:400,body:{error:'INVALID_EVENT'}};
     try{
       switch(action){
+        case 'capacity-update':{
+          if(!Number.isSafeInteger(capacity)||capacity<1||!Number.isSafeInteger(minimum)||minimum<1||minimum>capacity)
+            return {status:400,body:{error:'INVALID_CAPACITY'}};
+          const result=await capacityStore.update({eventId,capacity,minimum});
+          return {status:result.changed?200:409,body:result.changed?{changed:true}:{changed:false,error:result.reason||'EVENT_NOT_CONFIGURED'}};
+        }
         case 'counts':
           return {status:200,body:{eventId,counts:await store.counts(eventId)}};
         case 'confirm':
