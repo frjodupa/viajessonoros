@@ -10,6 +10,8 @@ assert.match(html,/demo\.presenter\.refresh/);
 assert.match(html,/buildAttendeeRows/);
 assert.match(html,/prepareBookingMessage/);
 assert.match(html,/prepareManualBookingReply/);
+assert.match(html,/demo\.presenter\.checkReply/);
+assert.match(html,/if\(!eligible\)return/);
 assert.match(html,/Preparar confirmación WhatsApp/);
 assert.match(html,/Preparar aviso pendiente/);
 assert.match(html,/mensaje no enviado/);
