@@ -13,17 +13,11 @@ export function buildBookingWhatsAppDraft({event,request}){
   ?'Bizum: '+amount+(seats>1?' ('+seats+' plazas × '+format(unit)+')':'')
   :'Aportación indicada en la experiencia: '+(raw||'Consultar importe antes de pagar');
  return [
-  'Solicitud de reserva · Viajes Sonoros',
-  'Experiencia: '+clean(event.titulo),
-  'Fecha y hora: '+[clean(event.fecha),clean(event.hora)].filter(Boolean).join(' · '),
-  'Lugar: '+(clean(event.lugar)||'Por confirmar'),
-  'Nombre: '+clean(request.name),
-  'Teléfono: '+clean(request.phone),
-  'Plazas solicitadas: '+seats,
-  priceLine,
-  amount
-   ?'Para tramitar tu reserva, realiza un Bizum de '+amount+' al 610 056 859 y adjunta aquí una captura del justificante (oculta datos bancarios que no sean necesarios).'
-   :'Antes de hacer el Bizum al 610 056 859, consúltanos el importe exacto de tu reserva.',
-  'Comprobaremos el justificante y la disponibilidad antes de confirmar tu reserva. Gracias.'
- ].join('\n');
+  'RESERVA · '+clean(event.titulo),
+  'Plazas: '+seats+' · '+priceLine,
+  'Bizum al 610 056 859. Envía la captura del justificante por este chat.',
+  'Fecha: '+[clean(event.fecha),clean(event.hora)].filter(Boolean).join(' · '),
+  'Nombre: '+clean(request.name)+' · Tel.: '+clean(request.phone),
+  amount?'Pendiente de comprobar pago y plazas.':'Consulta el importe exacto antes de pagar. Reserva pendiente.'
+ ].join('\\n');
 }
