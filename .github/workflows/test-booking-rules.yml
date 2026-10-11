@@ -34,6 +34,8 @@ on:
       - 'experiencias.html'
       - 'reserva.html'
       - 'scripts/test-reservation-entrypoint.mjs'
+      - 'src/booking-event-availability.js'
+      - 'scripts/test-booking-event-availability.mjs'
       - 'scripts/test-experience-admin-capacity-fields.mjs'
       - 'scripts/test-booking-experience-capacity.mjs'
       - 'src/booking-messages.js'
@@ -105,6 +107,7 @@ jobs:
       - run: node scripts/test-experience-capacity-migration.mjs
       - run: node scripts/test-experience-admin-capacity-fields.mjs
       - run: node scripts/test-reservation-entrypoint.mjs
+      - run: node scripts/test-booking-event-availability.mjs
       - run: node scripts/test-booking-messages.mjs
       - run: node scripts/test-booking-message-action.mjs
       - run: node scripts/test-booking-attendee-list.mjs
