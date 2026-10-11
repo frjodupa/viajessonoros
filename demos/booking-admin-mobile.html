@@ -29,44 +29,58 @@ button:disabled{opacity:.5}button:focus-visible{outline:3px solid #dc9f28}
 <div id="bookings"></div></section>
 <p id="feedback" role="status" aria-live="polite"></p>
 </main><script type="module">
-import {buildBookingDashboard} from '../src/booking-dashboard.js';
 import {buildAttendeeRows} from '../src/booking-attendee-list.js';
 import {prepareBookingMessage} from '../src/booking-messages.js';
+import {createDemoMobilePanel} from '../src/booking-mobile-demo-controller.js';
 const event={title:'Viaje sonoro de demostración',date:'24/10/2026',time:'19:00',place:'Sala de pruebas'};
-const reservations=[
-{id:'DEMO-01',seats:2,status:'confirmed'},
-{id:'DEMO-02',seats:1,status:'pending'},
-{id:'DEMO-03',seats:2,status:'waitlist'}
-];
 const root=document.getElementById('bookings'),feedback=document.getElementById('feedback');
-const counts=()=>Object.fromEntries(['pending','confirmed','waitlist','cancelled'].map(status=>[status,reservations.filter(r=>r.status===status).reduce((a,r)=>a+r.seats,0)]));
+let overview=null,busy=false;
+const demo=createDemoMobilePanel({onState(state){
+ busy=state.phase==='loading'||state.phase==='saving';
+ if(state.phase==='ready')overview=state.overview;
+ if(state.phase==='error')feedback.textContent=state.message;
+ draw();
+}});
 function draw(){
-const m=buildBookingDashboard({capacity:12,minimum:6,counts:counts()});
-document.getElementById('summary').textContent=m.confirmed+' de '+m.capacity+' plazas confirmadas';
-const p=document.getElementById('capacity');p.max=m.capacity;p.value=m.confirmed;
-document.getElementById('metrics').replaceChildren(...[
-['Disponibles',m.available],['Pendientes',m.pending],['Lista de espera',m.waitlist],['Canceladas',m.cancelled]
-].map(([label,value])=>{const d=document.createElement('div');d.className='metric';const num=document.createElement('strong');num.textContent=String(value);const span=document.createElement('span');span.textContent=label;d.append(num,span);return d;}));
-document.getElementById('minimum').textContent=m.minimumReached?'Aforo mínimo alcanzado':'Faltan '+m.missingMinimum+' plazas para el mínimo';
-root.replaceChildren(...buildAttendeeRows(reservations).map(row=>{
-const item=document.createElement('article');item.className='booking';
-const h=document.createElement('h3');h.textContent=row.id+' · '+row.label;
-const p=document.createElement('p');p.textContent=row.seats+' plaza(s)';
-item.append(h,p);
-for(const [label,allowed,status] of [['Confirmar',row.canConfirm,'confirmed'],['Cancelar',row.canCancel,'cancelled']]){
-if(!allowed)continue;const b=document.createElement('button');b.type='button';b.textContent=label;
-if(status==='cancelled')b.className='secondary';
-b.addEventListener('click',()=>{
-if(status==='confirmed'&&m.available<row.seats){feedback.textContent='No hay plazas suficientes';return;}
-const record=reservations.find(r=>r.id===row.id);record.status=status;feedback.textContent='Cambio ficticio aplicado a '+row.id;draw();
-});item.append(b);
+ if(!overview)return;
+ document.getElementById('summary').textContent=overview.confirmed+' de '+overview.capacity+' plazas confirmadas';
+ const progress=document.getElementById('capacity');progress.max=overview.capacity;progress.value=overview.confirmed;
+ document.getElementById('metrics').replaceChildren(...[
+ ['Disponibles',overview.available],['Pendientes',overview.pending],
+ ['Lista de espera',overview.waitlist],['Canceladas',overview.cancelled]
+ ].map(([label,value])=>{
+  const div=document.createElement('div');div.className='metric';
+  const strong=document.createElement('strong');strong.textContent=String(value);
+  const span=document.createElement('span');span.textContent=label;
+  div.append(strong,span);return div;
+ }));
+ document.getElementById('minimum').textContent=overview.minimumReached?'Aforo mínimo alcanzado':'Faltan '+overview.missingMinimum+' plazas para el mínimo';
+ root.replaceChildren(...buildAttendeeRows(demo.bookings()).map(row=>{
+  const item=document.createElement('article');item.className='booking';
+  const name=document.createElement('h3');name.textContent=row.id+' · '+row.label;
+  const count=document.createElement('p');count.textContent=row.seats+' plaza(s)';
+  item.append(name,count);
+  for(const [label,allowed,action] of [['Confirmar',row.canConfirm,'confirm'],['Cancelar',row.canCancel,'cancel']]){
+   if(!allowed)continue;
+   const button=document.createElement('button');button.type='button';button.textContent=label;
+   if(action==='cancel')button.className='secondary';
+   button.disabled=busy;
+   button.addEventListener('click',async()=>{
+    feedback.textContent='';
+    await demo.presenter.change(action,row.id);
+   });
+   item.append(button);
+  }
+  if(row.status!=='waitlist'){
+   const draft=document.createElement('button');draft.type='button';draft.className='secondary';draft.textContent='Ver borrador';
+   draft.disabled=busy;
+   draft.addEventListener('click',()=>{
+    feedback.textContent=prepareBookingMessage({type:row.status,title:event.title,date:event.date,time:event.time,place:event.place,seats:row.seats});
+   });
+   item.append(draft);
+  }
+  return item;
+ }));
 }
-const draft=document.createElement('button');draft.type='button';draft.className='secondary';draft.textContent='Ver borrador';
-draft.addEventListener('click',()=>{
-try{feedback.textContent=prepareBookingMessage({type:row.status==='waitlist'?'pending':row.status,title:event.title,date:event.date,time:event.time,place:event.place,seats:row.seats});}
-catch{feedback.textContent='No hay borrador para este estado';}
-});item.append(draft);return item;
-}));
-}
-draw();
+demo.presenter.refresh();
 </script></body></html>
