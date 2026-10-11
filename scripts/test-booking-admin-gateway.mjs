@@ -11,7 +11,8 @@ const api=createBookingAdminGateway({supabase,fetchImpl:async(url,options)=>{
 assert.equal((await api.counts('event-1')).counts.confirmed,1);
 await api.confirm('event-1','res-1');
 await api.cancel('event-1','res-1');
-assert.equal(network,3);
+await api.status('event-1','res-1');
+assert.equal(network,4);
 await api.signOut();
 assert.equal(signedOut,true);
 const expired=createBookingAdminGateway({supabase:{auth:{getSession:async()=>({data:{session:null}})}},fetchImpl:async()=>{throw Error('network prohibited')}});
