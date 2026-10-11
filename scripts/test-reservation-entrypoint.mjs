@@ -7,12 +7,15 @@ assert.match(experiences,/window\.location\.href='\/reserva\.html\?experiencia='
 assert.match(experiences,/getWhatsAppLink:\(ev\)=>'\/reserva\.html\?experiencia='/);
 assert.match(vite,/reserva: resolve\('reserva\.html'\)/);
 assert.match(page,/validatePublicBookingRequest/);
+assert.match(page,/window\\.location\\.assign\\(whatsappUrl\\)/);
+assert.doesNotMatch(page,/window\\.open\\(whatsappUrl/);
+assert.match(page,/seatsInput\\.addEventListener\\('input',updateTotal\\)/);
+assert.match(page,/id="booking-total"/);
 assert.match(page,/id="after-whatsapp" hidden/);
 assert.match(page,/He enviado mi solicitud/);
 assert.match(page,/id="request-received" hidden/);
 assert.match(page,/Solicitud comunicada · pendiente de confirmar/);
 assert.match(page,/Tu plaza todavía no está confirmada/);
-assert.match(page,/window\.open\(whatsappUrl,'_blank'/);
 assert.match(page,/WhatsApp no confirma entrega ni almacenamiento/);
 assert.match(page,/interpretBookingSubmission\(null/);
 assert.match(page,/Sin registro automático/);
