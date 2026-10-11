@@ -14,6 +14,12 @@ export function createDemoMobilePanel({onState}){
  ]));
  const gateway={
   async counts(id){if(id!==eventId)throw Error('Evento inválido');return {eventId,counts:counts()};},
+  async status(id,reservationId){
+   if(id!==eventId)throw Error('Evento inválido');
+   const row=bookings.find(x=>x.id===reservationId);
+   if(!row)throw Error('Reserva no encontrada');
+   return {reservation:{id:row.id,eventId,status:row.status,seats:row.seats}};
+  },
   async confirm(id,reservationId){
    if(id!==eventId)return {changed:false};
    const row=bookings.find(x=>x.id===reservationId);
