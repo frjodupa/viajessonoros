@@ -37,6 +37,8 @@ on:
       - 'src/booking-event-availability.js'
       - 'scripts/test-booking-event-availability.mjs'
       - 'src/booking-whatsapp-draft.js'
+      - 'src/booking-receipt-template.js'
+      - 'scripts/test-booking-receipt-template.mjs'
       - 'scripts/test-booking-whatsapp-draft.mjs'
       - 'scripts/test-experience-admin-capacity-fields.mjs'
       - 'scripts/test-booking-experience-capacity.mjs'
@@ -111,6 +113,7 @@ jobs:
       - run: node scripts/test-reservation-entrypoint.mjs
       - run: node scripts/test-booking-event-availability.mjs
       - run: node scripts/test-booking-whatsapp-draft.mjs
+      - run: node scripts/test-booking-receipt-template.mjs
       - run: node scripts/test-booking-messages.mjs
       - run: node scripts/test-booking-message-action.mjs
       - run: node scripts/test-booking-attendee-list.mjs
