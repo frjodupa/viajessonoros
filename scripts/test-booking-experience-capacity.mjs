@@ -3,7 +3,7 @@ import {getExperienceBookingLimits,validateExperienceCapacityEdit} from '../src/
 const experience={id:'evt-demo',titulo:'Viaje ficticio',precio:25,aforo:12,aforo_minimo:6};
 assert.deepEqual({...getExperienceBookingLimits(experience)},{eventId:'evt-demo',capacity:12,minimum:6});
 assert.equal(validateExperienceCapacityEdit({experience,nextCapacity:4,confirmedSeats:5}).reason,'BELOW_CONFIRMED');
-assert.equal(validateExperienceCapacityEdit({experience,nextCapacity:5,nextMinimum:6}).reason,'MINIMUM_ABOVE_CAPACITY');
+assert.equal(validateExperienceCapacityEdit({experience,nextCapacity:5,nextMinimum:6,confirmedSeats:2}).reason,'MINIMUM_ABOVE_CAPACITY');
 assert.equal(validateExperienceCapacityEdit({experience,nextCapacity:15,confirmedSeats:5}).allowed,true);
 assert.throws(()=>validateExperienceCapacityEdit({experience,nextCapacity:15}),/CONFIRMED_INVALID/);
 assert.throws(()=>getExperienceBookingLimits({...experience,aforo:undefined}),/CAPACITY_INVALID/);
