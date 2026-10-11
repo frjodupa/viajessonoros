@@ -1,0 +1,14 @@
+import assert from 'node:assert/strict';
+import {createPrivateBookingController} from '../src/booking-private-controller.js';
+let queries=0;
+const db={prepare(sql){queries++;assert.match(sql,/SELECT id, experience_id, status, seats, payment_status/);return{bind(...args){assert.deepEqual(args,['r1','evt']);return{async first(){return{id:'r1',experience_id:'evt',status:'pending',seats:2,payment_status:'unpaid',contact_private:'secret',contact_hash:'hash'}}}}}}};
+const denied=createPrivateBookingController({db,authorize:async()=>({authorized:false})});
+assert.equal((await denied.run({action:'status',eventId:'evt',reservationId:'r1'})).status,401);
+assert.equal(queries,0);
+const allowed=createPrivateBookingController({db,authorize:async()=>({authorized:true})});
+const result=await allowed.run({action:'status',eventId:'evt',reservationId:'r1'});
+assert.equal(result.status,200);
+assert.deepEqual(result.body.reservation,{id:'r1',eventId:'evt',status:'pending',seats:2,paymentStatus:'unpaid'});
+assert.equal(JSON.stringify(result).includes('secret'),false);
+assert.equal((await allowed.run({action:'status',eventId:'evt'})).status,400);
+console.log('PASS: private booking status is admin-only and excludes personal data');
