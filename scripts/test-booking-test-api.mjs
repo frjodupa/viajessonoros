@@ -13,4 +13,8 @@ assert.equal(JSON.stringify(json).includes('000000000'),false);
 assert.equal((await api(req('https://viajessonoros.es/api/demo/bookings',payload))).status,403);
 assert.equal((await api(req('http://localhost/api/demo/bookings',payload,{headers:{origin:'https://viajessonoros.es'}}))).status,403);
 assert.equal((await api(req('http://localhost/api/demo/bookings',{...payload,seats:0}))).status,400);
+assert.equal((await api(req('http://localhost/api/demo/bookings',payload,{headers:{origin:'not a valid URL'}}))).status,403);
+assert.equal((await api(req('http://localhost/api/demo/bookings',payload,{headers:{'content-type':'application/json-untrusted'}}))).status,415);
+assert.equal((await api(req('http://localhost/api/demo/bookings',payload,{headers:{origin:'http://localhost'}}))).status,202);
+assert.equal((await api(null)).status,400);
 console.log('PASS: isolated test API blocks production and never persists personal data');
