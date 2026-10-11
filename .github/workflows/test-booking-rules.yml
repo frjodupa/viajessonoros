@@ -41,6 +41,8 @@ on:
       - 'src/booking-admin-notice.js'
       - 'src/booking-notifications.js'
       - 'src/booking-manual-reply.js'
+      - 'src/booking-verified-reply.js'
+      - 'scripts/test-booking-verified-reply.mjs'
       - 'scripts/test-booking-manual-reply.mjs'
       - 'scripts/test-booking-notifications.mjs'
       - 'scripts/test-booking-admin-notice.mjs'
@@ -123,6 +125,7 @@ jobs:
       - run: node scripts/test-booking-admin-notice.mjs
       - run: node scripts/test-booking-notifications.mjs
       - run: node scripts/test-booking-manual-reply.mjs
+      - run: node scripts/test-booking-verified-reply.mjs
       - run: node scripts/test-booking-messages.mjs
       - run: node scripts/test-booking-message-action.mjs
       - run: node scripts/test-booking-attendee-list.mjs
