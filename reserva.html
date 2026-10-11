@@ -7,18 +7,20 @@
 <script type="module">
 import {supabase} from '/src/supabase.js';
 import {validatePublicBookingRequest} from '/src/booking-public-request.js';
+import {isBookingEventUpcoming} from '/src/booking-event-availability.js';
 const id=new URLSearchParams(location.search).get('experiencia');
 const loading=document.getElementById('loading'),details=document.getElementById('details');
 const info=document.getElementById('event-meta');
 const validId=typeof id==='string'&&/^[a-zA-Z0-9_-]{1,128}$/.test(id);
 const {data:event,error}=validId?await supabase.from('experiencias').select('id,titulo,fecha,hora,precio,lugar,publicado').eq('id',id).eq('publicado',true).maybeSingle():{data:null,error:new Error('INVALID_EVENT')};
-if(error||!event){loading.textContent='No se ha encontrado una experiencia disponible para esta solicitud.';}
+if(error||!event||!isBookingEventUpcoming(event)){loading.textContent='Esta experiencia no está disponible para nuevas solicitudes. Consulta las próximas fechas.';}
 else{
  loading.hidden=true;details.hidden=false;
  document.getElementById('event-title').textContent=event.titulo;
  info.textContent=[event.fecha,event.hora,event.lugar,event.precio].filter(Boolean).join(' · ');
  document.getElementById('booking-form').addEventListener('submit',e=>{
   e.preventDefault();
+  if(!isBookingEventUpcoming(event)){document.getElementById('error').textContent='Esta experiencia ya no admite solicitudes.';return;}
   const name=document.getElementById('name').value.trim(),phone=document.getElementById('phone').value.trim(),seats=Number(document.getElementById('seats').value);
   const validation=validatePublicBookingRequest({eventId:String(event.id),name,phone,seats});
   const errorNode=document.getElementById('error');
