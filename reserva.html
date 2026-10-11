@@ -1,0 +1,31 @@
+<!doctype html>
+<html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex,nofollow"><title>Solicitar reserva · Viajes Sonoros</title>
+<style>:root{font-family:system-ui,-apple-system,sans-serif;color:#321b42;background:#fbf7f0}*{box-sizing:border-box}body{margin:0}main{max-width:560px;margin:30px auto;padding:18px}header{text-align:center}header img{width:210px;max-width:80%}h1{font-family:Georgia,serif;font-size:2.2rem;margin:10px 0}.card{background:white;border:1px solid #eadfed;border-radius:20px;padding:24px;box-shadow:0 15px 36px #52206d12}p{line-height:1.55}.muted{color:#786c7c}label{display:block;font-weight:650;margin:17px 0}input{display:block;width:100%;font:inherit;margin-top:7px;padding:13px;border:1px solid #cabbd1;border-radius:10px}button{border:0;border-radius:12px;background:#52206d;color:white;font:inherit;font-weight:700;padding:15px;width:100%;cursor:pointer}button:disabled{opacity:.5}a{color:#52206d}#error{color:#a82730}small{display:block;margin-top:16px;line-height:1.5}</style></head>
+<body><main><header><a href="/experiencias.html"><img src="/logo-oficial.png" alt="Viajes Sonoros"></a><h1>Solicita tu reserva</h1></header>
+<section class="card"><p id="loading">Consultando la experiencia…</p><div id="details" hidden><h2 id="event-title"></h2><p class="muted" id="event-meta"></p><form id="booking-form"><label>Nombre y apellidos<input id="name" required minlength="2" maxlength="100" autocomplete="name"></label><label>Teléfono de contacto<input id="phone" required type="tel" inputmode="tel" autocomplete="tel" placeholder="+34 600 000 000"></label><label>Plazas que deseas solicitar<input id="seats" type="number" required min="1" max="10" value="1"></label><p id="error" role="alert"></p><button type="submit">Continuar por WhatsApp</button><small>Se abrirá WhatsApp con los datos de tu solicitud. Debes pulsar enviar allí. La reserva no está confirmada hasta que recibas respuesta del organizador. Este formulario no guarda todavía los participantes automáticamente.</small></form></div></section><p><a href="/experiencias.html">← Volver a experiencias</a></p></main>
+<script type="module">
+import {supabase} from '/src/supabase.js';
+import {validatePublicBookingRequest} from '/src/booking-public-request.js';
+const id=new URLSearchParams(location.search).get('experiencia');
+const loading=document.getElementById('loading'),details=document.getElementById('details');
+const info=document.getElementById('event-meta');
+const validId=typeof id==='string'&&/^[a-zA-Z0-9_-]{1,128}$/.test(id);
+const {data:event,error}=validId?await supabase.from('experiencias').select('id,titulo,fecha,hora,precio,lugar,publicado').eq('id',id).eq('publicado',true).maybeSingle():{data:null,error:new Error('INVALID_EVENT')};
+if(error||!event){loading.textContent='No se ha encontrado una experiencia disponible para esta solicitud.';}
+else{
+ loading.hidden=true;details.hidden=false;
+ document.getElementById('event-title').textContent=event.titulo;
+ info.textContent=[event.fecha,event.hora,event.lugar,event.precio].filter(Boolean).join(' · ');
+ document.getElementById('booking-form').addEventListener('submit',e=>{
+  e.preventDefault();
+  const name=document.getElementById('name').value.trim(),phone=document.getElementById('phone').value.trim(),seats=Number(document.getElementById('seats').value);
+  const validation=validatePublicBookingRequest({eventId:String(event.id),name,phone,seats});
+  const errorNode=document.getElementById('error');
+  if(!validation.valid){errorNode.textContent='Revisa el nombre, el teléfono y el número de plazas.';return;}
+  errorNode.textContent='';
+  const text=['Hola, quiero solicitar una reserva para Viajes Sonoros.','Experiencia: '+event.titulo,'Fecha: '+(event.fecha||'Por confirmar'),'Hora: '+(event.hora||'Por confirmar'),'Lugar: '+(event.lugar||'Por confirmar'),'Aportación: '+(event.precio||'Por confirmar'),'Nombre: '+name,'Teléfono: '+phone,'Plazas solicitadas: '+seats,'Quedo pendiente de vuestra confirmación.'].join('\n');
+  window.location.assign('https://api.whatsapp.com/send?phone=34610056859&text='+encodeURIComponent(text));
+ });
+}
+</script></body></html>
