@@ -1,0 +1,13 @@
+import assert from 'node:assert/strict';
+import {webcrypto,randomUUID} from 'node:crypto';
+import {createBookingPublicService} from '../src/booking-public-service.js';
+const cryptoImpl={...webcrypto,subtle:webcrypto.subtle,getRandomValues:bytes=>webcrypto.getRandomValues(bytes),randomUUID};
+let writes=0;
+const db={prepare:sql=>({bind:(...args)=>({run:async()=>{writes++;assert.match(sql,/INSERT INTO reservations/);assert.match(args[3],/^v1:/);return{meta:{changes:1}}}})})};
+const service=await createBookingPublicService({db,cryptoImpl,encryptionKeyBase64:Buffer.alloc(32,3).toString('base64'),hashKeyBase64:Buffer.alloc(32,8).toString('base64'),verifyAbuse:async()=>true,verifyEvent:async({eventId})=>eventId==='evt'});
+const req=(eventId)=>new Request('https://site.test/api/public/bookings',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({eventId,name:'Persona ficticia',phone:'600000000',seats:1})});
+const result=await service(req('evt'));assert.equal(result.status,201);const body=await result.json();assert.equal(body.saved,true);assert.match(body.reference,/^BOOK-/);assert.equal(writes,1);
+assert.equal((await service(req('other'))).status,409);assert.equal(writes,1);
+await assert.rejects(()=>createBookingPublicService({db,cryptoImpl,verifyAbuse:async()=>true,verifyEvent:async()=>true}),/CONTACT_KEYS_REQUIRED/);
+await assert.rejects(()=>createBookingPublicService({db,cryptoImpl,verifyEvent:async()=>true}),/PUBLIC_BOOKING_CONFIGURATION_REQUIRED/);
+console.log('PASS: isolated public HTTP to encrypted D1 write; missing security fails closed');
