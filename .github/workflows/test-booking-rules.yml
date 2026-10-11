@@ -4,6 +4,8 @@ on:
     paths:
       - 'src/booking-rules.js'
       - 'src/booking-public-request.js'
+      - 'src/booking-test-api.js'
+      - 'scripts/test-booking-test-api.mjs'
       - 'scripts/test-booking-public-request.mjs'
       - 'scripts/test-booking-rules.mjs'
       - 'src/booking-store.js'
@@ -63,6 +65,7 @@ jobs:
           node-version: '22'
       - run: node scripts/test-booking-rules.mjs
       - run: node scripts/test-booking-public-request.mjs
+      - run: node scripts/test-booking-test-api.mjs
       - run: node scripts/test-booking-store.mjs
       - run: node scripts/test-booking-admin-auth.mjs
       - run: node scripts/test-booking-supabase-auth.mjs
