@@ -21,9 +21,19 @@ export function createBookingAdminPanel({gateway}){
  async function reservationStatus({eventId,reservationId}){
   if(typeof gateway.status!=='function')throw Error('Consulta privada de reservas no disponible');
   const result=await gateway.status(eventId,reservationId);
-  if(result?.reservation?.eventId!==eventId||result.reservation.id!==reservationId)
+  if(result?.reservation?.eventId!==eventId||result?.reservation?.id!==reservationId)
    throw Error('Respuesta de reserva incorrecta');
   return result.reservation;
+ }
+ async function checkReplyEligibility({eventId,reservationId,decision}){
+  if(decision!=='pending'&&decision!=='confirmed')throw Error('Decisión inválida');
+  const reservation=await reservationStatus({eventId,reservationId});
+  return Object.freeze({
+   eventId,reservationId,status:reservation.status,
+   allowed:reservation.status===decision,
+   // Un estado autorizado no implica disponer de datos de contacto ni envío.
+   requiresPrivateContact:true,delivered:false
+  });
  }
  async function changeStatus({action,eventId,reservationId}){
   if(action==='confirm')return gateway.confirm(eventId,reservationId);
@@ -35,6 +45,7 @@ export function createBookingAdminPanel({gateway}){
   overviewForExperience,
   changeStatus,
   reservationStatus,
+  checkReplyEligibility,
   attendeeRows:buildAttendeeRows,
   whatsappDraft:prepareReservationWhatsAppDraft,
   manualReply:prepareManualBookingReply
