@@ -6,6 +6,8 @@ on:
       - 'src/booking-public-request.js'
       - 'src/booking-submission-receipt.js'
       - 'src/booking-public-client.js'
+      - 'src/booking-public-store.js'
+      - 'scripts/test-booking-public-store.mjs'
       - 'scripts/test-booking-public-client.mjs'
       - 'scripts/test-booking-submission-receipt.mjs'
       - 'src/booking-test-api.js'
@@ -107,6 +109,7 @@ jobs:
       - run: node scripts/test-booking-public-request.mjs
       - run: node scripts/test-booking-submission-receipt.mjs
       - run: node scripts/test-booking-public-client.mjs
+      - run: node scripts/test-booking-public-store.mjs
       - run: node scripts/test-booking-test-api.mjs
       - run: node scripts/test-booking-demo-journey.mjs
       - run: node scripts/test-booking-store.mjs
