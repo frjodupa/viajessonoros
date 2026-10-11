@@ -7,6 +7,10 @@ assert.match(experiences,/window\.location\.href='\/reserva\.html\?experiencia='
 assert.match(experiences,/getWhatsAppLink:\(ev\)=>'\/reserva\.html\?experiencia='/);
 assert.match(vite,/reserva: resolve\('reserva\.html'\)/);
 assert.match(page,/validatePublicBookingRequest/);
+assert.match(page,/id="after-whatsapp" hidden/);
+assert.match(page,/Ya he enviado el WhatsApp/);
+assert.match(page,/window\.open\(whatsappUrl,'_blank'/);
+assert.match(page,/no registra ni confirma una reserva/);
 assert.match(page,/isBookingEventUpcoming\(event\)/);
 assert.match(page,/\.eq\('publicado',true\)/);
 assert.match(page,/api\.whatsapp\.com\/send\?phone=34610056859/);
