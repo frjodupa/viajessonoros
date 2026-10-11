@@ -1,0 +1,14 @@
+import assert from 'node:assert/strict';
+import {createVerifiedBookingReply} from '../src/booking-verified-reply.js';
+const event={id:'event1',titulo:'Viaje de prueba'};
+const stored={id:'r1',eventId:'event1',name:'Persona de prueba',phone:'600000000',status:'pending'};
+assert.throws(()=>createVerifiedBookingReply(),/PRIVATE_RESERVATION_READER_REQUIRED/);
+const service=createVerifiedBookingReply({getReservation:async()=>({...stored})});
+const pending=await service.prepare({event,reservationId:'r1',decision:'pending'});
+assert.match(pending.text,/pendiente de confirmación/);
+await assert.rejects(()=>service.prepare({event,reservationId:'r1',decision:'confirmed'}),/NOT_CONFIRMED/);
+const mismatch=createVerifiedBookingReply({getReservation:async()=>({...stored,eventId:'otro'})});
+await assert.rejects(()=>mismatch.prepare({event,reservationId:'r1',decision:'pending'}),/RESERVATION_NOT_VERIFIED/);
+const confirmed=createVerifiedBookingReply({getReservation:async()=>({...stored,status:'confirmed'})});
+assert.match((await confirmed.prepare({event,reservationId:'r1',decision:'confirmed'})).text,/Confirmamos tu reserva/);
+console.log('PASS: only server-read booking state permits a matching manual WhatsApp reply');
