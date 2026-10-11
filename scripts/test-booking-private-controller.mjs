@@ -8,6 +8,8 @@ const db={prepare(sql){
 const deny=createPrivateBookingController({db,authorize:async()=>({authorized:false,reason:'FORBIDDEN'})});
 assert.equal((await deny.run({action:'counts',eventId:'event'})).status,403);
 assert.equal(databaseCalls,0,'Sin permiso no se consulta D1');
+assert.equal((await deny.run({action:'capacity-update',eventId:'event',capacity:12,minimum:5})).status,403);
+assert.equal(databaseCalls,0,'Sin permiso no se actualiza aforo');
 const controller=createPrivateBookingController({db,authorize:async()=>({authorized:true,userId:'admin'})});
 const counts=await controller.run({action:'counts',eventId:'event'});
 assert.equal(counts.status,200);
@@ -16,6 +18,9 @@ assert.equal((await controller.run({action:'confirm',eventId:'event',reservation
 assert.equal((await controller.run({action:'cancel',eventId:'event',reservationId:'r-1'})).status,200);
 assert.equal((await controller.run({action:'confirm',eventId:'event'})).status,400);
 assert.equal((await controller.run({action:'unrecognized',eventId:'event'})).status,400);
+assert.equal((await controller.run({action:'capacity-update',eventId:'event',capacity:12,minimum:6})).status,200);
+assert.equal((await controller.run({action:'capacity-update',eventId:'event',capacity:0,minimum:1})).status,400);
+assert.equal((await controller.run({action:'capacity-update',eventId:'event',capacity:'12',minimum:6})).status,400);
 const fail=createPrivateBookingController({db,authorize:async()=>{throw Error('auth unavailable');}});
 assert.equal((await fail.run({action:'counts',eventId:'event'})).status,503);
 const full=createPrivateBookingController({db:{prepare(){return {bind(){return {async run(){throw Error('RESERVATION_CAPACITY_EXCEEDED')}}}}}},authorize:async()=>({authorized:true})});
