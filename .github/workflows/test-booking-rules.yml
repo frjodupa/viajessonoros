@@ -49,6 +49,7 @@ on:
       - 'scripts/test-booking-admin-auth.mjs'
       - 'scripts/test-booking-store.mjs'
       - 'scripts/test-d1-reservation-sql.py'
+      - 'scripts/test-booking-full-sqlite-lifecycle.py'
       - 'scripts/test-d1-concurrent-confirmation.py'
       - 'scripts/test-d1-wrangler-local.mjs'
       - 'tests/d1/**'
@@ -89,6 +90,8 @@ jobs:
       - run: node scripts/test-booking-lifecycle.mjs
       - name: Test SQLite/D1 capacity triggers
         run: python3 scripts/test-d1-reservation-sql.py
+      - name: Test complete booking lifecycle on isolated SQLite
+        run: python3 scripts/test-booking-full-sqlite-lifecycle.py
       - name: Test competing confirmations on SQLite
         run: python3 scripts/test-d1-concurrent-confirmation.py
       - name: Test Cloudflare D1 local with Wrangler
