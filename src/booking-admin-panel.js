@@ -18,6 +18,13 @@ export function createBookingAdminPanel({gateway}){
   const {eventId,capacity,minimum}=getExperienceBookingLimits(experience);
   return overview({eventId,capacity,minimum});
  }
+ async function reservationStatus({eventId,reservationId}){
+  if(typeof gateway.status!=='function')throw Error('Consulta privada de reservas no disponible');
+  const result=await gateway.status(eventId,reservationId);
+  if(result?.reservation?.eventId!==eventId||result.reservation.id!==reservationId)
+   throw Error('Respuesta de reserva incorrecta');
+  return result.reservation;
+ }
  async function changeStatus({action,eventId,reservationId}){
   if(action==='confirm')return gateway.confirm(eventId,reservationId);
   if(action==='cancel')return gateway.cancel(eventId,reservationId);
@@ -27,6 +34,7 @@ export function createBookingAdminPanel({gateway}){
   overview,
   overviewForExperience,
   changeStatus,
+  reservationStatus,
   attendeeRows:buildAttendeeRows,
   whatsappDraft:prepareReservationWhatsAppDraft,
   manualReply:prepareManualBookingReply
