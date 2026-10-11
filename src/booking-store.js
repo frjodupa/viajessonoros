@@ -6,6 +6,15 @@
 export function bookingStore(db){
   if(!db||typeof db.prepare!=='function')throw Error('D1 no disponible');
   return {
+    async status({id,eventId}){
+      if(typeof id!=='string'||!id.trim()||id.length>128||typeof eventId!=='string'||!eventId.trim()||eventId.length>128)
+        throw Error('Identificadores requeridos');
+      const result=await db.prepare(
+        'SELECT id, experience_id, status, seats, payment_status FROM reservations WHERE id=? AND experience_id=?'
+      ).bind(id,eventId).first();
+      if(!result)return null;
+      return {id:result.id,eventId:result.experience_id,status:result.status,seats:Number(result.seats),paymentStatus:result.payment_status};
+    },
     async counts(eventId){
       if(!String(eventId||'').trim())throw Error('Evento requerido');
       const result=await db.prepare(
