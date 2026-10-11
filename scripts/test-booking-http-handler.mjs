@@ -13,6 +13,15 @@ response=await handler(req({action:'counts',eventId:'evt'},{'content-type':'appl
 assert.equal(response.status,200);
 assert.equal((await response.json()).counts.confirmed,0);
 assert.equal(response.headers.get('Cache-Control'),'no-store');
+response=await handler(req({action:'capacity-update',eventId:'evt',capacity:15,minimum:5}));
+assert.equal(response.status,401);
+const beforeCapacity=reads;
+response=await handler(req({action:'capacity-update',eventId:'evt',capacity:15,minimum:5},{'content-type':'application/json',authorization:'Bearer test'}));
+assert.equal(response.status,200);
+assert.equal((await response.json()).changed,true);
+assert.equal(reads,beforeCapacity+1);
+response=await handler(req({action:'capacity-update',eventId:'evt',capacity:0,minimum:5},{'content-type':'application/json',authorization:'Bearer test'}));
+assert.equal(response.status,400);
 response=await handler(req({}, {},'GET'));
 assert.equal(response.status,405);
 response=await handler(req({action:'counts',eventId:'evt'},{'content-type':'text/plain'}));
