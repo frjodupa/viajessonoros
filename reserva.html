@@ -9,6 +9,7 @@ import {supabase} from '/src/supabase.js';
 import {validatePublicBookingRequest} from '/src/booking-public-request.js';
 import {isBookingEventUpcoming} from '/src/booking-event-availability.js';
 import {buildBookingWhatsAppDraft} from '/src/booking-whatsapp-draft.js';
+import {interpretBookingSubmission} from '/src/booking-submission-receipt.js';
 const id=new URLSearchParams(location.search).get('experiencia');
 const loading=document.getElementById('loading'),details=document.getElementById('details');
 const info=document.getElementById('event-meta');
@@ -25,8 +26,10 @@ else{
  document.getElementById('sent-whatsapp').addEventListener('click',()=>{
   document.getElementById('booking-form').hidden=true;
   after.hidden=true; received.hidden=false;
-  // Confirmación de acción del visitante; no es comprobación de recepción real.
-  document.getElementById('request-summary').textContent='Experiencia: '+event.titulo+' · Plazas solicitadas: '+document.getElementById('seats').value;
+  // WhatsApp no confirma entrega ni almacenamiento: jamás simular un recibo del servidor.
+  const receipt=interpretBookingSubmission(null,{eventId:String(event.id)});
+  document.getElementById('request-summary').textContent='Experiencia: '+event.titulo+' · Plazas solicitadas: '+document.getElementById('seats').value+
+   (receipt.registered?' · Referencia: '+receipt.reference:' · Sin registro automático: guarda la conversación de WhatsApp como justificante del envío.');
  });
  document.getElementById('reopen-whatsapp').addEventListener('click',()=>{if(whatsappUrl)window.open(whatsappUrl,'_blank','noopener,noreferrer');});
  document.getElementById('retry-whatsapp').addEventListener('click',()=>{if(whatsappUrl)window.open(whatsappUrl,'_blank','noopener,noreferrer');});
