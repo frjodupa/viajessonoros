@@ -31,6 +31,8 @@ export function createPrivateBookingController({db,authorize}){
           const reservation=await store.status({id:reservationId,eventId});
           return reservation?{status:200,body:{reservation}}:{status:404,body:{error:'NOT_FOUND'}};
         }
+        case 'list':
+          return {status:200,body:{eventId,reservations:await store.list(eventId)}};
         case 'counts':
           return {status:200,body:{eventId,counts:await store.counts(eventId)}};
         case 'confirm':
