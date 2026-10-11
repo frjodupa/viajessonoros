@@ -22,6 +22,8 @@ on:
       - 'src/booking-admin-panel.js'
       - 'src/booking-mobile-presenter.js'
       - 'src/booking-mobile-demo-controller.js'
+      - 'src/booking-panel-mode.js'
+      - 'scripts/test-booking-panel-mode.mjs'
       - 'scripts/test-booking-mobile-demo-controller.mjs'
       - 'scripts/test-booking-mobile-presenter.mjs'
       - 'demos/booking-admin-mobile.html'
@@ -73,6 +75,7 @@ jobs:
       - run: node scripts/test-booking-admin-panel.mjs
       - run: node scripts/test-booking-mobile-presenter.mjs
       - run: node scripts/test-booking-mobile-demo-controller.mjs
+      - run: node scripts/test-booking-panel-mode.mjs
       - run: node scripts/test-booking-mobile-demo.mjs
       - run: node scripts/test-booking-lifecycle.mjs
       - name: Test SQLite/D1 capacity triggers
