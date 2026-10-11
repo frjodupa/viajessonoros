@@ -3,7 +3,7 @@ import {readFileSync} from 'node:fs';
 const html=readFileSync(new URL('../demos/booking-customer-flow.html',import.meta.url),'utf8');
 for(const id of ['reservationForm','customerWhatsAppDraft','fillDemo','nombre','telefono','plazas','step1','step2','step3','step4','step5','showCompleted','confirm','cancel','draft','reset'])
  assert.match(html,new RegExp('id="'+id+'"'));
-assert.match(html,/Solicitud pendiente/);
+assert.match(html,/Mensaje de solicitud preparado/);
 assert.match(html,/logo-oficial\.png/);
 assert.match(html,/Persona de prueba/);
 assert.match(html,/000000000/);
