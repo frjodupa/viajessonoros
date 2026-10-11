@@ -1,0 +1,14 @@
+import assert from 'node:assert/strict';
+import {readFileSync} from 'node:fs';
+const page=readFileSync(new URL('../reserva.html',import.meta.url),'utf8');
+const experiences=readFileSync(new URL('../experiencias.html',import.meta.url),'utf8');
+const vite=readFileSync(new URL('../vite.config.js',import.meta.url),'utf8');
+assert.match(experiences,/window\.location\.href='\/reserva\.html\?experiencia='/);
+assert.match(vite,/reserva: resolve\('reserva\.html'\)/);
+assert.match(page,/validatePublicBookingRequest/);
+assert.match(page,/\.eq\('publicado',true\)/);
+assert.match(page,/api\.whatsapp\.com\/send\?phone=34610056859/);
+assert.match(page,/debes pulsar enviar allí/i);
+assert.match(page,/no guarda todavía los participantes automáticamente/i);
+assert.doesNotMatch(page,/\.from\('reservations'\)\.insert/);
+console.log('PASS: existing booking button opens event-specific request form, WhatsApp remains manual');
