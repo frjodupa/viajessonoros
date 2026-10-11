@@ -16,7 +16,7 @@ export function getExperienceBookingLimits(experience){
  if(minimum>capacity)throw Error('MINIMUM_ABOVE_CAPACITY');
  return Object.freeze({eventId,capacity,minimum});
 }
-export function validateExperienceCapacityEdit({experience,nextCapacity,nextMinimum,confirmedSeats=0}){
+export function validateExperienceCapacityEdit({experience,nextCapacity,nextMinimum,confirmedSeats}){
  const current=getExperienceBookingLimits(experience);
  const capacity=positiveInteger(nextCapacity,'CAPACITY');
  const minimum=positiveInteger(nextMinimum??current.minimum,'MINIMUM');
