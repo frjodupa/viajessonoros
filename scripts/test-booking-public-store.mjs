@@ -1,0 +1,14 @@
+import assert from 'node:assert/strict';
+import {createPublicBookingStore} from '../src/booking-public-store.js';
+let captured;
+const db={prepare:sql=>{captured={sql};return{bind:(...args)=>{captured.args=args;return{run:async()=>({meta:{changes:1}})}}}}};
+const store=createPublicBookingStore(db);
+const data={id:'BOOK-12345',eventId:'evt',contactHash:'a'.repeat(64),encryptedContact:'encrypted-not-plaintext',seats:2};
+assert.deepEqual(await store.create(data),{saved:true,status:'pending',reference:'BOOK-12345',eventId:'evt'});
+assert.match(captured.sql,/INSERT INTO reservations/);
+assert.equal(captured.args[3],data.encryptedContact);
+assert.equal(captured.sql.includes('confirmed'),false);
+await assert.rejects(()=>store.create({...data,contactHash:'insecure'}),/INVALID_PRIVATE_BOOKING/);
+const rejected=createPublicBookingStore({prepare:()=>({bind:()=>({run:async()=>({meta:{changes:0}})})})});
+await assert.rejects(()=>rejected.create(data),/BOOKING_NOT_PERSISTED/);
+console.log('PASS: public D1 booking only accepted after actual insert; no plain contact or confirmation');
