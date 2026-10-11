@@ -3,9 +3,11 @@ import {createBookingAdminPanel} from '../src/booking-admin-panel.js';
 const calls=[];
 const panel=createBookingAdminPanel({gateway:{
  counts:async eventId=>({eventId,counts:{confirmed:3,pending:2,waitlist:0,cancelled:0}}),
+ status:async(eventId,id)=>({reservation:{id,eventId,status:'pending',seats:1}}),
  confirm:async(eventId,id)=>{calls.push(['confirm',eventId,id]);return {changed:true}},
  cancel:async(eventId,id)=>{calls.push(['cancel',eventId,id]);return {changed:true}}
 }});
+assert.equal((await panel.reservationStatus({eventId:'event-test',reservationId:'r1'})).status,'pending');
 const data=await panel.overview({eventId:'event-test',capacity:10,minimum:5});
 assert.equal(data.available,7);
 assert.equal(data.missingMinimum,2);
