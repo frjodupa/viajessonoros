@@ -6,7 +6,7 @@ const message=buildBookingWhatsAppDraft({event,request});
 for(const piece of ['Viaje Sonoro','2026-10-24','40,00','20,00','610 056 859','captura del justificante','Pendiente de comprobar pago y plazas','Persona de prueba','Plazas: 2'])
  assert.ok(message.includes(piece),piece);
 assert.equal(message.includes('confirmada tu reserva'),false);
-assert.ok(message.startsWith('RESERVA · Viaje Sonoro\\nPlazas: 2'));
+assert.ok(message.startsWith('RESERVA · Viaje Sonoro\nPlazas: 2'));
 assert.equal(message.includes('\\\\n'),false);
 for(const value of ['17','20 €','22,00 €']){
  const amount=buildBookingWhatsAppDraft({event:{...event,precio:value},request:{...request,seats:1}});
