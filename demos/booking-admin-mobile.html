@@ -37,7 +37,7 @@ const event={title:'Viaje sonoro de demostración',date:'24/10/2026',time:'19:00
 const root=document.getElementById('bookings'),feedback=document.getElementById('feedback');
 let overview=null,busy=false;
 const demo=createDemoMobilePanel({onState(state){
- busy=state.phase==='loading'||state.phase==='saving';
+ busy=['loading','saving','checking'].includes(state.phase);
  if(state.phase==='ready')overview=state.overview;
  if(state.phase==='error')feedback.textContent=state.message;
  draw();
@@ -76,14 +76,17 @@ function draw(){
    const reply=document.createElement('button');reply.type='button';reply.className='secondary';
    reply.textContent=row.status==='confirmed'?'Preparar confirmación WhatsApp':'Preparar aviso pendiente';
    reply.disabled=busy;
-   reply.addEventListener('click',()=>{
+   reply.addEventListener('click',async()=>{
+    feedback.textContent='Verificando el estado de la reserva de demostración...';
     const decision=row.status==='confirmed'?'confirmed':'pending';
+    const eligible=await demo.presenter.checkReply(row.id,decision);
+    if(!eligible)return;
     const prepared=prepareManualBookingReply({
      event:{id:'DEMO-EVENT',titulo:event.title},
      reservation:{id:row.id,eventId:'DEMO-EVENT',name:'Participante ficticio',phone:'600000000',persisted:true,status:row.status},
      decision
     });
-    feedback.textContent=prepared.text+' (DEMO: mensaje no enviado)';
+    feedback.textContent=prepared.text+' (DEMO: mensaje no enviado; no se abre WhatsApp)';
    });
    item.append(reply);
   }
