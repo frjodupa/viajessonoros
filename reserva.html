@@ -8,6 +8,7 @@
 import {supabase} from '/src/supabase.js';
 import {validatePublicBookingRequest} from '/src/booking-public-request.js';
 import {isBookingEventUpcoming} from '/src/booking-event-availability.js';
+import {buildBookingWhatsAppDraft} from '/src/booking-whatsapp-draft.js';
 const id=new URLSearchParams(location.search).get('experiencia');
 const loading=document.getElementById('loading'),details=document.getElementById('details');
 const info=document.getElementById('event-meta');
@@ -26,7 +27,7 @@ else{
   const errorNode=document.getElementById('error');
   if(!validation.valid){errorNode.textContent='Revisa el nombre, el teléfono y el número de plazas.';return;}
   errorNode.textContent='';
-  const text=['Hola, quiero solicitar una reserva para Viajes Sonoros.','Experiencia: '+event.titulo,'Fecha: '+(event.fecha||'Por confirmar'),'Hora: '+(event.hora||'Por confirmar'),'Lugar: '+(event.lugar||'Por confirmar'),'Aportación: '+(event.precio||'Por confirmar'),'Nombre: '+name,'Teléfono: '+phone,'Plazas solicitadas: '+seats,'Quedo pendiente de vuestra confirmación.'].join('\n');
+  const text=buildBookingWhatsAppDraft({event,request:validation.data});
   window.location.assign('https://api.whatsapp.com/send?phone=34610056859&text='+encodeURIComponent(text));
  });
 }
