@@ -15,5 +15,5 @@ assert.match(unknown,/consúltanos el importe exacto/);
 assert.doesNotMatch(unknown,/realiza un Bizum de/);
 assert.throws(()=>buildBookingWhatsAppDraft({event,request:{...request,eventId:'e2'}}),/EVENT_MISMATCH/);
 assert.throws(()=>buildBookingWhatsAppDraft({event,request:{...request,seats:0}}),/SEATS_INVALID/);
-assert.equal(buildBookingWhatsAppDraft({event:{...event,titulo:'Viaje\\nInventado'},request}).includes('Viaje\\nInventado'),false);
+assert.equal(buildBookingWhatsAppDraft({event:{...event,titulo:'Viaje'+String.fromCharCode(10)+'Inventado'},request}).includes('Viaje'+String.fromCharCode(10)+'Inventado'),false);
 console.log('PASS: WhatsApp draft uses experience contribution per seat, Bizum receipt and manual confirmation');
