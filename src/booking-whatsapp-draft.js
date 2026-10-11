@@ -19,5 +19,5 @@ export function buildBookingWhatsAppDraft({event,request}){
   'Fecha: '+[clean(event.fecha),clean(event.hora)].filter(Boolean).join(' · '),
   'Nombre: '+clean(request.name)+' · Tel.: '+clean(request.phone),
   amount?'Pendiente de comprobar pago y plazas.':'Consulta el importe exacto antes de pagar. Reserva pendiente.'
- ].join('\\n');
+ ].join('\n');
 }
