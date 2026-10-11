@@ -8,6 +8,8 @@ on:
       - 'src/booking-public-client.js'
       - 'src/booking-public-store.js'
       - 'src/booking-contact-protection.js'
+      - 'src/booking-protected-registration.js'
+      - 'scripts/test-booking-protected-registration.mjs'
       - 'scripts/test-booking-contact-protection.mjs'
       - 'scripts/test-booking-public-store.mjs'
       - 'scripts/test-booking-public-client.mjs'
@@ -113,6 +115,7 @@ jobs:
       - run: node scripts/test-booking-public-client.mjs
       - run: node scripts/test-booking-public-store.mjs
       - run: node scripts/test-booking-contact-protection.mjs
+      - run: node scripts/test-booking-protected-registration.mjs
       - run: node scripts/test-booking-test-api.mjs
       - run: node scripts/test-booking-demo-journey.mjs
       - run: node scripts/test-booking-store.mjs
