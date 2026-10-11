@@ -19,6 +19,8 @@ on:
       - 'scripts/test-booking-worker.mjs'
       - 'scripts/test-booking-worker-security.mjs'
       - 'src/booking-dashboard.js'
+      - 'src/booking-experience-capacity.js'
+      - 'scripts/test-booking-experience-capacity.mjs'
       - 'src/booking-messages.js'
       - 'src/booking-message-action.js'
       - 'src/booking-attendee-list.js'
@@ -78,6 +80,7 @@ jobs:
       - run: node scripts/test-booking-worker.mjs
       - run: node scripts/test-booking-worker-security.mjs
       - run: node scripts/test-booking-dashboard.mjs
+      - run: node scripts/test-booking-experience-capacity.mjs
       - run: node scripts/test-booking-messages.mjs
       - run: node scripts/test-booking-message-action.mjs
       - run: node scripts/test-booking-attendee-list.mjs
