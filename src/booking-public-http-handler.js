@@ -1,6 +1,7 @@
 /** Adaptador HTTP público SIN despliegue. Debe montarse detrás de controles antiabuso.
  * No permite reservas hasta que el implementador aporte un verificador antiabuso.
  */
+import {interpretBookingSubmission} from './booking-submission-receipt.js';
 export function createPublicBookingHttpHandler({register,verifyAbuse}={}){
  if(typeof register!=='function'||typeof verifyAbuse!=='function')throw Error('PUBLIC_SECURITY_DEPENDENCIES_REQUIRED');
  return async function handle(request){
@@ -19,8 +20,9 @@ export function createPublicBookingHttpHandler({register,verifyAbuse}={}){
   try{
    if(await verifyAbuse(request,data)!==true)return Response.json({error:'REQUEST_REJECTED'},{status:429,headers});
    const result=await register(data);
-   if(result?.saved===true&&result?.status==='pending'&&typeof result.reference==='string')
-    return Response.json({saved:true,eventId:result.eventId,status:'pending',reference:result.reference},{status:201,headers});
+   const receipt=interpretBookingSubmission(result,{eventId:data.eventId});
+   if(receipt.registered)
+    return Response.json({saved:true,eventId:receipt.eventId,status:'pending',reference:receipt.reference},{status:201,headers});
    const code=result?.error==='DUPLICATE_ACTIVE_REQUEST'?409:result?.error==='EVENT_NOT_AVAILABLE'||result?.error==='CAPACITY_EXCEEDED'?409:result?.error==='INVALID_BOOKING_FIELDS'?400:503;
    return Response.json({saved:false,error:code===409?'BOOKING_UNAVAILABLE':code===400?'INVALID_BOOKING_FIELDS':'REGISTRATION_FAILED'},{status:code,headers});
   }catch{return Response.json({saved:false,error:'REGISTRATION_FAILED'},{status:503,headers});}
