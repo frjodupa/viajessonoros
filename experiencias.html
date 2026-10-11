@@ -302,10 +302,8 @@ const getExperienceWhatsAppLink=(ev)=>{
 window.reservarExperiencia=(id)=>{
   const ev=eventos.find(e=>e.id==id); if(!ev) return
   if(!isReservable(ev)) return
-  // FIX: doble método por si el navegador bloquea window.open
-  const url=getExperienceWhatsAppLink(ev)
-  window.open(url,'_blank','noopener,noreferrer')
-  setTimeout(()=>{ window.location.href=url },300)
+  // Conserva el botón existente; abre el formulario contextual de la experiencia.
+  window.location.href='/reserva.html?experiencia='+encodeURIComponent(String(ev.id))
 }
 const experienceDetail=installExperienceDetail({getExperiences:()=>eventos,getWhatsAppLink:getExperienceWhatsAppLink,isReservable})
 
