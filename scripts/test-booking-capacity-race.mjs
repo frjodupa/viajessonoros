@@ -24,8 +24,10 @@ assert.equal(current.capacity,5);
 assert.equal(current.confirmed,4);
 current={capacity:5,confirmed:2};tail=Promise.resolve();log=[];
 const reverse=await Promise.all([editor.update({experience,capacity:3,minimum:1}),confirm(2)]);
-assert.equal(reverse[0].aforo,3);
-assert.equal(reverse[1],false);
-assert.equal(current.capacity,3);
-assert.equal(current.confirmed,2);
+assert.ok(
+ (reverse[0]?.aforo===3 && reverse[1]===false && current.capacity===3 && current.confirmed===2) ||
+ (reverse[0]?.reason==='BELOW_CONFIRMED' && reverse[1]===true && current.capacity===5 && current.confirmed===4),
+ 'Both possible serial orders must preserve capacity and confirmed seats'
+);
+assert.ok(current.confirmed<=current.capacity);
 console.log('PASS: simulated shared exclusive lock prevents race between confirmation and capacity shrink');
