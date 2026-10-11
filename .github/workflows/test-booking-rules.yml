@@ -10,6 +10,8 @@ on:
       - 'src/booking-contact-protection.js'
       - 'src/booking-protected-registration.js'
       - 'src/booking-public-http-handler.js'
+      - 'src/booking-public-service.js'
+      - 'scripts/test-booking-public-service.mjs'
       - 'scripts/test-booking-public-http-handler.mjs'
       - 'scripts/test-booking-protected-registration.mjs'
       - 'scripts/test-booking-contact-protection.mjs'
@@ -119,6 +121,7 @@ jobs:
       - run: node scripts/test-booking-contact-protection.mjs
       - run: node scripts/test-booking-protected-registration.mjs
       - run: node scripts/test-booking-public-http-handler.mjs
+      - run: node scripts/test-booking-public-service.mjs
       - run: node scripts/test-booking-test-api.mjs
       - run: node scripts/test-booking-demo-journey.mjs
       - run: node scripts/test-booking-store.mjs
