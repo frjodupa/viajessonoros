@@ -7,6 +7,7 @@ assert.match(experiences,/window\.location\.href='\/reserva\.html\?experiencia='
 assert.match(experiences,/getWhatsAppLink:\(ev\)=>'\/reserva\.html\?experiencia='/);
 assert.match(vite,/reserva: resolve\('reserva\.html'\)/);
 assert.match(page,/validatePublicBookingRequest/);
+assert.match(page,/isBookingEventUpcoming\(event\)/);
 assert.match(page,/\.eq\('publicado',true\)/);
 assert.match(page,/api\.whatsapp\.com\/send\?phone=34610056859/);
 assert.match(page,/debes pulsar enviar allí/i);
