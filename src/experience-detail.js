@@ -116,7 +116,7 @@ export const installExperienceDetail = ({ getExperiences, getWhatsAppLink, isRes
     const extra = escapeHTML(experience.informacion_adicional ?? experience.info_adicional ?? experience.detalles ?? '')
     const duration = escapeHTML(experience.duracion ?? '')
     const reserveLink = isReservable(experience)
-      ? `<a class="whatsapp-reserve-button experience-detail-reserve" href="${escapeHTML(getWhatsAppLink(experience))}" target="_blank" rel="noopener noreferrer">${whatsappIcon}Reservar por WhatsApp</a>`
+      ? `<a class="whatsapp-reserve-button experience-detail-reserve" href="${escapeHTML(getWhatsAppLink(experience))}">${whatsappIcon}Reservar por WhatsApp</a>`
       : ''
 
     const imageHTML = optimizedImage
