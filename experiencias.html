@@ -438,6 +438,73 @@ function prepareAdminImageGuide(){
   ;['f-fecha','f-hora','f-lugar','f-localidad','f-additional'].forEach(id=>document.getElementById(id)?.addEventListener('input',window.updateAssistantState))
   window.updateAssistantState()
 }
+
+window.refreshManualBookings=async()=>{
+ const node=document.getElementById('manual-booking-list');if(!node)return;
+ node.textContent='Cargando reservas…';
+ if(!(await hasValidAdmin())){node.textContent='Inicia sesión para ver las reservas.';return}
+ const {data,error}=await supabase.from('reservas_whatsapp').select('id,experiencia_id,nombre,telefono,plazas,importe_total,estado,pago_estado,created_at').order('created_at',{ascending:false}).limit(200);
+ if(error){node.textContent='No se pudo cargar el listado: '+error.message;return}
+ if(!data?.length){node.textContent='Todavía no hay solicitudes registradas.';return}
+ const titles=new Map(eventos.map(e=>[String(e.id),e.titulo]));
+ node.replaceChildren(...data.map(row=>{
+  const wrap=document.createElement('article');wrap.style.cssText='padding:12px;border-bottom:1px solid #ddd;display:grid;gap:5px';
+  const heading=document.createElement('strong');heading.textContent=row.nombre+' · '+row.plazas+' plaza(s)';
+  const detail=document.createElement('span');detail.textContent=(titles.get(String(row.experiencia_id))||'Experiencia '+row.experiencia_id)+' · '+(row.importe_total==null?'Importe por comprobar':Number(row.importe_total).toFixed(2)+' €')+' · '+new Date(row.created_at).toLocaleString('es-ES');
+  const phone=document.createElement('a');phone.textContent=row.telefono;phone.href='tel:'+row.telefono;
+  const status=document.createElement('span');status.textContent='Reserva: '+row.estado+' · Pago: '+row.pago_estado;
+  const controls=document.createElement('div');controls.style.cssText='display:flex;gap:8px;flex-wrap:wrap';
+  for(const [field,options] of [['estado',['pendiente','confirmada','cancelada']],['pago_estado',['pendiente','recibido','revisar']]]){
+   const select=document.createElement('select');select.setAttribute('aria-label',field==='estado'?'Estado de reserva':'Estado del pago');
+   for(const value of options){const opt=document.createElement('option');opt.value=value;opt.textContent=value;select.append(opt)}
+   select.value=row[field];
+   select.addEventListener('change',async()=>{
+    const next=select.value;select.disabled=true;
+    const {error}=await supabase.from('reservas_whatsapp').update({[field]:next}).eq('id',row.id);
+    if(error){alert('No se ha podido actualizar: '+error.message);select.value=row[field]}else row[field]=next;
+    select.disabled=false;status.textContent='Reserva: '+row.estado+' · Pago: '+row.pago_estado;
+   });
+   controls.append(select);
+  }
+  wrap.append(heading,detail,phone,status,controls);return wrap;
+ }));
+};
+window.saveManualBooking=async event=>{
+ event.preventDefault();
+ const output=document.getElementById('manual-booking-feedback');output.textContent='';
+ if(!(await hasValidAdmin())){output.textContent='Necesitas iniciar sesión.';return}
+ const get=id=>document.getElementById(id).value.trim();
+ const experiencia_id=Number(get('manual-booking-event')),nombre=get('manual-booking-name'),telefono=get('manual-booking-phone').replace(/[\\s().-]/g,''),plazas=Number(get('manual-booking-seats'));
+ if(!Number.isSafeInteger(experiencia_id)||nombre.length<2||nombre.length>100||!/^\\+?\\d{9,15}$/.test(telefono)||!Number.isSafeInteger(plazas)||plazas<1||plazas>10){output.textContent='Revisa los datos de la reserva.';return}
+ const chosen=eventos.find(e=>Number(e.id)===experiencia_id);
+ const match=/^(?:€\\s*)?(\\d{1,4}(?:[,.]\\d{1,2})?)\\s*(?:€|EUR)?$/i.exec(String(chosen?.precio||'').trim());
+ const precio_unitario=match?Number(match[1].replace(',','.')):null;
+ const button=document.getElementById('manual-booking-save');button.disabled=true;button.textContent='Guardando…';
+ try{
+  const {error}=await supabase.from('reservas_whatsapp').insert({experiencia_id,nombre,telefono,plazas,precio_unitario,importe_total:precio_unitario===null?null:precio_unitario*plazas});
+  if(error)throw error;
+  output.textContent='Reserva manual guardada como pendiente.';
+  document.getElementById('manual-booking-form').reset();
+  await window.refreshManualBookings();
+ }catch(error){output.textContent='No se ha guardado: '+error.message}
+ finally{button.disabled=false;button.textContent='Guardar reserva manual'}
+};
+function renderManualBookingManager(){
+ return `<section class="admin-premium-card" style="margin:16px 0;padding:22px">
+ <h3>Reservas y participantes</h3>
+ <p>Solicitudes de la web y reservas añadidas manualmente desde WhatsApp o teléfono.</p>
+ <form id="manual-booking-form" onsubmit="window.saveManualBooking(event)" style="display:grid;gap:10px">
+ <label>Experiencia<select id="manual-booking-event" required>${eventos.map(e=>`<option value="${escapeHTML(String(e.id))}">${escapeHTML(e.titulo)} · ${escapeHTML(String(e.fecha||''))}</option>`).join('')}</select></label>
+ <label>Nombre<input id="manual-booking-name" maxlength="100" minlength="2" required autocomplete="off"></label>
+ <label>Teléfono<input id="manual-booking-phone" type="tel" required autocomplete="off"></label>
+ <label>Plazas<input id="manual-booking-seats" type="number" min="1" max="10" value="1" required></label>
+ <button type="submit" id="manual-booking-save">Guardar reserva manual</button>
+ <p id="manual-booking-feedback" role="status"></p></form>
+ <h4>Últimas solicitudes registradas</h4><button type="button" onclick="window.refreshManualBookings()">Actualizar listado</button>
+ <div id="manual-booking-list" aria-live="polite">Cargando reservas…</div>
+ </section>`;
+}
+
 function renderAdminPanel(){ return `${headerHTML()}<main class="admin-premium-shell">
   <div class="admin-premium-topbar">
     <div>
@@ -448,6 +515,7 @@ function renderAdminPanel(){ return `${headerHTML()}<main class="admin-premium-s
     <button onclick="window.logout()" class="admin-logout">Cerrar sesión</button>
   </div>
 
+  ${renderManualBookingManager()}
   <section class="admin-assistant-intro" aria-labelledby="assistant-title">
     <span>Asistente de creación</span>
     <h3 id="assistant-title">Crea el borrador completo desde datos reales</h3>
@@ -597,7 +665,7 @@ window.updateAdminLivePreview=()=>{
     }
   }
 }
-function render(){ const robots=document.querySelector('meta[name="robots"]');if(robots)robots.content=view==='experiencias'?'index,follow':'noindex,nofollow';const app=document.getElementById('app'); if(view==='experiencias'){ app.innerHTML=renderExperiencias(); experienceDetail.bind(); cargarEventos() } else if(view==='admin-login'){ app.innerHTML=renderAdminLogin() } else if(view==='admin-panel'){ app.innerHTML=renderAdminPanel(); prepareAdminImageGuide(); ['f-titulo','f-publicado','f-precio','f-fecha','f-hora','f-lugar','f-localidad','f-card-text','f-desc','f-additional'].forEach(id=>document.getElementById(id)?.addEventListener('input',window.updateAdminLivePreview)); setTimeout(()=>{window.renderAdminList();window.updateAdminLivePreview()},100) } }
+function render(){ const robots=document.querySelector('meta[name="robots"]');if(robots)robots.content=view==='experiencias'?'index,follow':'noindex,nofollow';const app=document.getElementById('app'); if(view==='experiencias'){ app.innerHTML=renderExperiencias(); experienceDetail.bind(); cargarEventos() } else if(view==='admin-login'){ app.innerHTML=renderAdminLogin() } else if(view==='admin-panel'){ app.innerHTML=renderAdminPanel(); prepareAdminImageGuide(); ['f-titulo','f-publicado','f-precio','f-fecha','f-hora','f-lugar','f-localidad','f-card-text','f-desc','f-additional'].forEach(id=>document.getElementById(id)?.addEventListener('input',window.updateAdminLivePreview)); setTimeout(()=>{window.renderAdminList();window.updateAdminLivePreview();window.refreshManualBookings()},100) } }
 if(supabase){const {data}=await supabase.auth.getSession();user=data.session?.user||null;supabase.auth.onAuthStateChange((_event,session)=>{user=session?.user||null;if(view==='admin-panel'&&!user){view='admin-login';render()}})}
 if(location.hash===ADMIN_HASH)view=user?'admin-panel':'admin-login'
 window.addEventListener('hashchange',()=>{if(location.hash===ADMIN_HASH){window.goAdmin()}else if(view!=='experiencias'){view='experiencias';render()}})
