@@ -1,12 +1,29 @@
-<!doctype html><html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Solicitar reserva | Viajes Sonoros</title><style>body{margin:0;background:#faf7f4;color:#321b42;font:16px system-ui,-apple-system,sans-serif}main{max-width:520px;margin:auto;padding:25px 18px}section{background:white;padding:23px;border-radius:18px;box-shadow:0 5px 28px #321b4216}h1{font:700 2rem Georgia,serif}label{display:block;font-weight:600;margin:16px 0}input{display:block;box-sizing:border-box;width:100%;font:inherit;margin-top:6px;border:1px solid #cbb9d0;border-radius:10px;padding:12px}button{width:100%;border:0;border-radius:11px;padding:15px;background:#58296b;color:white;font:700 1rem system-ui}button:disabled{opacity:.5}#error{color:#a12633}#total{font-size:1.15rem;font-weight:700}p{line-height:1.5}small{color:#59505c}</style></head><body><main><a href="/experiencias.html">← Experiencias</a><h1>Solicitar reserva</h1><section><p id="loading">Consultando la experiencia…</p><div id="details" hidden><h2 id="title"></h2><p id="meta"></p><form id="form"><label>Nombre y apellidos<input id="name" required minlength="2" maxlength="100" autocomplete="name"></label><label>Teléfono de contacto<input id="phone" type="tel" required inputmode="tel" autocomplete="tel" placeholder="600 000 000"></label><label>Plazas<input id="seats" required type="number" min="1" max="10" value="1"></label><p id="total" aria-live="polite"></p><p id="error" role="alert"></p><button id="submit" type="submit">Registrar solicitud y abrir WhatsApp</button><p><small>Guardaremos tu nombre, teléfono y plazas para gestionar la solicitud. Después se abrirá WhatsApp para enviar el mensaje y adjuntar la captura del Bizum. El pago y la disponibilidad se comprueban antes de confirmar tu plaza. <a href="/politica-privacidad.html">Privacidad</a>.</small></p></form><div id="success" hidden role="status"><h2>Solicitud registrada · pendiente de confirmar</h2><p id="reference"></p><p>Ahora envía el mensaje preparado en WhatsApp y adjunta el justificante del Bizum. Tu plaza no estará confirmada hasta que recibas nuestra respuesta.</p><button type="button" id="whatsapp">Abrir WhatsApp</button><p><small>Si WhatsApp no se abre automáticamente, pulsa el botón.</small></p></div></div></section></main><script type="module">
+<!doctype html><html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Solicitar reserva | Viajes Sonoros</title><style>html{background:#faf7f4} [hidden]{display:none!important} body{margin:0;background:#faf7f4;color:#321b42;font:16px system-ui,-apple-system,sans-serif}main{max-width:520px;margin:auto;padding:25px 18px}section{background:white;padding:23px;border-radius:18px;box-shadow:0 5px 28px #321b4216}h1{font:700 2rem Georgia,serif}label{display:block;font-weight:600;margin:16px 0}input{display:block;box-sizing:border-box;width:100%;font:inherit;margin-top:6px;border:1px solid #cbb9d0;border-radius:10px;padding:12px}button{width:100%;border:0;border-radius:11px;padding:15px;background:#58296b;color:white;font:700 1rem system-ui}button:disabled{opacity:.5}#error{color:#a12633}#total{font-size:1.15rem;font-weight:700}p{line-height:1.5}small{color:#59505c}</style></head><body><main><a href="/experiencias.html">← Experiencias</a><h1>Solicitar reserva</h1><section><p id="loading" role="status">Consultando la experiencia…</p><div id="load-error" hidden role="alert"><p id="load-error-text">No hemos podido cargar la experiencia.</p><button id="load-retry" type="button">Reintentar carga</button></div><div id="details" hidden><h2 id="title"></h2><p id="meta"></p><form id="form"><label>Nombre y apellidos<input id="name" required minlength="2" maxlength="100" autocomplete="name"></label><label>Teléfono de contacto<input id="phone" type="tel" required inputmode="tel" autocomplete="tel" placeholder="600 000 000"></label><label>Plazas<input id="seats" required type="number" min="1" max="10" value="1"></label><p id="total" aria-live="polite"></p><p id="error" role="alert"></p><button id="submit" type="submit">Registrar solicitud y abrir WhatsApp</button><p><small>Guardaremos tu nombre, teléfono y plazas para gestionar la solicitud. Después se abrirá WhatsApp para enviar el mensaje y adjuntar la captura del Bizum. El pago y la disponibilidad se comprueban antes de confirmar tu plaza. <a href="/politica-privacidad.html">Privacidad</a>.</small></p></form><div id="success" hidden role="status"><h2>Solicitud registrada · pendiente de confirmar</h2><p id="reference"></p><p>Ahora envía el mensaje preparado en WhatsApp y adjunta el justificante del Bizum. Tu plaza no estará confirmada hasta que recibas nuestra respuesta.</p><button type="button" id="whatsapp">Abrir WhatsApp</button><p><small>Si WhatsApp no se abre automáticamente, pulsa el botón.</small></p></div></div></section></main><script type="module">
 import {supabase} from '/src/supabase.js';
 const id=new URLSearchParams(location.search).get('experiencia');
 const loading=document.getElementById('loading'),details=document.getElementById('details'),errorNode=document.getElementById('error'),seatsNode=document.getElementById('seats');
-const validId=/^\d{1,19}$/.test(String(id||''));
-const result=validId?await supabase.from('experiencias').select('id,titulo,fecha,hora,lugar,precio,publicado').eq('id',id).eq('publicado',true).maybeSingle():{data:null,error:{message:'invalid'}};
-const event=result.data;
-if(result.error||!event){loading.textContent='Experiencia no disponible. Vuelve al listado.';}
-else{
+const validId=/^\\d{1,19}$/.test(String(id||''));
+async function loadEvent(){
+ if(!validId)throw Error('INVALID_EVENT_ID');
+ const controller=new AbortController(),timeout=setTimeout(()=>controller.abort(),10000);
+ try{
+  const {data,error}=await supabase.from('experiencias').select('id,titulo,fecha,hora,lugar,precio,publicado').eq('id',id).eq('publicado',true).abortSignal(controller.signal).maybeSingle();
+  if(error)throw error;
+  if(!data)throw Error('NOT_FOUND');
+  return data;
+ }finally{clearTimeout(timeout)}
+}
+let event=null;
+try{event=await loadEvent()}
+catch(error){
+ loading.hidden=true;
+ document.getElementById('load-error').hidden=false;
+ document.getElementById('load-error-text').textContent=error?.message==='NOT_FOUND'||error?.message==='INVALID_EVENT_ID'
+  ?'Experiencia no disponible. Consulta el listado de próximas experiencias.'
+  :'No se ha podido conectar. Comprueba tu conexión y pulsa Reintentar.';
+}
+document.getElementById('load-retry').addEventListener('click',()=>location.reload());
+if(event){
  loading.hidden=true;details.hidden=false;
  document.getElementById('title').textContent=event.titulo;
  document.getElementById('meta').textContent=[event.fecha,event.hora,event.lugar].filter(Boolean).join(' · ');
