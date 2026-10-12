@@ -442,15 +442,49 @@ function prepareAdminImageGuide(){
   window.updateAssistantState()
 }
 
+
+let bookingPrintRows=[];
+window.printBookingList=()=>{
+ const rows=bookingPrintRows;if(!rows.length)return alert('No hay reservas para imprimir.');
+ const section=document.createElement('section');section.id='booking-print-page';
+ const title=document.createElement('h1');title.textContent='Viajes Sonoros · Listado de reservas';section.append(title);
+ const table=document.createElement('table');
+ const labels=['Experiencia','Nombre','Teléfono','Plazas','Importe','Estado','Pago'];
+ const head=document.createElement('tr');for(const label of labels){const cell=document.createElement('th');cell.textContent=label;head.append(cell)}table.append(head);
+ const titles=new Map(eventos.map(e=>[String(e.id),e.titulo]));
+ for(const row of rows){
+  const tr=document.createElement('tr');
+  for(const value of [titles.get(String(row.experiencia_id))||row.experiencia_id,row.nombre,row.telefono,row.plazas,row.importe_total==null?'—':Number(row.importe_total).toFixed(2)+' €',row.estado,row.pago_estado]){
+   const td=document.createElement('td');td.textContent=String(value);tr.append(td)
+  }
+  table.append(tr);
+ }
+ section.append(table);
+ const style=document.createElement('style');style.textContent='@media screen{#booking-print-page{display:none}}@media print{body > *:not(#booking-print-page){display:none!important}#booking-print-page{display:block!important;background:#fff;color:#000;font:12px sans-serif}#booking-print-page table{width:100%;border-collapse:collapse}#booking-print-page td,#booking-print-page th{border:1px solid #777;padding:5px;text-align:left}}';
+ document.head.append(style);document.body.append(section);
+ const cleanup=()=>{section.remove();style.remove();window.removeEventListener('afterprint',cleanup)};
+ window.addEventListener('afterprint',cleanup,{once:true});window.print();
+};
 window.refreshManualBookings=async()=>{
  const node=document.getElementById('manual-booking-list');if(!node)return;
  node.textContent='Cargando reservas…';
  if(!(await hasValidAdmin())){node.textContent='Inicia sesión para ver las reservas.';return}
  const {data,error}=await supabase.from('reservas_whatsapp').select('id,experiencia_id,nombre,telefono,plazas,precio_unitario,importe_total,estado,pago_estado,origen,created_at').order('created_at',{ascending:false}).limit(200);
  if(error){node.textContent='No se pudo cargar el listado: '+error.message;return}
- if(!data?.length){node.textContent='Todavía no hay solicitudes registradas.';return}
+ if(!data?.length){bookingPrintRows=[];node.textContent='Todavía no hay solicitudes registradas.';document.getElementById('booking-totals').textContent='Sin reservas.';return}
  const titles=new Map(eventos.map(e=>[String(e.id),e.titulo]));
- node.replaceChildren(...data.map(row=>{
+ const filter=document.getElementById('booking-event-filter');
+ const current=filter.value;
+ filter.replaceChildren(new Option('Todas las experiencias','all'),...eventos.map(e=>new Option(e.titulo+' · '+(e.fecha||''),String(e.id))));
+ filter.value=[...filter.options].some(o=>o.value===current)?current:'all';
+ const rows=data.filter(row=>filter.value==='all'||String(row.experiencia_id)===filter.value);
+ bookingPrintRows=rows;
+ const sum=list=>list.reduce((n,r)=>n+(Number(r.importe_total)||0),0);
+ const money=n=>new Intl.NumberFormat('es-ES',{style:'currency',currency:'EUR'}).format(n);
+ const active=rows.filter(r=>r.estado!=='cancelada'),confirmed=rows.filter(r=>r.estado==='confirmada');
+ const received=active.filter(r=>r.pago_estado==='recibido'),unpaid=active.filter(r=>r.pago_estado!=='recibido');
+ document.getElementById('booking-totals').textContent='Plazas activas: '+active.reduce((n,r)=>n+r.plazas,0)+' · Aportaciones previstas: '+money(sum(active))+' · Confirmadas: '+money(sum(confirmed))+' · Recibidas: '+money(sum(received))+' · Pendientes de cobro: '+money(sum(unpaid))+'. Canceladas excluidas.';
+ node.replaceChildren(...rows.map(row=>{
   const wrap=document.createElement('article');wrap.style.cssText='padding:14px;border-bottom:1px solid #ddd;display:grid;gap:8px';
   const heading=document.createElement('strong'),detail=document.createElement('span'),phone=document.createElement('a'),status=document.createElement('span');
   const updateText=()=>{
@@ -518,7 +552,19 @@ window.refreshManualBookings=async()=>{
    if(error||!deleted){alert('No se ha podido borrar la reserva.');remove.disabled=false;return}
    wrap.remove();
   });
-  controls.append(edit,remove);wrap.append(heading,detail,phone,status,controls);sync();return wrap;
+  const reminder=document.createElement('button');reminder.type='button';reminder.textContent='Recordar por WhatsApp';
+  const ev=eventos.find(e=>String(e.id)===String(row.experiencia_id));
+  const day=ev?.fecha?.slice(0,10);
+  const days=day?Math.ceil((new Date(day+'T00:00:00').getTime()-Date.now())/86400000):NaN;
+  reminder.disabled=!(row.estado==='confirmada'&&Number.isFinite(days)&&days>=0&&days<=7);
+  reminder.addEventListener('click',()=>{
+   const digits=String(row.telefono).replace(/[^0-9]/g,'');
+   if(digits.length<9)return alert('Revisa el teléfono de esta reserva.');
+   const phone=digits.length===9?'34'+digits:digits;
+   const message=['Hola '+row.nombre+', recordatorio de tu reserva confirmada para '+ev.titulo+'.','Plazas: '+row.plazas+'. Fecha: '+ev.fecha+(ev.hora?' · '+ev.hora:''),'Lugar: '+(ev.lugar||'Por confirmar'),'¡Te esperamos! Viajes Sonoros.'].join('\\n');
+   window.location.assign('https://api.whatsapp.com/send?phone='+phone+'&text='+encodeURIComponent(message));
+  });
+  controls.append(edit,remove,reminder);wrap.append(heading,detail,phone,status,controls);sync();return wrap;
  }));
 };
 window.saveManualBooking=async event=>{
@@ -552,7 +598,7 @@ function renderManualBookingManager(){
  <label>Plazas<input id="manual-booking-seats" type="number" min="1" max="10" value="1" required></label>
  <button type="submit" id="manual-booking-save">Guardar reserva manual</button>
  <p id="manual-booking-feedback" role="status"></p></form>
- <h4>Últimas solicitudes registradas</h4><button type="button" onclick="window.refreshManualBookings()">Actualizar listado</button>
+ <h4>Últimas solicitudes registradas</h4><label>Experiencia <select id="booking-event-filter" onchange="window.refreshManualBookings()"><option value="all">Todas</option></select></label><p id="booking-totals">Calculando aportaciones…</p><button type="button" onclick="window.refreshManualBookings()">Actualizar listado</button><button type="button" onclick="window.printBookingList()">Imprimir listado</button>
  <div id="manual-booking-list" aria-live="polite">Cargando reservas…</div>
  </section>`;
 }
