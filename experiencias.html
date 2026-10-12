@@ -446,30 +446,79 @@ window.refreshManualBookings=async()=>{
  const node=document.getElementById('manual-booking-list');if(!node)return;
  node.textContent='Cargando reservas…';
  if(!(await hasValidAdmin())){node.textContent='Inicia sesión para ver las reservas.';return}
- const {data,error}=await supabase.from('reservas_whatsapp').select('id,experiencia_id,nombre,telefono,plazas,importe_total,estado,pago_estado,origen,created_at').order('created_at',{ascending:false}).limit(200);
+ const {data,error}=await supabase.from('reservas_whatsapp').select('id,experiencia_id,nombre,telefono,plazas,precio_unitario,importe_total,estado,pago_estado,origen,created_at').order('created_at',{ascending:false}).limit(200);
  if(error){node.textContent='No se pudo cargar el listado: '+error.message;return}
  if(!data?.length){node.textContent='Todavía no hay solicitudes registradas.';return}
  const titles=new Map(eventos.map(e=>[String(e.id),e.titulo]));
  node.replaceChildren(...data.map(row=>{
-  const wrap=document.createElement('article');wrap.style.cssText='padding:12px;border-bottom:1px solid #ddd;display:grid;gap:5px';
-  const heading=document.createElement('strong');heading.textContent=row.nombre+' · '+row.plazas+' plaza(s)';
-  const detail=document.createElement('span');detail.textContent=(titles.get(String(row.experiencia_id))||'Experiencia '+row.experiencia_id)+' · '+(row.importe_total==null?'Importe por comprobar':Number(row.importe_total).toFixed(2)+' €')+' · '+new Date(row.created_at).toLocaleString('es-ES');
-  const phone=document.createElement('a');phone.textContent=row.telefono;phone.href='tel:'+row.telefono;
-  const status=document.createElement('span');status.textContent='Origen: '+(row.origen==='manual'?'Manual':'Web')+' · Reserva: '+row.estado+' · Pago: '+row.pago_estado;
+  const wrap=document.createElement('article');wrap.style.cssText='padding:14px;border-bottom:1px solid #ddd;display:grid;gap:8px';
+  const heading=document.createElement('strong'),detail=document.createElement('span'),phone=document.createElement('a'),status=document.createElement('span');
+  const updateText=()=>{
+   heading.textContent=row.nombre+' · '+row.plazas+' plaza(s)';
+   detail.textContent=(titles.get(String(row.experiencia_id))||'Experiencia '+row.experiencia_id)+' · '+(row.importe_total==null?'Importe por comprobar':Number(row.importe_total).toFixed(2)+' €')+' · '+new Date(row.created_at).toLocaleString('es-ES');
+   phone.textContent=row.telefono;phone.href='tel:'+row.telefono;
+   status.textContent='Origen: '+(row.origen==='manual'?'Manual':'Web')+' · Reserva: '+row.estado+' · Pago: '+row.pago_estado;
+  };updateText();
   const controls=document.createElement('div');controls.style.cssText='display:flex;gap:8px;flex-wrap:wrap';
-  for(const [field,options] of [['estado',['pendiente','confirmada','cancelada']],['pago_estado',['pendiente','recibido','revisar']]]){
-   const select=document.createElement('select');select.setAttribute('aria-label',field==='estado'?'Estado de reserva':'Estado del pago');
-   for(const value of options){const opt=document.createElement('option');opt.value=value;opt.textContent=value;select.append(opt)}
-   select.value=row[field];
-   select.addEventListener('change',async()=>{
-    const next=select.value;select.disabled=true;
-    const {error}=await supabase.from('reservas_whatsapp').update({[field]:next}).eq('id',row.id);
-    if(error){alert('No se ha podido actualizar: '+error.message);select.value=row[field]}else row[field]=next;
-    select.disabled=false;status.textContent='Origen: '+(row.origen==='manual'?'Manual':'Web')+' · Reserva: '+row.estado+' · Pago: '+row.pago_estado;
-   });
+  const statusSelect=document.createElement('select'),paymentSelect=document.createElement('select');
+  for(const [select,values,label] of [[statusSelect,['pendiente','confirmada','cancelada'],'Estado de reserva'],[paymentSelect,['pendiente','recibido','revisar','cancelado'],'Estado del pago']]){
+   select.setAttribute('aria-label',label);
+   for(const value of values){const option=document.createElement('option');option.value=value;option.textContent=value;select.append(option)}
    controls.append(select);
   }
-  wrap.append(heading,detail,phone,status,controls);return wrap;
+  const sync=()=>{statusSelect.value=row.estado;paymentSelect.value=row.pago_estado;paymentSelect.disabled=row.estado==='cancelada';updateText();};
+  const setBusy=value=>{statusSelect.disabled=value;paymentSelect.disabled=value||row.estado==='cancelada'};
+  statusSelect.addEventListener('change',async()=>{
+   const next=statusSelect.value;
+   if(next==='cancelada'&&!confirm('¿Cancelar esta reserva y marcar también el pago como cancelado? Esto NO devuelve un Bizum recibido.')){sync();return}
+   setBusy(true);
+   const {data:updated,error}=await supabase.from('reservas_whatsapp').update({estado:next}).eq('id',row.id).select('estado,pago_estado').single();
+   if(error){alert('No se pudo actualizar: '+error.message)}else{row.estado=updated.estado;row.pago_estado=updated.pago_estado}
+   sync();
+  });
+  paymentSelect.addEventListener('change',async()=>{
+   if(row.estado==='cancelada'){sync();return}
+   const next=paymentSelect.value;setBusy(true);
+   const {data:updated,error}=await supabase.from('reservas_whatsapp').update({pago_estado:next}).eq('id',row.id).select('pago_estado').single();
+   if(error){alert('No se pudo actualizar el pago: '+error.message)}else row.pago_estado=updated.pago_estado;
+   sync();
+  });
+  const edit=document.createElement('button');edit.type='button';edit.textContent='Editar reserva';
+  const remove=document.createElement('button');remove.type='button';remove.textContent='Borrar reserva';remove.style.background='#9c2434';remove.style.color='#fff';
+  edit.addEventListener('click',()=>{
+   if(row.estado!=='pendiente'){alert('Solo se editan reservas pendientes.');return}
+   const form=document.createElement('form');form.style.cssText='display:grid;gap:8px;padding:12px;border:1px solid #ddd;border-radius:10px';
+   const fields={};
+   for(const [key,label,type] of [['nombre','Nombre','text'],['telefono','Teléfono','tel'],['plazas','Plazas','number']]){
+    const wrapper=document.createElement('label');wrapper.textContent=label;
+    const input=document.createElement('input');input.type=type;input.value=String(row[key]);input.required=true;
+    if(type==='number'){input.min='1';input.max='10'}wrapper.append(input);form.append(wrapper);fields[key]=input;
+   }
+   const save=document.createElement('button');save.type='submit';save.textContent='Guardar cambios';
+   const close=document.createElement('button');close.type='button';close.textContent='Cerrar edición';close.addEventListener('click',()=>form.remove());
+   form.append(save,close);
+   form.addEventListener('submit',async e=>{
+    e.preventDefault();
+    const nombre=fields.nombre.value.trim(),telefono=fields.telefono.value.replace(/[\s().-]/g,''),plazas=Number(fields.plazas.value);
+    if(nombre.length<2||nombre.length>100||!/^[+]?[0-9]{9,15}$/.test(telefono)||!Number.isSafeInteger(plazas)||plazas<1||plazas>10){alert('Datos incorrectos');return}
+    save.disabled=true;
+    const importe_total=row.precio_unitario==null?null:Number(row.precio_unitario)*plazas;
+    const {data:updated,error}=await supabase.from('reservas_whatsapp').update({nombre,telefono,plazas,importe_total}).eq('id',row.id).eq('estado','pendiente').select('nombre,telefono,plazas,importe_total').maybeSingle();
+    save.disabled=false;
+    if(error||!updated){alert('No se pudo editar la reserva pendiente.');return}
+    Object.assign(row,updated);updateText();form.remove();
+   });
+   wrap.querySelector('form')?.remove();wrap.append(form);
+  });
+  remove.addEventListener('click',async()=>{
+   if(row.estado!=='pendiente'){alert('Solo se pueden borrar reservas pendientes.');return}
+   if(!confirm('¿Borrar definitivamente esta reserva pendiente y sus datos? Esta acción no se puede deshacer.'))return;
+   remove.disabled=true;
+   const {data:deleted,error}=await supabase.from('reservas_whatsapp').delete().eq('id',row.id).eq('estado','pendiente').select('id').maybeSingle();
+   if(error||!deleted){alert('No se ha podido borrar la reserva.');remove.disabled=false;return}
+   wrap.remove();
+  });
+  controls.append(edit,remove);wrap.append(heading,detail,phone,status,controls);sync();return wrap;
  }));
 };
 window.saveManualBooking=async event=>{
