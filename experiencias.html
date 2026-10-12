@@ -334,7 +334,7 @@ const showImageError=(message)=>{const element=document.getElementById('image-er
 const setPreviewSources=(url)=>{document.querySelectorAll('[data-experience-preview]').forEach(image=>{image.src=url})}
 const updateImagePreview=(result)=>{const preview=document.getElementById('preview-img');const details=document.getElementById('image-details');const status=document.getElementById('image-status');if(!preview||!details||!status)return;const assessment=assessExperienceImage(result.sourceWidth,result.sourceHeight,result.originalSize);imageResolutionInsufficient=assessment.blocksUpload;setPreviewSources(result.previewURL);details.innerHTML=`<span>Imagen seleccionada: <strong>${result.sourceWidth} × ${result.sourceHeight} px · ${formatImageBytes(result.originalSize)}</strong></span><span>Resultado optimizado: <strong>${result.width} × ${result.height} px · ${formatImageBytes(result.optimizedSize)}</strong></span><span>Ahorro estimado: <strong>${result.savingPercent}%</strong></span>${result.cardBlob?`<span>Variante de tarjeta: <strong>${result.cardWidth} × ${result.cardHeight} px · ${formatImageBytes(result.cardBlob.size)}</strong></span>`:''}`;status.className=`admin-image-status is-${assessment.key}`;status.innerHTML=`<strong>${assessment.label}</strong><span>${assessment.message}</span>`;preview.style.display='grid'}
 window.previewFile=async(e)=>{const f=e.target.files[0];if(!f)return;showImageError('');if(optimizedImage)releaseOptimizedImage(optimizedImage);if(sourceOptimizedImage&&sourceOptimizedImage!==optimizedImage)releaseOptimizedImage(sourceOptimizedImage);optimizedImage=null;sourceOptimizedImage=null;existingImageFocus=null;assistantDraft=null;fileToUpload=f;imageDataUrl=null;imageOptimizationFailed=false;imageResolutionInsufficient=false;const preview=document.getElementById('preview-img');if(preview)preview.style.display='none';const resultPreview=document.getElementById('assistant-result');if(resultPreview)resultPreview.hidden=true;try{const result=await optimizeExperienceImage(f);sourceOptimizedImage=result;optimizedImage=result;imageDataUrl=result.previewURL;updateImagePreview(result)}catch(error){imageOptimizationFailed=true;showImageError((error.message||'No se pudo optimizar la fotografía.')+' No se subirá ni se guardará la experiencia hasta seleccionar una imagen válida.')}window.updateAssistantState()}
-window.cancelarEdicion=()=>{ editId=null; fileToUpload=null; imageDataUrl=null; imageOptimizationFailed=false; imageResolutionInsufficient=false; selectedTemplateKey='';assistantDraft=null;assistantVariant=0;if(optimizedImage)releaseOptimizedImage(optimizedImage);if(sourceOptimizedImage&&sourceOptimizedImage!==optimizedImage)releaseOptimizedImage(sourceOptimizedImage);optimizedImage=null;sourceOptimizedImage=null;existingImageFocus=null; ['f-titulo','f-fecha','f-hora','f-precio','f-lugar','f-localidad','f-card-text','f-desc','f-additional','f-imagen','f-file'].forEach(id=>{const el=document.getElementById(id); if(el) el.value=''}); document.querySelectorAll('[data-template-key]').forEach(button=>{button.classList.remove('is-selected');button.setAttribute('aria-pressed','false')});const estado=document.getElementById('f-publicado'); if(estado)estado.value='false'; const p=document.getElementById('preview-img'); if(p) p.style.display='none';const result=document.getElementById('assistant-result');if(result)result.hidden=true; showImageError(''); const error=document.getElementById('form-error'); if(error){error.textContent='';error.style.display='none'};window.updateAssistantState() }
+window.cancelarEdicion=()=>{ editId=null; fileToUpload=null; imageDataUrl=null; imageOptimizationFailed=false; imageResolutionInsufficient=false; selectedTemplateKey='';assistantDraft=null;assistantVariant=0;if(optimizedImage)releaseOptimizedImage(optimizedImage);if(sourceOptimizedImage&&sourceOptimizedImage!==optimizedImage)releaseOptimizedImage(sourceOptimizedImage);optimizedImage=null;sourceOptimizedImage=null;existingImageFocus=null; ['f-titulo','f-fecha','f-hora','f-precio','f-lugar','f-localidad','f-card-text','f-desc','f-additional','f-imagen','f-file'].forEach(id=>{const el=document.getElementById(id); if(el) el.value=''}); document.querySelectorAll('[data-template-key]').forEach(button=>{button.classList.remove('is-selected');button.setAttribute('aria-pressed','false')});const estado=document.getElementById('f-publicado'); if(estado)estado.value='false'; const aforoInput=document.getElementById('f-aforo-maximo');if(aforoInput)aforoInput.value=''; const p=document.getElementById('preview-img'); if(p) p.style.display='none';const result=document.getElementById('assistant-result');if(result)result.hidden=true; showImageError(''); const error=document.getElementById('form-error'); if(error){error.textContent='';error.style.display='none'};window.updateAssistantState() }
 window.usarPlantilla=(index)=>{const template=TEMPLATES[index];if(!template)return;selectedTemplateKey=template.key;assistantVariant=0;assistantDraft=null;document.querySelectorAll('[data-template-key]').forEach(button=>{const selected=button.dataset.templateKey===template.key;button.classList.toggle('is-selected',selected);button.setAttribute('aria-pressed',String(selected))});document.getElementById('f-titulo').value=template.titulo;document.getElementById('f-publicado').value='false';document.getElementById('f-fecha').focus();window.updateAssistantState()}
 const assistantFormData=()=>({template:selectedTemplateKey,date:document.getElementById('f-fecha')?.value||'',time:document.getElementById('f-hora')?.value||'',place:document.getElementById('f-lugar')?.value||'',locality:document.getElementById('f-localidad')?.value||'',additional:document.getElementById('f-additional')?.value||'',photo:fileToUpload})
 window.updateAssistantState=()=>{const button=document.getElementById('assistant-create');const status=document.getElementById('assistant-pending');if(!button||!status)return;const missing=assistantRequiredFields(assistantFormData());if(imageResolutionInsufficient)missing.push('una fotografía con resolución suficiente');if(imageOptimizationFailed)missing.push('una fotografía válida');button.disabled=missing.length>0;status.textContent=missing.length?`Pendiente: ${[...new Set(missing)].join(', ')}.`:'Todo listo para crear el contenido y la portada.';status.classList.toggle('is-ready',missing.length===0)}
@@ -354,6 +354,9 @@ window.guardarEvento=async()=>{
   const fecha=document.getElementById('f-fecha').value
   const hora=document.getElementById('f-hora').value
   const precio=document.getElementById('f-precio').value.trim()
+  const aforoRaw=document.getElementById('f-aforo-maximo').value.trim()
+  const aforo_maximo=aforoRaw===''?null:Number(aforoRaw)
+  if(aforoRaw!==''&&(!Number.isSafeInteger(aforo_maximo)||aforo_maximo<1)){alert('El aforo máximo debe ser un número positivo.');return}
   const lugar=[document.getElementById('f-lugar').value.trim(),document.getElementById('f-localidad')?.value.trim()].filter(Boolean).join(' · ')
   const descripcion=[document.getElementById('f-card-text')?.value.trim(),document.getElementById('f-desc').value.trim(),document.getElementById('f-additional')?.value.trim()].filter(Boolean).join('\n\n')
   const publicado=document.getElementById('f-publicado').value==='true'
@@ -389,9 +392,9 @@ window.guardarEvento=async()=>{
         }
       }
     }
-    const payload={titulo,fecha,hora:hora||null,precio,lugar,descripcion,imagen_url:imagen_url||null,publicado}
+    const payload={titulo,fecha,hora:hora||null,precio,aforo_maximo,lugar,descripcion,imagen_url:imagen_url||null,publicado}
     const editingId=editId
-    const columns='id,titulo,fecha,hora,precio,lugar,descripcion,imagen_url,publicado'
+    const columns='id,titulo,fecha,hora,precio,aforo_maximo,lugar,descripcion,imagen_url,publicado'
     const result=editingId
       ?await supabase.from('experiencias').update(payload).eq('id',editingId).select(columns).single()
       :await supabase.from('experiencias').insert(payload).select(columns).single()
@@ -402,7 +405,7 @@ window.guardarEvento=async()=>{
     if(verification.error)throw verification.error
     const saved=verification.data
     const same=(a,b)=>String(a??'')===String(b??'')
-    const persisted=saved&&same(saved.titulo,payload.titulo)&&same(saved.fecha,payload.fecha)&&same(String(saved.hora||'').slice(0,5),String(payload.hora||'').slice(0,5))&&same(saved.precio,payload.precio)&&same(saved.lugar,payload.lugar)&&same(saved.descripcion,payload.descripcion)&&same(saved.imagen_url,payload.imagen_url)&&Boolean(saved.publicado)===Boolean(payload.publicado)
+    const persisted=saved&&same(saved.titulo,payload.titulo)&&same(saved.fecha,payload.fecha)&&same(String(saved.hora||'').slice(0,5),String(payload.hora||'').slice(0,5))&&same(saved.precio,payload.precio)&&same(saved.aforo_maximo,payload.aforo_maximo)&&same(saved.lugar,payload.lugar)&&same(saved.descripcion,payload.descripcion)&&same(saved.imagen_url,payload.imagen_url)&&Boolean(saved.publicado)===Boolean(payload.publicado)
     if(!persisted)throw new Error('Supabase respondió, pero los cambios no quedaron persistidos.')
     window.cancelarEdicion()
     await window.renderAdminList()
@@ -411,7 +414,7 @@ window.guardarEvento=async()=>{
     window.scrollTo({top:0,behavior:'smooth'})
   }catch(err){ if(errorElement){errorElement.textContent='No se pudo guardar: '+err.message;errorElement.style.display='block'} } finally{ if(btn){ btn.textContent='Guardar experiencia'; btn.disabled=false } }
 }
-window.editarEvento=async(id)=>{ if(!(await hasValidAdmin())){view='admin-login';render();return} const ev=eventos.find(e=>e.id==id); if(!ev) return; editId=id;fileToUpload=null;selectedTemplateKey='';assistantDraft=null;assistantVariant=0;if(optimizedImage)releaseOptimizedImage(optimizedImage);if(sourceOptimizedImage&&sourceOptimizedImage!==optimizedImage)releaseOptimizedImage(sourceOptimizedImage);optimizedImage=null;sourceOptimizedImage=null;existingImageFocus=null; document.getElementById('f-titulo').value=ev.titulo||''; document.getElementById('f-fecha').value=ev.fecha||''; document.getElementById('f-hora').value=String(ev.hora||'').slice(0,5); document.getElementById('f-precio').value=ev.precio||''; document.getElementById('f-lugar').value=ev.lugar||'';document.getElementById('f-localidad').value='';document.getElementById('f-card-text').value=''; document.getElementById('f-desc').value=ev.descripcion||'';document.getElementById('f-additional').value=''; document.getElementById('f-imagen').value=ev.imagen_url||''; document.getElementById('f-publicado').value=String(ev.publicado===true); if(ev.imagen_url){setPreviewSources(ev.imagen_url);document.getElementById('image-details').textContent='Imagen actual. Puedes cambiar los datos o sustituir la imagen; el encuadre se adapta automáticamente.';document.getElementById('preview-img').style.display='grid'} imageDataUrl=ev.imagen_url||null;window.updateAssistantState(); window.scrollTo({top:0,behavior:'smooth'}) }
+window.editarEvento=async(id)=>{ if(!(await hasValidAdmin())){view='admin-login';render();return} const ev=eventos.find(e=>e.id==id); if(!ev) return; editId=id;fileToUpload=null;selectedTemplateKey='';assistantDraft=null;assistantVariant=0;if(optimizedImage)releaseOptimizedImage(optimizedImage);if(sourceOptimizedImage&&sourceOptimizedImage!==optimizedImage)releaseOptimizedImage(sourceOptimizedImage);optimizedImage=null;sourceOptimizedImage=null;existingImageFocus=null; document.getElementById('f-titulo').value=ev.titulo||''; document.getElementById('f-fecha').value=ev.fecha||''; document.getElementById('f-hora').value=String(ev.hora||'').slice(0,5); document.getElementById('f-precio').value=ev.precio||''; document.getElementById('f-aforo-maximo').value=ev.aforo_maximo??''; document.getElementById('f-lugar').value=ev.lugar||'';document.getElementById('f-localidad').value='';document.getElementById('f-card-text').value=''; document.getElementById('f-desc').value=ev.descripcion||'';document.getElementById('f-additional').value=''; document.getElementById('f-imagen').value=ev.imagen_url||''; document.getElementById('f-publicado').value=String(ev.publicado===true); if(ev.imagen_url){setPreviewSources(ev.imagen_url);document.getElementById('image-details').textContent='Imagen actual. Puedes cambiar los datos o sustituir la imagen; el encuadre se adapta automáticamente.';document.getElementById('preview-img').style.display='grid'} imageDataUrl=ev.imagen_url||null;window.updateAssistantState(); window.scrollTo({top:0,behavior:'smooth'}) }
 window.borrarEvento=async(id)=>{ if(!(await hasValidAdmin())){view='admin-login';render();return} if(!confirm('¿Borrar?')) return; const {error}=await supabase.from('experiencias').delete().eq('id',id); if(error){alert('Error: '+error.message);return} renderAdminList() }
 window.renderAdminList=async()=>{ if(!(await hasValidAdmin())){view='admin-login';render();return} const r=await supabase.from('experiencias').select('*').order('fecha',{ascending:false}).order('hora',{ascending:false,nullsFirst:false});if(r.error)throw r.error;const data=r.data||[]; eventos=data;
  const manualSelect=document.getElementById('manual-booking-event');
@@ -479,11 +482,25 @@ window.refreshManualBookings=async()=>{
  filter.value=[...filter.options].some(o=>o.value===current)?current:'all';
  const rows=data.filter(row=>filter.value==='all'||String(row.experiencia_id)===filter.value);
  bookingPrintRows=rows;
+ const selectedExperience=filter.value;
  const sum=list=>list.reduce((n,r)=>n+(Number(r.importe_total)||0),0);
  const money=n=>new Intl.NumberFormat('es-ES',{style:'currency',currency:'EUR'}).format(n);
  const active=rows.filter(r=>r.estado!=='cancelada'),confirmed=rows.filter(r=>r.estado==='confirmada');
  const received=active.filter(r=>r.pago_estado==='recibido'),unpaid=active.filter(r=>r.pago_estado!=='recibido');
  document.getElementById('booking-totals').textContent='Plazas activas: '+active.reduce((n,r)=>n+r.plazas,0)+' · Aportaciones previstas: '+money(sum(active))+' · Confirmadas: '+money(sum(confirmed))+' · Recibidas: '+money(sum(received))+' · Pendientes de cobro: '+money(sum(unpaid))+'. Canceladas excluidas.';
+ const breakdown=eventos.map(ev=>{
+   const eventRows=data.filter(r=>String(r.experiencia_id)===String(ev.id));
+   const confirmedSeats=eventRows.filter(r=>r.estado==='confirmada').reduce((n,r)=>n+r.plazas,0);
+   const pendingSeats=eventRows.filter(r=>r.estado==='pendiente').reduce((n,r)=>n+r.plazas,0);
+   const available=ev.aforo_maximo==null?'Sin configurar':Math.max(0,ev.aforo_maximo-confirmedSeats);
+   return {ev,confirmedSeats,pendingSeats,available};
+ });
+ const capacityElement=document.getElementById('booking-event-capacity-list');
+ if(capacityElement)capacityElement.replaceChildren(...breakdown.filter(x=>selectedExperience==='all'||String(x.ev.id)===selectedExperience).map(x=>{
+   const line=document.createElement('p');
+   line.textContent=x.ev.titulo+': aforo '+(x.ev.aforo_maximo??'sin configurar')+' · confirmadas/cerradas '+x.confirmedSeats+' · pendientes '+x.pendingSeats+' · disponibles '+x.available;
+   return line;
+ }));
  node.replaceChildren(...rows.map(row=>{
   const wrap=document.createElement('article');wrap.style.cssText='padding:14px;border-bottom:1px solid #ddd;display:grid;gap:8px';
   const heading=document.createElement('strong'),detail=document.createElement('span'),phone=document.createElement('a'),status=document.createElement('span');
@@ -598,7 +615,7 @@ function renderManualBookingManager(){
  <label>Plazas<input id="manual-booking-seats" type="number" min="1" max="10" value="1" required></label>
  <button type="submit" id="manual-booking-save">Guardar reserva manual</button>
  <p id="manual-booking-feedback" role="status"></p></form>
- <h4>Últimas solicitudes registradas</h4><label>Experiencia <select id="booking-event-filter" onchange="window.refreshManualBookings()"><option value="all">Todas</option></select></label><p id="booking-totals">Calculando aportaciones…</p><button type="button" onclick="window.refreshManualBookings()">Actualizar listado</button><button type="button" onclick="window.printBookingList()">Imprimir listado</button>
+ <h4>Últimas solicitudes registradas</h4><label>Experiencia <select id="booking-event-filter" onchange="window.refreshManualBookings()"><option value="all">Todas</option></select></label><p id="booking-totals">Calculando aportaciones…</p><div id="booking-event-capacity-list" aria-live="polite"></div><button type="button" onclick="window.refreshManualBookings()">Actualizar listado</button><button type="button" onclick="window.printBookingList()">Imprimir listado</button>
  <div id="manual-booking-list" aria-live="polite">Cargando reservas…</div>
  </section>`;
 }
@@ -629,6 +646,8 @@ function renderAdminPanel(){ return `${headerHTML()}<main class="admin-premium-s
         <div class="admin-field-grid">
           <label>Estado<select id="f-publicado"><option value="false">Borrador</option><option value="true">Publicada</option></select></label>
           <label>Precio / aportación<input id="f-precio" type="text" maxlength="80" placeholder="Ej. 17 € · Gratis"/></label>
+          <label>Aforo máximo (plazas)<input id="f-aforo-maximo" type="number" min="1" step="1" placeholder="Ej. 20"/><small>Dejar vacío significa que el aforo no está configurado; no se cerrarán reservas automáticamente.</small></label>
+          <p id="admin-event-capacity" style="grid-column:1/-1" role="status">Selecciona una experiencia para consultar las plazas.</p>
           <label>📅 Fecha<input id="f-fecha" type="date"/></label>
           <label>🕒 Hora<input id="f-hora" type="time"/></label>
         </div>
