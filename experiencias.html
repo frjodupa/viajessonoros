@@ -295,17 +295,10 @@ window.openWhatsAppGeneral=()=>{
   const txt='Hola! Quiero info general sobre Viajes Sonoros Feel. Mi nombre es:'
   window.open(whLink(txt),'_blank','noopener,noreferrer')
 }
-const getExperienceWhatsAppLink=(ev)=>{
-  const txt=`Hola! Quiero reservar la experiencia "${ev.titulo}" del ${eventMeta(ev)} en ${ev.lugar||''}. ¿Queda plaza? Mi nombre es:`
-  return whLink(txt)
-}
+const getExperienceWhatsAppLink=(ev)=>'/reserva.html?experiencia='+encodeURIComponent(ev.id)
 window.reservarExperiencia=(id)=>{
-  const ev=eventos.find(e=>e.id==id); if(!ev) return
-  if(!isReservable(ev)) return
-  // FIX: doble método por si el navegador bloquea window.open
-  const url=getExperienceWhatsAppLink(ev)
-  window.open(url,'_blank','noopener,noreferrer')
-  setTimeout(()=>{ window.location.href=url },300)
+  const ev=eventos.find(e=>e.id==id); if(!ev||!isReservable(ev))return;
+  window.location.assign(getExperienceWhatsAppLink(ev));
 }
 const experienceDetail=installExperienceDetail({getExperiences:()=>eventos,getWhatsAppLink:getExperienceWhatsAppLink,isReservable})
 
