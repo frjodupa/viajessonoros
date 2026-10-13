@@ -451,6 +451,13 @@ function prepareAdminImageGuide(){
 }
 
 
+function defaultBookingExperience(events,now=new Date()){
+ const published=events.filter(event=>event.publicado===true);
+ const candidates=published.length?published:events;
+ const upcoming=candidates.filter(event=>parseLocalDate(event.fecha)&&isReservable(event,now)).sort((a,b)=>String(a.fecha).localeCompare(String(b.fecha))||String(a.hora||'').localeCompare(String(b.hora||'')));
+ const latest=[...candidates].filter(event=>parseLocalDate(event.fecha)).sort((a,b)=>String(b.fecha).localeCompare(String(a.fecha)));
+ return String((upcoming[0]||latest[0]||candidates[0])?.id||'all');
+}
 let bookingPrintRows=[];
 let bookingPrintEvents=[];
 function bookingPrintSummary(rows,events){
@@ -466,7 +473,7 @@ function bookingPrintSummary(rows,events){
   const capacity=event?.aforo_maximo;
   return {id,title:event?.titulo||'Experiencia '+id,date:date(event?.fecha),
    detail:'Plazas activas: '+seats(active)+' · Confirmadas: '+seats(confirmed)+' · Pendientes: '+seats(pending)+' · Aforo: '+(capacity??'Sin configurar')+' · Disponibles: '+(capacity==null?'Sin configurar':Math.max(0,Number(capacity)-seats(confirmed))),
-   contribution:'Aportación prevista: '+amount(active)+' · Recibida: '+amount(active.filter(row=>row.pago_estado==='recibido'))+' · Pendiente: '+amount(active.filter(row=>row.pago_estado!=='recibido'))};
+   contribution:'Aportación prevista: '+amount(active)+' · Confirmada: '+amount(confirmed)+' · Pendiente de confirmar: '+amount(pending)};
  });
 }
 window.printBookingList=()=>{
@@ -483,14 +490,14 @@ window.printBookingList=()=>{
  }
  const note=document.createElement('p');note.textContent='Totales del listado seleccionado. Reservas canceladas excluidas de plazas y aportaciones. Aforo disponible calculado sobre plazas confirmadas.';section.append(note);
  const table=document.createElement('table');
- const labels=['Experiencia','Fecha','Nombre','Teléfono','Plazas','Importe','Estado','Pago'];
+ const labels=['Experiencia','Fecha','Nombre','Teléfono','Plazas','Importe','Estado'];
  const head=document.createElement('tr');for(const label of labels){const cell=document.createElement('th');cell.textContent=label;head.append(cell)}table.append(head);
  const titles=new Map(bookingPrintEvents.map(e=>[String(e.id),e.titulo]));
  const dates=new Map(summaries.map(e=>[e.id,e.date]));
  const thead=document.createElement('thead');thead.append(head);table.append(thead);
  for(const row of rows){
   const tr=document.createElement('tr');
-  for(const value of [titles.get(String(row.experiencia_id))||row.experiencia_id,dates.get(String(row.experiencia_id)),row.nombre,row.telefono,row.plazas,row.importe_total==null?'—':Number(row.importe_total).toFixed(2)+' €',row.estado,row.pago_estado]){
+  for(const value of [titles.get(String(row.experiencia_id))||row.experiencia_id,dates.get(String(row.experiencia_id)),row.nombre,row.telefono,row.plazas,row.importe_total==null?'—':Number(row.importe_total).toFixed(2)+' €',row.estado]){
    const td=document.createElement('td');td.textContent=String(value);tr.append(td)
   }
   table.append(tr);
@@ -503,7 +510,7 @@ window.printBookingList=()=>{
   const heading=document.createElement('strong');heading.textContent=row.nombre;card.append(heading);
   const values=[(titles.get(String(row.experiencia_id))||'Experiencia')+' · '+dates.get(String(row.experiencia_id)),
    'Teléfono: '+row.telefono,'Plazas: '+row.plazas+' · Aportación: '+(row.importe_total==null?'Por comprobar':Number(row.importe_total).toFixed(2)+' €'),
-   'Reserva: '+row.estado+' · Pago: '+row.pago_estado];
+   'Reserva: '+row.estado];
   for(const value of values){const line=document.createElement('p');line.textContent=value;card.append(line)}cards.append(card);
  }
  section.append(cards);
@@ -534,32 +541,33 @@ window.printBookingList=()=>{
 };
 window.refreshManualBookings=async()=>{
  const node=document.getElementById('manual-booking-list');if(!node)return;
+ document.getElementById('booking-print-page')?.remove();
  node.textContent='Cargando reservas…';
  if(!(await hasValidAdmin())){node.textContent='Inicia sesión para ver las reservas.';return}
  const [{data,error},{data:liveEvents,error:eventError}]=await Promise.all([
   supabase.from('reservas_whatsapp').select('id,experiencia_id,nombre,telefono,plazas,precio_unitario,importe_total,estado,pago_estado,origen,created_at').order('created_at',{ascending:false}).limit(200),
-  supabase.from('experiencias').select('id,titulo,fecha,aforo_maximo')
+  supabase.from('experiencias').select('id,titulo,fecha,hora,publicado,aforo_maximo')
  ]);
  if(eventError){node.textContent='No se ha podido actualizar el aforo: '+eventError.message;return}
  const capacityEvents=liveEvents||[];
  if(error){node.textContent='No se pudo cargar el listado: '+error.message;return}
  bookingPrintEvents=capacityEvents;
- if(!data?.length){bookingPrintRows=[];node.textContent='Todavía no hay solicitudes registradas.';document.getElementById('booking-totals').textContent='Sin reservas.';const counter=document.getElementById('booking-event-capacity-list');if(counter)counter.textContent=capacityEvents.map(e=>e.titulo+': aforo '+(e.aforo_maximo??'sin configurar')+' · 0 confirmadas · 0 pendientes · '+(e.aforo_maximo??'sin configurar')+' disponibles').join(' | ');return}
- const titles=new Map(eventos.map(e=>[String(e.id),e.titulo]));
+ const titles=new Map(capacityEvents.map(e=>[String(e.id),e.titulo]));
  const filter=document.getElementById('booking-event-filter');
- const current=filter.value;
- filter.replaceChildren(new Option('Todas las experiencias','all'),...capacityEvents.map(e=>new Option(e.titulo+' · '+(e.fecha||''),String(e.id))));
- filter.value=[...filter.options].some(o=>o.value===current)?current:'all';
- const rows=data.filter(row=>filter.value==='all'||String(row.experiencia_id)===filter.value);
+ const current=filter.dataset.initialized==='true'?filter.value:defaultBookingExperience(capacityEvents);
+ filter.replaceChildren(new Option('Todas las experiencias','all'),...capacityEvents.map(e=>new Option(e.titulo+' · '+formatWhatsAppDate(e.fecha),String(e.id))));
+ filter.value=[...filter.options].some(o=>o.value===current)?current:defaultBookingExperience(capacityEvents);
+ filter.dataset.initialized='true';
+ const rows=(data||[]).filter(row=>filter.value==='all'||String(row.experiencia_id)===filter.value);
  bookingPrintRows=rows;
  const selectedExperience=filter.value;
  const sum=list=>list.reduce((n,r)=>n+(Number(r.importe_total)||0),0);
  const money=n=>new Intl.NumberFormat('es-ES',{style:'currency',currency:'EUR'}).format(n);
  const active=rows.filter(r=>r.estado!=='cancelada'),confirmed=rows.filter(r=>r.estado==='confirmada');
- const received=active.filter(r=>r.pago_estado==='recibido'),unpaid=active.filter(r=>r.pago_estado!=='recibido');
- document.getElementById('booking-totals').textContent='Plazas activas: '+active.reduce((n,r)=>n+r.plazas,0)+' · Aportaciones previstas: '+money(sum(active))+' · Confirmadas: '+money(sum(confirmed))+' · Recibidas: '+money(sum(received))+' · Pendientes de cobro: '+money(sum(unpaid))+'. Canceladas excluidas.';
+ const pending=active.filter(r=>r.estado==='pendiente');
+ document.getElementById('booking-totals').textContent='Plazas activas: '+active.reduce((n,r)=>n+r.plazas,0)+' · Aportaciones previstas: '+money(sum(active))+' · Confirmadas: '+money(sum(confirmed))+' · Pendientes de confirmar: '+money(sum(pending))+'. Canceladas excluidas.';
  const breakdown=capacityEvents.map(ev=>{
-   const eventRows=data.filter(r=>String(r.experiencia_id)===String(ev.id));
+   const eventRows=(data||[]).filter(r=>String(r.experiencia_id)===String(ev.id));
    const confirmedSeats=eventRows.filter(r=>r.estado==='confirmada').reduce((n,r)=>n+r.plazas,0);
    const pendingSeats=eventRows.filter(r=>r.estado==='pendiente').reduce((n,r)=>n+r.plazas,0);
    const available=ev.aforo_maximo==null?'Sin configurar':Math.max(0,ev.aforo_maximo-confirmedSeats);
@@ -578,31 +586,21 @@ window.refreshManualBookings=async()=>{
    heading.textContent=row.nombre+' · '+row.plazas+' plaza(s)';
    detail.textContent=(titles.get(String(row.experiencia_id))||'Experiencia '+row.experiencia_id)+' · '+(row.importe_total==null?'Importe por comprobar':Number(row.importe_total).toFixed(2)+' €')+' · '+new Date(row.created_at).toLocaleString('es-ES');
    phone.textContent=row.telefono;phone.href='tel:'+row.telefono;
-   status.textContent='Origen: '+(row.origen==='manual'?'Manual':'Web')+' · Reserva: '+row.estado+' · Pago: '+row.pago_estado;
+   status.textContent='Origen: '+(row.origen==='manual'?'Manual':'Web')+' · Reserva: '+row.estado;
   };updateText();
   const controls=document.createElement('div');controls.style.cssText='display:flex;gap:8px;flex-wrap:wrap';
-  const statusSelect=document.createElement('select'),paymentSelect=document.createElement('select');
-  for(const [select,values,label] of [[statusSelect,['pendiente','confirmada','cancelada'],'Estado de reserva'],[paymentSelect,['pendiente','recibido','revisar','cancelado'],'Estado del pago']]){
-   select.setAttribute('aria-label',label);
-   for(const value of values){const option=document.createElement('option');option.value=value;option.textContent=value;select.append(option)}
-   controls.append(select);
-  }
-  const sync=()=>{statusSelect.value=row.estado;paymentSelect.value=row.pago_estado;paymentSelect.disabled=row.estado==='cancelada';updateText();};
-  const setBusy=value=>{statusSelect.disabled=value;paymentSelect.disabled=value||row.estado==='cancelada'};
+  const statusSelect=document.createElement('select');statusSelect.setAttribute('aria-label','Estado de reserva');
+  for(const value of ['pendiente','confirmada','cancelada']){const option=document.createElement('option');option.value=value;option.textContent=value;statusSelect.append(option)}
+  controls.append(statusSelect);
+  const sync=()=>{statusSelect.value=row.estado;updateText();};
+  const setBusy=value=>{statusSelect.disabled=value};
   statusSelect.addEventListener('change',async()=>{
    const next=statusSelect.value;
-   if(next==='cancelada'&&!confirm('¿Cancelar esta reserva y marcar también el pago como cancelado? Esto NO devuelve un Bizum recibido.')){sync();return}
+   if(next==='cancelada'&&!confirm('¿Cancelar esta reserva? Si existe una aportación recibida, la devolución debe gestionarse por separado.')){sync();return}
    setBusy(true);
    const {data:updated,error}=await supabase.from('reservas_whatsapp').update({estado:next}).eq('id',row.id).select('estado,pago_estado').single();
    if(error){alert('No se pudo actualizar: '+error.message)}else{row.estado=updated.estado;row.pago_estado=updated.pago_estado}
    sync();setBusy(false);await window.refreshManualBookings();if(!error && next==='confirmada') document.getElementById('booking-message-'+row.id)?.click();
-  });
-  paymentSelect.addEventListener('change',async()=>{
-   if(row.estado==='cancelada'){sync();return}
-   const next=paymentSelect.value;setBusy(true);
-   const {data:updated,error}=await supabase.from('reservas_whatsapp').update({pago_estado:next}).eq('id',row.id).select('pago_estado').single();
-   if(error){alert('No se pudo actualizar el pago: '+error.message)}else row.pago_estado=updated.pago_estado;
-   sync();setBusy(false);await window.refreshManualBookings();if(!error && next==='recibido') document.getElementById('booking-message-'+row.id)?.click();
   });
   const edit=document.createElement('button');edit.type='button';edit.textContent='Editar reserva';
   const remove=document.createElement('button');remove.type='button';remove.textContent='Borrar reserva';remove.style.background='#9c2434';remove.style.color='#fff';
@@ -649,10 +647,9 @@ window.refreshManualBookings=async()=>{
   function showCommunication(){
    if(row.estado==='cancelada'){alert('Esta reserva está cancelada. No se puede preparar una confirmación.');return}
    if(!ev){alert('No se encuentra la experiencia. Revisa sus datos antes de confirmar al cliente.');return}
-   const lines=['Hola '+row.nombre+' 🌿',row.estado==='confirmada'?'Tu reserva para '+ev.titulo+' está confirmada.':'Hemos recibido tu aportación para '+ev.titulo+'. Tu reserva está pendiente de confirmación.',
+   const lines=['Hola '+row.nombre+' 🌿',row.estado==='confirmada'?'Tu reserva para '+ev.titulo+' está confirmada.':'Tu solicitud para '+ev.titulo+' está pendiente de confirmación.',
     '📅 '+formatWhatsAppDate(ev.fecha)+(ev.hora?' · '+ev.hora:''),'📍 '+(ev.lugar||'Lugar por confirmar'),'Plazas: '+row.plazas];
-   if(row.pago_estado==='recibido') lines.push('Aportación recibida'+(row.importe_total==null?'.':': '+Number(row.importe_total).toFixed(2)+' €.'));
-   else lines.push('Aportación pendiente de confirmar.');
+   lines.push(row.importe_total==null?'Aportación: importe por comprobar.':'Aportación: '+Number(row.importe_total).toFixed(2)+' €.');
    lines.push('El encuentro se celebrará siempre que se alcance el aforo mínimo. Si no se alcanza, podrás elegir entre la devolución de tu aportación o utilizarla para el siguiente evento.','Gracias por compartir este momento con nosotros. ✨','María de la Osa y José Duque · Viajes Sonoros','📞 610 056 859');
    draft.value=lines.join('\n\n');
    communicationStatus.textContent='Mensaje preparado. Debes pulsar Enviar en WhatsApp; todavía no se ha enviado.';
