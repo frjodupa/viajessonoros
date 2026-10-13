@@ -496,15 +496,41 @@ window.printBookingList=()=>{
   table.append(tr);
  }
  const tableWrap=document.createElement('div');tableWrap.className='table-wrap';tableWrap.append(table);section.append(tableWrap);
- const printWindow=window.open('about:blank','_blank');
- if(!printWindow){alert('El navegador ha bloqueado la ventana del listado. Permite ventanas emergentes para esta web y pulsa Imprimir listado de nuevo.');return}
- const doc=printWindow.document;doc.title='Viajes Sonoros · Listado de reservas';doc.documentElement.lang='es';
- const meta=doc.createElement('meta');meta.name='viewport';meta.content='width=device-width, initial-scale=1';doc.head.append(meta);
- const style=doc.createElement('style');style.textContent='body{margin:24px;background:#fff;color:#000;font:12px Arial,sans-serif}h1{font-size:20px}h2{font-size:16px}.event-summary{border:1px solid #aaa;padding:10px;margin:12px 0;break-inside:avoid}.event-summary p{line-height:1.5;margin:6px 0}.table-wrap{overflow-x:auto}table{min-width:850px;width:100%;border-collapse:collapse}td,th{border:1px solid #777;padding:6px;text-align:left;overflow-wrap:anywhere}thead{display:table-header-group}tr{break-inside:avoid}button{padding:12px;margin-bottom:16px}@page{size:A4 landscape;margin:12mm}@media print{button{display:none}body{margin:0}.table-wrap{overflow:visible}table{min-width:0;font-size:10px}td,th{overflow-wrap:normal}}';doc.head.append(style);
- const printButton=doc.createElement('button');printButton.type='button';printButton.textContent='Imprimir / Guardar como PDF';printButton.onclick=()=>{printWindow.focus();printWindow.print()};
- doc.body.append(printButton,doc.importNode(section,true));
- // Keep a visible, independent list and a retry button on Safari/iPad.
- printWindow.requestAnimationFrame(()=>printWindow.requestAnimationFrame(()=>{printWindow.focus();printWindow.print()}));
+ const style=document.createElement('style');style.textContent='#booking-print-page{margin:16px 0;padding:16px;border:1px solid #ddd;border-radius:12px;background:#fff;color:#17121b;font:14px Arial,sans-serif;min-width:0}#booking-print-page h1{font-size:22px}#booking-print-page h2{font-size:18px}#booking-print-page .event-summary{padding:12px;background:#f4f0f7;margin:12px 0;border-radius:8px}#booking-print-page p{line-height:1.5}#booking-print-page table{width:100%;border-collapse:collapse;font-size:12px}#booking-print-page td,#booking-print-page th{padding:8px;border:1px solid #ccc;text-align:left;overflow-wrap:anywhere}#booking-print-page .booking-mobile-cards{display:none}#booking-print-page .booking-mobile-card{padding:12px;margin:12px 0;border:1px solid #ddd;border-radius:8px;overflow-wrap:anywhere}#booking-print-page .booking-mobile-card p{margin:6px 0}@media(max-width:700px){#booking-print-page .table-wrap{display:none}#booking-print-page .booking-mobile-cards{display:block}#booking-print-page{padding:12px}#booking-print-page h1{font-size:20px}}';section.prepend(style);
+ const cards=document.createElement('div');cards.className='booking-mobile-cards';
+ for(const row of rows){
+  const card=document.createElement('article');card.className='booking-mobile-card';
+  const heading=document.createElement('strong');heading.textContent=row.nombre;card.append(heading);
+  const values=[(titles.get(String(row.experiencia_id))||'Experiencia')+' · '+dates.get(String(row.experiencia_id)),
+   'Teléfono: '+row.telefono,'Plazas: '+row.plazas+' · Aportación: '+(row.importe_total==null?'Por comprobar':Number(row.importe_total).toFixed(2)+' €'),
+   'Reserva: '+row.estado+' · Pago: '+row.pago_estado];
+  for(const value of values){const line=document.createElement('p');line.textContent=value;card.append(line)}cards.append(card);
+ }
+ section.append(cards);
+ const save=document.createElement('button');save.type='button';save.textContent='Guardar PDF';save.disabled=true;
+ let buildPdf;
+ import('/src/booking-pdf.js').then(module=>{buildPdf=module.createBookingPdf;save.disabled=false}).catch(()=>{feedback.textContent='No se pudo cargar el generador PDF. Recarga la página para intentarlo de nuevo.'});
+ const feedback=document.createElement('p');feedback.setAttribute('role','status');
+ save.addEventListener('click',async()=>{
+  save.disabled=true;feedback.textContent='Preparando PDF…';
+  try{
+   const pdf=buildPdf(rows,summaries),blob=pdf.output('blob');
+   const filename='viajes-sonoros-reservas'+(summaries.length===1?'-'+summaries[0].date.replace(/\//g,'-'):'')+'.pdf';
+   const file=new File([blob],filename,{type:'application/pdf'});
+   if(navigator.canShare?.({files:[file]}) && navigator.share){
+    await navigator.share({files:[file],title:'Listado de reservas · Viajes Sonoros'});
+    feedback.textContent='PDF compartido. Para conservarlo en el iPhone, selecciona Guardar en Archivos.';
+   }else{
+    pdf.save(filename);feedback.textContent='PDF generado. Revisa las descargas de tu navegador.';
+   }
+  }catch(error){feedback.textContent=error.name==='AbortError'?'Guardado cancelado. Puedes volver a pulsar Guardar PDF.':'No se pudo guardar el PDF. Inténtalo desde Safari.'}
+  finally{save.disabled=false}
+ });
+ const close=document.createElement('button');close.type='button';close.textContent='Cerrar listado';close.addEventListener('click',()=>section.remove());
+ const hint=document.createElement('p');hint.textContent='En iPhone, pulsa Guardar PDF y elige Guardar en Archivos en el menú de compartir.';
+ section.prepend(save,close,hint,feedback);
+ document.getElementById('booking-print-page')?.remove();
+ document.getElementById('manual-booking-list').before(section);section.scrollIntoView({block:'start'});
 };
 window.refreshManualBookings=async()=>{
  const node=document.getElementById('manual-booking-list');if(!node)return;
@@ -678,7 +704,7 @@ function renderManualBookingManager(){
  <label>Plazas<input id="manual-booking-seats" type="number" min="1" max="10" value="1" required></label>
  <button type="submit" id="manual-booking-save">Guardar reserva manual</button>
  <p id="manual-booking-feedback" role="status"></p></form>
- <h4>Últimas solicitudes registradas</h4><label>Experiencia <select id="booking-event-filter" onchange="window.refreshManualBookings()"><option value="all">Todas</option></select></label><p id="booking-totals">Calculando aportaciones…</p><div id="booking-event-capacity-list" aria-live="polite"></div><button type="button" onclick="window.refreshManualBookings()">Actualizar listado</button><button type="button" onclick="window.printBookingList()">Imprimir listado</button>
+ <h4>Últimas solicitudes registradas</h4><label>Experiencia <select id="booking-event-filter" onchange="window.refreshManualBookings()"><option value="all">Todas</option></select></label><p id="booking-totals">Calculando aportaciones…</p><div id="booking-event-capacity-list" aria-live="polite"></div><button type="button" onclick="window.refreshManualBookings()">Actualizar listado</button><button type="button" onclick="window.printBookingList()">Ver listado / Guardar PDF</button>
  <div id="manual-booking-list" aria-live="polite">Cargando reservas…</div>
  </section>`;
 }
