@@ -451,27 +451,55 @@ function prepareAdminImageGuide(){
 
 
 let bookingPrintRows=[];
+let bookingPrintEvents=[];
+function bookingPrintSummary(rows,events){
+ const money=value=>new Intl.NumberFormat('es-ES',{style:'currency',currency:'EUR'}).format(value);
+ const date=value=>{const day=String(value||'').slice(0,10);if(!/^\d{4}-\d{2}-\d{2}$/.test(day))return 'Fecha por confirmar';return new Date(day+'T12:00:00').toLocaleDateString('es-ES')};
+ return [...new Set(rows.map(row=>String(row.experiencia_id)))].map(id=>{
+  const event=events.find(event=>String(event.id)===id);
+  const active=rows.filter(row=>String(row.experiencia_id)===id&&row.estado!=='cancelada');
+  const confirmed=active.filter(row=>row.estado==='confirmada');
+  const pending=active.filter(row=>row.estado==='pendiente');
+  const seats=list=>list.reduce((sum,row)=>sum+Number(row.plazas),0);
+  const amount=list=>money(list.reduce((sum,row)=>sum+(Number(row.importe_total)||0),0))+(list.some(row=>row.importe_total==null)?' + importes por comprobar':'');
+  const capacity=event?.aforo_maximo;
+  return {id,title:event?.titulo||'Experiencia '+id,date:date(event?.fecha),
+   detail:'Plazas activas: '+seats(active)+' · Confirmadas: '+seats(confirmed)+' · Pendientes: '+seats(pending)+' · Aforo: '+(capacity??'Sin configurar')+' · Disponibles: '+(capacity==null?'Sin configurar':Math.max(0,Number(capacity)-seats(confirmed))),
+   contribution:'Aportación prevista: '+amount(active)+' · Recibida: '+amount(active.filter(row=>row.pago_estado==='recibido'))+' · Pendiente: '+amount(active.filter(row=>row.pago_estado!=='recibido'))};
+ });
+}
 window.printBookingList=()=>{
  const rows=bookingPrintRows;if(!rows.length)return alert('No hay reservas para imprimir.');
  const section=document.createElement('section');section.id='booking-print-page';
  const title=document.createElement('h1');title.textContent='Viajes Sonoros · Listado de reservas';section.append(title);
+ const summaries=bookingPrintSummary(rows,bookingPrintEvents);
+ for(const summary of summaries){
+  const block=document.createElement('div');block.className='event-summary';
+  const heading=document.createElement('h2');heading.textContent=summary.title+' · '+summary.date;
+  const seats=document.createElement('p');seats.textContent=summary.detail;
+  const contribution=document.createElement('p');contribution.textContent=summary.contribution;
+  block.append(heading,seats,contribution);section.append(block);
+ }
+ const note=document.createElement('p');note.textContent='Totales del listado seleccionado. Reservas canceladas excluidas de plazas y aportaciones. Aforo disponible calculado sobre plazas confirmadas.';section.append(note);
  const table=document.createElement('table');
- const labels=['Experiencia','Nombre','Teléfono','Plazas','Importe','Estado','Pago'];
+ const labels=['Experiencia','Fecha','Nombre','Teléfono','Plazas','Importe','Estado','Pago'];
  const head=document.createElement('tr');for(const label of labels){const cell=document.createElement('th');cell.textContent=label;head.append(cell)}table.append(head);
- const titles=new Map(eventos.map(e=>[String(e.id),e.titulo]));
+ const titles=new Map(bookingPrintEvents.map(e=>[String(e.id),e.titulo]));
+ const dates=new Map(summaries.map(e=>[e.id,e.date]));
+ const thead=document.createElement('thead');thead.append(head);table.append(thead);
  for(const row of rows){
   const tr=document.createElement('tr');
-  for(const value of [titles.get(String(row.experiencia_id))||row.experiencia_id,row.nombre,row.telefono,row.plazas,row.importe_total==null?'—':Number(row.importe_total).toFixed(2)+' €',row.estado,row.pago_estado]){
+  for(const value of [titles.get(String(row.experiencia_id))||row.experiencia_id,dates.get(String(row.experiencia_id)),row.nombre,row.telefono,row.plazas,row.importe_total==null?'—':Number(row.importe_total).toFixed(2)+' €',row.estado,row.pago_estado]){
    const td=document.createElement('td');td.textContent=String(value);tr.append(td)
   }
   table.append(tr);
  }
- section.append(table);
+ const tableWrap=document.createElement('div');tableWrap.className='table-wrap';tableWrap.append(table);section.append(tableWrap);
  const printWindow=window.open('about:blank','_blank');
  if(!printWindow){alert('El navegador ha bloqueado la ventana del listado. Permite ventanas emergentes para esta web y pulsa Imprimir listado de nuevo.');return}
  const doc=printWindow.document;doc.title='Viajes Sonoros · Listado de reservas';doc.documentElement.lang='es';
  const meta=doc.createElement('meta');meta.name='viewport';meta.content='width=device-width, initial-scale=1';doc.head.append(meta);
- const style=doc.createElement('style');style.textContent='body{margin:24px;background:#fff;color:#000;font:12px Arial,sans-serif}h1{font-size:20px}table{width:100%;border-collapse:collapse}td,th{border:1px solid #777;padding:6px;text-align:left;overflow-wrap:anywhere}thead{display:table-header-group}tr{break-inside:avoid}button{padding:12px;margin-bottom:16px}@page{size:A4 landscape;margin:12mm}@media print{button{display:none}}';doc.head.append(style);
+ const style=doc.createElement('style');style.textContent='body{margin:24px;background:#fff;color:#000;font:12px Arial,sans-serif}h1{font-size:20px}h2{font-size:16px}.event-summary{border:1px solid #aaa;padding:10px;margin:12px 0;break-inside:avoid}.event-summary p{line-height:1.5;margin:6px 0}.table-wrap{overflow-x:auto}table{min-width:850px;width:100%;border-collapse:collapse}td,th{border:1px solid #777;padding:6px;text-align:left;overflow-wrap:anywhere}thead{display:table-header-group}tr{break-inside:avoid}button{padding:12px;margin-bottom:16px}@page{size:A4 landscape;margin:12mm}@media print{button{display:none}body{margin:0}.table-wrap{overflow:visible}table{min-width:0;font-size:10px}td,th{overflow-wrap:normal}}';doc.head.append(style);
  const printButton=doc.createElement('button');printButton.type='button';printButton.textContent='Imprimir / Guardar como PDF';printButton.onclick=()=>{printWindow.focus();printWindow.print()};
  doc.body.append(printButton,doc.importNode(section,true));
  // Keep a visible, independent list and a retry button on Safari/iPad.
@@ -488,6 +516,7 @@ window.refreshManualBookings=async()=>{
  if(eventError){node.textContent='No se ha podido actualizar el aforo: '+eventError.message;return}
  const capacityEvents=liveEvents||[];
  if(error){node.textContent='No se pudo cargar el listado: '+error.message;return}
+ bookingPrintEvents=capacityEvents;
  if(!data?.length){bookingPrintRows=[];node.textContent='Todavía no hay solicitudes registradas.';document.getElementById('booking-totals').textContent='Sin reservas.';const counter=document.getElementById('booking-event-capacity-list');if(counter)counter.textContent=capacityEvents.map(e=>e.titulo+': aforo '+(e.aforo_maximo??'sin configurar')+' · 0 confirmadas · 0 pendientes · '+(e.aforo_maximo??'sin configurar')+' disponibles').join(' | ');return}
  const titles=new Map(eventos.map(e=>[String(e.id),e.titulo]));
  const filter=document.getElementById('booking-event-filter');
