@@ -467,10 +467,15 @@ window.printBookingList=()=>{
   table.append(tr);
  }
  section.append(table);
- const style=document.createElement('style');style.textContent='@media screen{#booking-print-page{display:none}}@media print{body > *:not(#booking-print-page){display:none!important}#booking-print-page{display:block!important;background:#fff;color:#000;font:12px sans-serif}#booking-print-page table{width:100%;border-collapse:collapse}#booking-print-page td,#booking-print-page th{border:1px solid #777;padding:5px;text-align:left}}';
- document.head.append(style);document.body.append(section);
- const cleanup=()=>{section.remove();style.remove();window.removeEventListener('afterprint',cleanup)};
- window.addEventListener('afterprint',cleanup,{once:true});window.print();
+ const printWindow=window.open('about:blank','_blank');
+ if(!printWindow){alert('El navegador ha bloqueado la ventana del listado. Permite ventanas emergentes para esta web y pulsa Imprimir listado de nuevo.');return}
+ const doc=printWindow.document;doc.title='Viajes Sonoros · Listado de reservas';doc.documentElement.lang='es';
+ const meta=doc.createElement('meta');meta.name='viewport';meta.content='width=device-width, initial-scale=1';doc.head.append(meta);
+ const style=doc.createElement('style');style.textContent='body{margin:24px;background:#fff;color:#000;font:12px Arial,sans-serif}h1{font-size:20px}table{width:100%;border-collapse:collapse}td,th{border:1px solid #777;padding:6px;text-align:left;overflow-wrap:anywhere}thead{display:table-header-group}tr{break-inside:avoid}button{padding:12px;margin-bottom:16px}@page{size:A4 landscape;margin:12mm}@media print{button{display:none}}';doc.head.append(style);
+ const printButton=doc.createElement('button');printButton.type='button';printButton.textContent='Imprimir / Guardar como PDF';printButton.onclick=()=>{printWindow.focus();printWindow.print()};
+ doc.body.append(printButton,doc.importNode(section,true));
+ // Keep a visible, independent list and a retry button on Safari/iPad.
+ printWindow.requestAnimationFrame(()=>printWindow.requestAnimationFrame(()=>{printWindow.focus();printWindow.print()}));
 };
 window.refreshManualBookings=async()=>{
  const node=document.getElementById('manual-booking-list');if(!node)return;
@@ -534,14 +539,14 @@ window.refreshManualBookings=async()=>{
    setBusy(true);
    const {data:updated,error}=await supabase.from('reservas_whatsapp').update({estado:next}).eq('id',row.id).select('estado,pago_estado').single();
    if(error){alert('No se pudo actualizar: '+error.message)}else{row.estado=updated.estado;row.pago_estado=updated.pago_estado}
-   sync();await window.refreshManualBookings();
+   sync();setBusy(false);await window.refreshManualBookings();if(!error && next==='confirmada') document.getElementById('booking-message-'+row.id)?.click();
   });
   paymentSelect.addEventListener('change',async()=>{
    if(row.estado==='cancelada'){sync();return}
    const next=paymentSelect.value;setBusy(true);
    const {data:updated,error}=await supabase.from('reservas_whatsapp').update({pago_estado:next}).eq('id',row.id).select('pago_estado').single();
    if(error){alert('No se pudo actualizar el pago: '+error.message)}else row.pago_estado=updated.pago_estado;
-   sync();
+   sync();setBusy(false);await window.refreshManualBookings();if(!error && next==='recibido') document.getElementById('booking-message-'+row.id)?.click();
   });
   const edit=document.createElement('button');edit.type='button';edit.textContent='Editar reserva';
   const remove=document.createElement('button');remove.type='button';remove.textContent='Borrar reserva';remove.style.background='#9c2434';remove.style.color='#fff';
@@ -580,6 +585,25 @@ window.refreshManualBookings=async()=>{
   });
   const reminder=document.createElement('button');reminder.type='button';reminder.textContent='Recordar por WhatsApp';
   const ev=eventos.find(e=>String(e.id)===String(row.experiencia_id));
+  const communication=document.createElement('section');communication.style.cssText='display:grid;gap:8px;padding:12px;border:1px solid #ddd;border-radius:10px';
+  const communicationStatus=document.createElement('p');communicationStatus.setAttribute('role','status');
+  const draft=document.createElement('textarea');draft.rows=10;draft.setAttribute('aria-label','Mensaje de confirmación para el cliente');
+  const send=document.createElement('a');send.textContent='Abrir WhatsApp con el mensaje';send.target='_blank';send.rel='noopener noreferrer';
+  const prepare=document.createElement('button');prepare.type='button';prepare.id='booking-message-'+row.id;prepare.textContent='Preparar confirmación por WhatsApp';
+  function showCommunication(){
+   if(row.estado==='cancelada'){alert('Esta reserva está cancelada. No se puede preparar una confirmación.');return}
+   if(!ev){alert('No se encuentra la experiencia. Revisa sus datos antes de confirmar al cliente.');return}
+   const lines=['Hola '+row.nombre+' 🌿',row.estado==='confirmada'?'Tu reserva para '+ev.titulo+' está confirmada.':'Hemos recibido tu aportación para '+ev.titulo+'. Tu reserva está pendiente de confirmación.',
+    '📅 '+(ev.fecha||'Fecha por confirmar')+(ev.hora?' · '+ev.hora:''),'📍 '+(ev.lugar||'Lugar por confirmar'),'Plazas: '+row.plazas];
+   if(row.pago_estado==='recibido') lines.push('Aportación recibida'+(row.importe_total==null?'.':': '+Number(row.importe_total).toFixed(2)+' €.'));
+   else lines.push('Aportación pendiente de confirmar.');
+   lines.push('El encuentro se celebrará siempre que se alcance el aforo mínimo. Si no se alcanza, podrás elegir entre la devolución de tu aportación o utilizarla para el siguiente evento.','Gracias por compartir este momento con nosotros. ✨','María de la Osa y José Duque · Viajes Sonoros','📞 610 056 859');
+   draft.value=lines.join('\n\n');
+   communicationStatus.textContent='Mensaje preparado. Debes pulsar Enviar en WhatsApp; todavía no se ha enviado.';
+   const updateLink=()=>{let digits=String(row.telefono).replace(/[^0-9]/g,'');if(digits.length===9)digits='34'+digits;send.href='https://api.whatsapp.com/send?phone='+digits+'&text='+encodeURIComponent(draft.value)};
+   draft.oninput=updateLink;updateLink();communication.replaceChildren(communicationStatus,draft,send);wrap.append(communication);communication.scrollIntoView({block:'nearest'});
+  }
+  prepare.addEventListener('click',showCommunication);controls.append(prepare);
   const day=ev?.fecha?.slice(0,10);
   const days=day?Math.ceil((new Date(day+'T00:00:00').getTime()-Date.now())/86400000):NaN;
   reminder.disabled=!(row.estado==='confirmada'&&Number.isFinite(days)&&days>=0&&days<=7);
