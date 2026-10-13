@@ -33,7 +33,7 @@ export function createBookingPdf(rows, summaries) {
       doc.setDrawColor(210); doc.line(margin, y, margin + width, y); y += 6
       text(row.nombre, { bold: true, size: 11 })
       text('Teléfono: ' + row.telefono + ' · Plazas: ' + row.plazas + ' · Aportación: ' + amount)
-      text('Reserva: ' + row.estado + ' · Pago: ' + row.pago_estado, { size: 9 })
+      text('Reserva: ' + row.estado, { size: 9 })
     }
     y += 6
   }
