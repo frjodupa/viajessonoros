@@ -141,6 +141,7 @@ const TEMPLATES=[
 let eventos=[], view='experiencias', user=null, editId=null, fileToUpload=null, imageDataUrl=null, optimizedImage=null, sourceOptimizedImage=null, existingImageFocus=null, selectedTemplateKey='', assistantDraft=null, assistantVariant=0, imageOptimizationFailed=false, imageResolutionInsufficient=false, currentStory=null, currentStoryExperienceId=null
 const parseLocalDate=(value)=>{const match=String(value||'').match(/^(\d{4})-(\d{2})-(\d{2})$/);return match?new Date(Number(match[1]),Number(match[2])-1,Number(match[3])):null}
 const formatDate=(value)=>{const date=parseLocalDate(value);return date?new Intl.DateTimeFormat('es-ES',{day:'numeric',month:'long',year:'numeric'}).format(date):String(value||'')}
+const formatWhatsAppDate=(value)=>{const match=String(value||'').match(/^(\d{4})-(\d{2})-(\d{2})(?:$|T| )/);return match?`${match[3]}-${match[2]}-${match[1]}`:'Fecha por confirmar'}
 const formatTime=(value)=>{const match=String(value||'').match(/^(\d{2}):(\d{2})/);return match?`${match[1]}:${match[2]} h`:''}
 const formatContribution=(value)=>{const text=String(value||'').trim();return text&&!/^aportaci[oó]n\b/i.test(text)&&!/^gratuito$/i.test(text)?`Aportación ${text}`:text}
 const eventMeta=(ev)=>[formatDate(ev.fecha),formatTime(ev.hora),formatContribution(ev.precio)].filter(Boolean).join(' · ')
@@ -623,7 +624,7 @@ window.refreshManualBookings=async()=>{
    if(row.estado==='cancelada'){alert('Esta reserva está cancelada. No se puede preparar una confirmación.');return}
    if(!ev){alert('No se encuentra la experiencia. Revisa sus datos antes de confirmar al cliente.');return}
    const lines=['Hola '+row.nombre+' 🌿',row.estado==='confirmada'?'Tu reserva para '+ev.titulo+' está confirmada.':'Hemos recibido tu aportación para '+ev.titulo+'. Tu reserva está pendiente de confirmación.',
-    '📅 '+(ev.fecha||'Fecha por confirmar')+(ev.hora?' · '+ev.hora:''),'📍 '+(ev.lugar||'Lugar por confirmar'),'Plazas: '+row.plazas];
+    '📅 '+formatWhatsAppDate(ev.fecha)+(ev.hora?' · '+ev.hora:''),'📍 '+(ev.lugar||'Lugar por confirmar'),'Plazas: '+row.plazas];
    if(row.pago_estado==='recibido') lines.push('Aportación recibida'+(row.importe_total==null?'.':': '+Number(row.importe_total).toFixed(2)+' €.'));
    else lines.push('Aportación pendiente de confirmar.');
    lines.push('El encuentro se celebrará siempre que se alcance el aforo mínimo. Si no se alcanza, podrás elegir entre la devolución de tu aportación o utilizarla para el siguiente evento.','Gracias por compartir este momento con nosotros. ✨','María de la Osa y José Duque · Viajes Sonoros','📞 610 056 859');
@@ -640,7 +641,7 @@ window.refreshManualBookings=async()=>{
    const digits=String(row.telefono).replace(/[^0-9]/g,'');
    if(digits.length<9)return alert('Revisa el teléfono de esta reserva.');
    const phone=digits.length===9?'34'+digits:digits;
-   const message=['Hola '+row.nombre+', recordatorio de tu reserva confirmada para '+ev.titulo+'.','Plazas: '+row.plazas+'. Fecha: '+ev.fecha+(ev.hora?' · '+ev.hora:''),'Lugar: '+(ev.lugar||'Por confirmar'),'¡Te esperamos! Viajes Sonoros.'].join('\\n');
+   const message=['Hola '+row.nombre+', recordatorio de tu reserva confirmada para '+ev.titulo+'.','Plazas: '+row.plazas+'. Fecha: '+formatWhatsAppDate(ev.fecha)+(ev.hora?' · '+ev.hora:''),'Lugar: '+(ev.lugar||'Por confirmar'),'¡Te esperamos! Viajes Sonoros.'].join('\\n');
    window.location.assign('https://api.whatsapp.com/send?phone='+phone+'&text='+encodeURIComponent(message));
   });
   controls.append(edit,remove,reminder);wrap.append(heading,detail,phone,status,controls);sync();return wrap;
