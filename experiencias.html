@@ -297,9 +297,10 @@ window.openWhatsAppGeneral=()=>{
   window.open(whLink(txt),'_blank','noopener,noreferrer')
 }
 const reservationPageURL=id=>new URL('/reserva.html?experiencia='+encodeURIComponent(id),location.origin).href
+const socialShareURL=id=>new URL('/api/compartir?experiencia='+encodeURIComponent(id),location.origin).href
 window.openReservationPage=async id=>{if(!(await hasValidAdmin()))return;const ev=eventos.find(e=>String(e.id)===String(id));if(ev?.publicado)window.open(reservationPageURL(id),'_blank','noopener,noreferrer')}
-window.copyReservationPage=async id=>{if(!(await hasValidAdmin()))return;const ev=eventos.find(e=>String(e.id)===String(id));if(!ev?.publicado)return;const url=reservationPageURL(id);try{await navigator.clipboard.writeText(url);alert('Enlace copiado')}catch{prompt('Copia el enlace:',url)}}
-window.shareReservationPage=async id=>{if(!(await hasValidAdmin()))return;const ev=eventos.find(e=>String(e.id)===String(id));if(!ev?.publicado)return;const url=reservationPageURL(id);if(navigator.share){try{await navigator.share({title:ev.titulo,url})}catch(e){if(e.name!=='AbortError')prompt('Comparte el enlace:',url)}}else window.open('https://api.whatsapp.com/send?text='+encodeURIComponent(ev.titulo+' '+url),'_blank','noopener,noreferrer')}
+window.copyReservationPage=async id=>{if(!(await hasValidAdmin()))return;const ev=eventos.find(e=>String(e.id)===String(id));if(!ev?.publicado)return;const url=socialShareURL(id);try{await navigator.clipboard.writeText(url);alert('Enlace copiado')}catch{prompt('Copia el enlace:',shareUrl)}}
+window.shareReservationPage=async id=>{if(!(await hasValidAdmin()))return;const ev=eventos.find(e=>String(e.id)===String(id));if(!ev?.publicado)return;const url=socialShareURL(id);if(navigator.share){try{await navigator.share({title:ev.titulo,url})}catch(e){if(e.name!=='AbortError')prompt('Comparte el enlace:',url)}}else window.open('https://api.whatsapp.com/send?text='+encodeURIComponent(ev.titulo+' '+url),'_blank','noopener,noreferrer')}
 const getExperienceWhatsAppLink=(ev)=>'/reserva.html?experiencia='+encodeURIComponent(ev.id)
 window.reservarExperiencia=(id)=>{
   const ev=eventos.find(e=>e.id==id); if(!ev||!isReservable(ev))return;
@@ -423,14 +424,15 @@ window.guardarEvento=async()=>{
       notice.append(message);
       if(saved.publicado){
         const url=reservationPageURL(savedId);
+        const shareUrl=socialShareURL(savedId);
         const link=document.createElement('a');link.href=url;link.target='_blank';link.rel='noopener noreferrer';
         link.textContent='Abrir página de reservas';link.style.cssText='display:inline-block;margin:8px 12px 8px 0;color:#5B3F98;font-weight:700';
         const copy=document.createElement('button');copy.type='button';copy.textContent='Copiar enlace para redes';
         copy.style.cssText='margin:8px 8px 8px 0;padding:10px;border-radius:8px;cursor:pointer';
-        copy.addEventListener('click',async()=>{try{await navigator.clipboard.writeText(url);copy.textContent='Enlace copiado'}catch{prompt('Copia el enlace:',url)}});
+        copy.addEventListener('click',async()=>{try{await navigator.clipboard.writeText(shareUrl);copy.textContent='Enlace copiado'}catch{prompt('Copia el enlace:',url)}});
         const share=document.createElement('button');share.type='button';share.textContent='Compartir experiencia';
         share.style.cssText='margin:8px 0;padding:10px;border-radius:8px;cursor:pointer';
-        share.addEventListener('click',async()=>{if(navigator.share){try{await navigator.share({title:saved.titulo,text:'Reserva tu plaza en Viajes Sonoros',url})}catch(error){if(error.name!=='AbortError')prompt('Comparte este enlace:',url)}}else{prompt('Comparte este enlace:',url)}});
+        share.addEventListener('click',async()=>{if(navigator.share){try{await navigator.share({title:saved.titulo,text:'Reserva tu plaza en Viajes Sonoros',url:shareUrl})}catch(error){if(error.name!=='AbortError')prompt('Comparte este enlace:',shareUrl)}}else{prompt('Comparte este enlace:',url)}});
         notice.append(document.createElement('div'),link,copy,share);
       }else{
         const hint=document.createElement('span');hint.textContent=' Publica esta experiencia para activar su enlace exclusivo de reserva y compartirlo en redes.';notice.append(hint);
