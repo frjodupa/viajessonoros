@@ -49,7 +49,11 @@ if(event){
  if(event.aforo_maximo!=null){document.getElementById('availability').textContent='Aforo máximo: '+event.aforo_maximo+' plazas · Disponibilidad pendiente de confirmar.';}
  const eventDay=String(event.fecha||'').slice(0,10);
  const todayMadrid=todayInMadrid();
- const finished=Boolean(eventDay&&eventDay<todayMadrid);
+ const eventTime=String(event.hora||'').match(/^(\d{1,2}):(\d{2})/);
+ const madridNowParts=new Intl.DateTimeFormat('en-GB',{timeZone:'Europe/Madrid',hour:'2-digit',minute:'2-digit',hourCycle:'h23'}).formatToParts(new Date());
+ const madridClock=(madridNowParts.find(part=>part.type==='hour')?.value||'00')+':'+(madridNowParts.find(part=>part.type==='minute')?.value||'00');
+ const eventClock=eventTime?eventTime[1].padStart(2,'0')+':'+eventTime[2]:'23:59';
+ const finished=Boolean(eventDay&&(eventDay<todayMadrid||(eventDay===todayMadrid&&eventClock<madridClock)));
  if(finished){document.getElementById('availability').textContent='Esta experiencia ya ha finalizado.';document.getElementById('form').hidden=true;}
  document.title=event.titulo+' · Reserva | Viajes Sonoros';
  const raw=String(event.precio??'').trim();
