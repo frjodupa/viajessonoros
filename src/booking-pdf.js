@@ -20,7 +20,7 @@ export function createBookingPdf(rows, summaries) {
   }
   text('Viajes Sonoros', { size: 19, bold: true })
   text('Listado de reservas', { size: 13 })
-  text('Reservas canceladas excluidas de los totales. Disponibilidad calculada sobre plazas confirmadas.', { size: 9 })
+  text('Canceladas excluidas. Disponibilidad calculada sobre plazas confirmadas y pendientes.', { size: 9 })
   for (const summary of summaries) {
     if (y + 40 > bottom) { doc.addPage(); y = margin }
     text(summary.title + ' · ' + summary.date, { size: 13, bold: true })
