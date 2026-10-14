@@ -82,7 +82,7 @@ if(event){
    document.getElementById('reference').textContent='Experiencia: '+event.titulo+' · '+seats+' plaza(s). Solicitud pendiente.';
    // Mantener pantalla de confirmación como alternativa si el navegador bloquea WhatsApp.
    location.assign(url);
-  }catch{errorNode.textContent='No hemos podido guardar tu solicitud. No se ha registrado. Inténtalo de nuevo antes de enviar el Bizum.';button.disabled=false;button.textContent='Registrar solicitud y abrir WhatsApp';}
+  }catch(error){errorNode.textContent=error?.message?.includes('No quedan suficientes plazas')?'No quedan suficientes plazas para esta solicitud. Elige menos plazas o escríbenos por WhatsApp.':'No hemos podido guardar tu solicitud. No se ha registrado. Inténtalo de nuevo antes de enviar el Bizum.';button.disabled=false;button.textContent='Registrar solicitud y abrir WhatsApp';}
  });
 }
 </script></body></html>
