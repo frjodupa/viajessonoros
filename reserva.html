@@ -17,9 +17,12 @@ async function loadEvent(){
   if(error)throw error;
   if(!data?.length)throw Error('NO_PUBLIC_EVENTS');
   const selector=document.getElementById('event-fallback');
-  selector.replaceChildren(...data.map(item=>new Option(item.titulo+' · '+(item.fecha||''),String(item.id))));
+  const today=new Date().toLocaleDateString('en-CA',{timeZone:'Europe/Madrid'});
+  const upcoming=data.filter(item=>!item.fecha||item.fecha>=today);
+  if(!upcoming.length)throw Error('NO_UPCOMING_EVENTS');
+  selector.replaceChildren(...upcoming.map(item=>new Option(item.titulo+' · '+(item.fecha||''),String(item.id))));
   document.getElementById('event-fallback-label').hidden=false;
-  const preferred=data.find(item=>String(item.id)===String(id))||data.find(item=>item.fecha>=new Date().toISOString().slice(0,10))||data[0];
+  const preferred=upcoming[0];
   selector.value=String(preferred.id);
   selector.addEventListener('change',()=>location.assign('/reserva.html?experiencia='+encodeURIComponent(selector.value)));
   return preferred;
@@ -32,7 +35,7 @@ catch(error){
  document.getElementById('load-error').hidden=false;
  document.getElementById('load-error-text').textContent=error?.message==='NOT_FOUND'||error?.message==='INVALID_EVENT_ID'
   ?'Experiencia no disponible. Consulta el listado de próximas experiencias.'
-  :'No se ha podido conectar. Comprueba tu conexión y pulsa Reintentar.';
+  :error?.message==='NO_UPCOMING_EVENTS'||error?.message==='NO_PUBLIC_EVENTS'?'No hay próximas experiencias disponibles para reservar. Consulta nuevas fechas en Experiencias.':'No se ha podido conectar. Comprueba tu conexión y pulsa Reintentar.';
 }
 document.getElementById('load-retry').addEventListener('click',()=>location.reload());
 if(event){
@@ -43,6 +46,10 @@ if(event){
  const desc=document.getElementById('description');if(event.descripcion){desc.textContent=event.descripcion;desc.hidden=false;}
  const cover=document.getElementById('event-cover');try{const img=new URL(event.imagen_url||'',location.origin);if((img.protocol==='https:'||(img.protocol==='http:'&&['localhost','127.0.0.1'].includes(img.hostname)))&&event.imagen_url){cover.src=img.href;cover.alt='Fotografía de '+event.titulo;cover.hidden=false;cover.onerror=()=>{cover.hidden=true}}}catch{}
  if(event.plazas){document.getElementById('availability').textContent=String(event.plazas);}
+ const eventDay=String(event.fecha||'').slice(0,10);
+ const todayMadrid=new Date().toLocaleDateString('en-CA',{timeZone:'Europe/Madrid'});
+ const finished=Boolean(eventDay&&eventDay<todayMadrid);
+ if(finished){document.getElementById('availability').textContent='Esta experiencia ya ha finalizado.';document.getElementById('form').hidden=true;}
  document.title=event.titulo+' · Reserva | Viajes Sonoros';
  const raw=String(event.precio??'').trim();
  const found=/^(?:€\s*)?(\d{1,4}(?:[,.]\d{1,2})?)\s*(?:€|EUR)?$/i.exec(raw);
@@ -54,7 +61,7 @@ if(event){
  let url='';
  document.getElementById('whatsapp').addEventListener('click',()=>{if(url)location.assign(url)});
  document.getElementById('form').addEventListener('submit',async e=>{
-  e.preventDefault();errorNode.textContent='';
+  e.preventDefault();if(finished){errorNode.textContent='La experiencia ya ha finalizado.';return}errorNode.textContent='';
   const name=document.getElementById('name').value.trim();
   const phone=document.getElementById('phone').value.replace(/[\s().-]/g,'').trim();
   const seats=Number(seatsNode.value);
