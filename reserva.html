@@ -3,6 +3,7 @@ import {supabase} from '/src/supabase.js';
 const id=new URLSearchParams(location.search).get('experiencia');
 const loading=document.getElementById('loading'),details=document.getElementById('details'),errorNode=document.getElementById('error'),seatsNode=document.getElementById('seats');
 const validId=/^\d{1,19}$/.test(String(id||''));
+const todayInMadrid=()=>{const parts=new Intl.DateTimeFormat('en-GB',{timeZone:'Europe/Madrid',year:'numeric',month:'2-digit',day:'2-digit'}).formatToParts(new Date());const get=type=>parts.find(part=>part.type===type)?.value||'';return [get('year'),get('month'),get('day')].join('-');}
 async function loadEvent(){
  const controller=new AbortController(),timeout=setTimeout(()=>controller.abort(),12000);
  try{
@@ -17,7 +18,7 @@ async function loadEvent(){
   if(error)throw error;
   if(!data?.length)throw Error('NO_PUBLIC_EVENTS');
   const selector=document.getElementById('event-fallback');
-  const today=new Date().toLocaleDateString('en-CA',{timeZone:'Europe/Madrid'});
+  const today=todayInMadrid();
   const upcoming=data.filter(item=>!item.fecha||item.fecha>=today);
   if(!upcoming.length)throw Error('NO_UPCOMING_EVENTS');
   selector.replaceChildren(...upcoming.map(item=>new Option(item.titulo+' · '+(item.fecha||''),String(item.id))));
@@ -47,7 +48,7 @@ if(event){
  const cover=document.getElementById('event-cover');try{const img=new URL(event.imagen_url||'',location.origin);if((img.protocol==='https:'||(img.protocol==='http:'&&['localhost','127.0.0.1'].includes(img.hostname)))&&event.imagen_url){cover.src=img.href;cover.alt='Fotografía de '+event.titulo;cover.hidden=false;cover.onerror=()=>{cover.hidden=true}}}catch{}
  if(event.aforo_maximo!=null){document.getElementById('availability').textContent='Aforo máximo: '+event.aforo_maximo+' plazas · Disponibilidad pendiente de confirmar.';}
  const eventDay=String(event.fecha||'').slice(0,10);
- const todayMadrid=new Date().toLocaleDateString('en-CA',{timeZone:'Europe/Madrid'});
+ const todayMadrid=todayInMadrid();
  const finished=Boolean(eventDay&&eventDay<todayMadrid);
  if(finished){document.getElementById('availability').textContent='Esta experiencia ya ha finalizado.';document.getElementById('form').hidden=true;}
  document.title=event.titulo+' · Reserva | Viajes Sonoros';
