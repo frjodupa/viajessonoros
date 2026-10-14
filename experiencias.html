@@ -70,7 +70,7 @@ body.operational-page {
     font-size:14px;
   }
 }
-</style>
+.admin-module-navigation{margin:16px 0 24px}.admin-module-navigation button{background:#5b3f98;color:#fff;border:0;border-radius:12px;padding:16px 23px;font:600 16px Montserrat,Arial,sans-serif;min-height:54px;cursor:pointer}.admin-module-navigation button:focus-visible{outline:3px solid #3b9db8;outline-offset:2px}</style>
 <link rel="stylesheet" href="/secondary.css">
 <link rel="stylesheet" href="/whatsapp-button.css">
 <link rel="stylesheet" href="/experience-detail.css">
@@ -710,6 +710,9 @@ function renderManualBookingManager(){
  </section>`;
 }
 
+function renderBookingsModule(){return `${headerHTML()}<main class="admin-premium-shell"><div class="admin-premium-topbar"><div><span class="admin-premium-kicker">ADMIN · RESERVAS</span><h2>Gestión de reservas</h2><p>Reservas existentes, participantes, aforo y aportaciones.</p></div><button type="button" onclick="window.backToExperiencesAdmin()" class="admin-logout">← Volver a experiencias</button></div>${renderManualBookingManager()}</main>`}
+window.openBookingsModule=async()=>{if(!(await hasValidAdmin())){view='admin-login';render();return}view='admin-bookings';render()}
+window.backToExperiencesAdmin=async()=>{if(!(await hasValidAdmin())){view='admin-login';render();return}view='admin-panel';render()}
 function renderAdminPanel(){ return `${headerHTML()}<main class="admin-premium-shell">
   <div class="admin-premium-topbar">
     <div>
@@ -720,7 +723,7 @@ function renderAdminPanel(){ return `${headerHTML()}<main class="admin-premium-s
     <button onclick="window.logout()" class="admin-logout">Cerrar sesión</button>
   </div>
 
-  ${renderManualBookingManager()}
+  <nav class="admin-module-navigation" aria-label="Módulos del administrador"><button type="button" onclick="window.openBookingsModule()">Reservas y participantes →</button></nav>
   <section class="admin-assistant-intro" aria-labelledby="assistant-title">
     <span>Asistente de creación</span>
     <h3 id="assistant-title">Crea el borrador completo desde datos reales</h3>
@@ -872,8 +875,8 @@ window.updateAdminLivePreview=()=>{
     }
   }
 }
-function render(){ const robots=document.querySelector('meta[name="robots"]');if(robots)robots.content=view==='experiencias'?'index,follow':'noindex,nofollow';const app=document.getElementById('app'); if(view==='experiencias'){ app.innerHTML=renderExperiencias(); experienceDetail.bind(); cargarEventos() } else if(view==='admin-login'){ app.innerHTML=renderAdminLogin() } else if(view==='admin-panel'){ app.innerHTML=renderAdminPanel(); prepareAdminImageGuide(); ['f-titulo','f-publicado','f-precio','f-fecha','f-hora','f-lugar','f-localidad','f-card-text','f-desc','f-additional'].forEach(id=>document.getElementById(id)?.addEventListener('input',window.updateAdminLivePreview)); setTimeout(()=>{window.renderAdminList();window.updateAdminLivePreview();window.refreshManualBookings()},100) } }
-if(supabase){const {data}=await supabase.auth.getSession();user=data.session?.user||null;supabase.auth.onAuthStateChange((_event,session)=>{user=session?.user||null;if(view==='admin-panel'&&!user){view='admin-login';render()}})}
+function render(){ const robots=document.querySelector('meta[name="robots"]');if(robots)robots.content=view==='experiencias'?'index,follow':'noindex,nofollow';const app=document.getElementById('app'); if(view==='experiencias'){ app.innerHTML=renderExperiencias(); experienceDetail.bind(); cargarEventos() } else if(view==='admin-login'){ app.innerHTML=renderAdminLogin() } else if(view==='admin-bookings'){app.innerHTML=renderBookingsModule();setTimeout(async()=>{try{await window.renderAdminList();await window.refreshManualBookings()}catch(error){const node=document.getElementById('manual-booking-list');if(node)node.textContent='No se pudieron cargar las reservas. '+(error.message||'')}},100)} else if(view==='admin-panel'){ app.innerHTML=renderAdminPanel(); prepareAdminImageGuide(); ['f-titulo','f-publicado','f-precio','f-fecha','f-hora','f-lugar','f-localidad','f-card-text','f-desc','f-additional'].forEach(id=>document.getElementById(id)?.addEventListener('input',window.updateAdminLivePreview)); setTimeout(()=>{window.renderAdminList();window.updateAdminLivePreview()},100) } }
+if(supabase){const {data}=await supabase.auth.getSession();user=data.session?.user||null;supabase.auth.onAuthStateChange((_event,session)=>{user=session?.user||null;if((view==='admin-panel'||view==='admin-bookings')&&!user){view='admin-login';render()}})}
 if(location.hash===ADMIN_HASH)view=user?'admin-panel':'admin-login'
 window.addEventListener('hashchange',()=>{if(location.hash===ADMIN_HASH){window.goAdmin()}else if(view!=='experiencias'){view='experiencias';render()}})
 render()
