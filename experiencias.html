@@ -416,7 +416,27 @@ window.guardarEvento=async()=>{
     await window.renderAdminList()
     await window.refreshManualBookings()
     const notice=document.getElementById('form-error')
-    if(notice){notice.textContent=editingId?'Cambios guardados y verificados correctamente.':'Experiencia creada y verificada correctamente.';notice.style.display='block';notice.style.color='#166534'}
+    if(notice){
+      notice.replaceChildren();
+      const message=document.createElement('span');
+      message.textContent=editingId?'Cambios guardados y verificados correctamente.':'Experiencia creada y verificada correctamente.';
+      notice.append(message);
+      if(saved.publicado){
+        const url=reservationPageURL(savedId);
+        const link=document.createElement('a');link.href=url;link.target='_blank';link.rel='noopener noreferrer';
+        link.textContent='Abrir página de reservas';link.style.cssText='display:inline-block;margin:8px 12px 8px 0;color:#5B3F98;font-weight:700';
+        const copy=document.createElement('button');copy.type='button';copy.textContent='Copiar enlace para redes';
+        copy.style.cssText='margin:8px 8px 8px 0;padding:10px;border-radius:8px;cursor:pointer';
+        copy.addEventListener('click',async()=>{try{await navigator.clipboard.writeText(url);copy.textContent='Enlace copiado'}catch{prompt('Copia el enlace:',url)}});
+        const share=document.createElement('button');share.type='button';share.textContent='Compartir experiencia';
+        share.style.cssText='margin:8px 0;padding:10px;border-radius:8px;cursor:pointer';
+        share.addEventListener('click',async()=>{if(navigator.share){try{await navigator.share({title:saved.titulo,text:'Reserva tu plaza en Viajes Sonoros',url})}catch(error){if(error.name!=='AbortError')prompt('Comparte este enlace:',url)}}else{prompt('Comparte este enlace:',url)}});
+        notice.append(document.createElement('div'),link,copy,share);
+      }else{
+        const hint=document.createElement('span');hint.textContent=' Publica esta experiencia para activar su enlace exclusivo de reserva y compartirlo en redes.';notice.append(hint);
+      }
+      notice.style.display='block';notice.style.color='#166534';
+    }
     window.scrollTo({top:0,behavior:'smooth'})
   }catch(err){ if(errorElement){errorElement.textContent='No se pudo guardar: '+err.message;errorElement.style.display='block'} } finally{ if(btn){ btn.textContent='Guardar experiencia'; btn.disabled=false } }
 }
