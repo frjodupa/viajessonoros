@@ -309,7 +309,7 @@ const buildExperienceSocialText=ev=>{
   const hora=String(ev.hora||'').slice(0,5);
   const intro=String(ev.descripcion||'').split(/\n+/).map(x=>x.trim()).find(Boolean);
   const detail=intro?intro.slice(0,360).trim():'Un encuentro para hacer una pausa, respirar y reconectar con la calma a través del sonido y la presencia.';
-  const parts=['✨ '+ev.titulo,'','Hay momentos que merecen ser vividos sin prisas. Regálate una pausa para sentir, escuchar y volver a ti.','',detail,'','📅 '+date+(hora?' · '+hora+' h':''),ev.lugar?'📍 '+ev.lugar:'',ev.precio?'🤍 Aportación: '+ev.precio+(String(ev.precio).includes('€')?'':' €'):'','',ev.publicado?'Reserva tu plaza y descubre la experiencia:':'Consulta próximamente cómo reservar.',ev.publicado?socialShareURL(ev.id):'','','#ViajesSonoros #Cáceres #Meditación #Bienestar #ExperienciasConAlma'];
+  const parts=['✨ '+ev.titulo,'','Hay momentos que merecen ser vividos sin prisas. Regálate una pausa para sentir, escuchar y volver a ti.','',detail,'','📅 '+date+(hora?' · '+hora+' h':''),ev.lugar?'📍 '+ev.lugar:'',ev.precio?'🤍 Aportación: '+ev.precio+(String(ev.precio).includes('€')?'':' €'):'','',ev.publicado?'Reserva tu plaza y descubre la experiencia.':'Consulta próximamente cómo reservar.','','#ViajesSonoros #Cáceres #Meditación #Bienestar #ExperienciasConAlma'];
   return parts.filter((x,i)=>x!==''||parts[i-1]!=='').join('\n').trim();
 };
 window.openSocialCopy=async id=>{
