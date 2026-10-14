@@ -476,7 +476,7 @@ function bookingPrintSummary(rows,events){
   const amount=list=>money(list.reduce((sum,row)=>sum+(Number(row.importe_total)||0),0))+(list.some(row=>row.importe_total==null)?' + importes por comprobar':'');
   const capacity=event?.aforo_maximo;
   return {id,title:event?.titulo||'Experiencia '+id,date:date(event?.fecha),
-   detail:'Plazas activas: '+seats(active)+' · Confirmadas: '+seats(confirmed)+' · Pendientes: '+seats(pending)+' · Aforo: '+(capacity??'Sin configurar')+' · Disponibles: '+(capacity==null?'Sin configurar':Math.max(0,Number(capacity)-seats(confirmed))),
+   detail:'Reservas confirmadas: '+confirmed.length+' · Asistentes confirmados: '+seats(confirmed)+' · Solicitudes pendientes: '+pending.length+' ('+seats(pending)+' plazas) · Aforo: '+(capacity??'Sin configurar')+' · Disponibles: '+(capacity==null?'Sin configurar':Math.max(0,Number(capacity)-seats(active))),
    contribution:'Aportación prevista: '+amount(active)+' · Confirmada: '+amount(confirmed)+' · Pendiente de confirmar: '+amount(pending)};
  });
 }
@@ -492,7 +492,7 @@ window.printBookingList=()=>{
   const contribution=document.createElement('p');contribution.textContent=summary.contribution;
   block.append(heading,seats,contribution);section.append(block);
  }
- const note=document.createElement('p');note.textContent='Totales del listado seleccionado. Reservas canceladas excluidas de plazas y aportaciones. Aforo disponible calculado sobre plazas confirmadas.';section.append(note);
+ const note=document.createElement('p');note.textContent='Totales del listado seleccionado. Reservas canceladas excluidas de plazas y aportaciones. Aforo disponible calculado descontando plazas confirmadas y pendientes.';section.append(note);
  const table=document.createElement('table');
  const labels=['Experiencia','Fecha','Nombre','Teléfono','Plazas','Importe','Estado'];
  const head=document.createElement('tr');for(const label of labels){const cell=document.createElement('th');cell.textContent=label;head.append(cell)}table.append(head);
