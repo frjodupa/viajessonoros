@@ -36,8 +36,9 @@ body.operational-page {
   letter-spacing: -0.02em;
 }
 
-.admin-experience-actions{display:flex;gap:8px;align-items:center}
-.admin-experience-actions button{white-space:nowrap;min-height:38px}
+.admin-experience-actions{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:9px;align-items:stretch;width:100%;min-width:0}
+.admin-experience-actions button{white-space:normal;overflow-wrap:break-word;min-width:0;min-height:44px;line-height:1.3;padding:9px 7px!important;font-size:13px;border-radius:11px!important;cursor:pointer}
+.admin-experience-actions button:disabled{opacity:.45;cursor:not-allowed}
 @media (max-width:700px){
   .admin-list-section{padding-left:12px!important;padding-right:12px!important}
   #lista-admin{display:grid;gap:12px}
@@ -57,7 +58,7 @@ body.operational-page {
   .admin-experience-actions{
     grid-column:1/-1;
     display:grid!important;
-    grid-template-columns:repeat(3,minmax(0,1fr));
+    grid-template-columns:repeat(2,minmax(0,1fr));
     gap:8px!important;
     width:100%;
   }
@@ -67,8 +68,9 @@ body.operational-page {
     min-height:42px;
     padding:8px 6px!important;
     border-radius:10px!important;
-    font-size:14px;
+    font-size:13px;
   }
+  .admin-experience-actions button:nth-child(3){grid-column:1/-1;background:#5B3F98!important;color:#fff!important;font-weight:700}
 }
 .admin-module-navigation{margin:16px 0 24px}.admin-module-navigation button{background:#5b3f98;color:#fff;border:0;border-radius:12px;padding:16px 23px;font:600 16px Montserrat,Arial,sans-serif;min-height:54px;cursor:pointer}.admin-module-navigation button:focus-visible{outline:3px solid #3b9db8;outline-offset:2px}</style>
 <link rel="stylesheet" href="/secondary.css">
@@ -299,7 +301,7 @@ window.openWhatsAppGeneral=()=>{
 const reservationPageURL=id=>new URL('/reserva.html?experiencia='+encodeURIComponent(id),location.origin).href
 const socialShareURL=id=>new URL('/api/compartir?experiencia='+encodeURIComponent(id),location.origin).href
 window.openReservationPage=async id=>{if(!(await hasValidAdmin()))return;const ev=eventos.find(e=>String(e.id)===String(id));if(ev?.publicado)window.open(reservationPageURL(id),'_blank','noopener,noreferrer')}
-window.copyReservationPage=async id=>{if(!(await hasValidAdmin()))return;const ev=eventos.find(e=>String(e.id)===String(id));if(!ev?.publicado)return;const url=socialShareURL(id);try{await navigator.clipboard.writeText(url);alert('Enlace copiado')}catch{prompt('Copia el enlace:',shareUrl)}}
+window.copyReservationPage=async id=>{if(!(await hasValidAdmin()))return;const ev=eventos.find(e=>String(e.id)===String(id));if(!ev?.publicado)return;const url=socialShareURL(id);try{await navigator.clipboard.writeText(url);alert('Enlace copiado')}catch{prompt('Copia el enlace:',url)}}
 window.shareReservationPage=async id=>{if(!(await hasValidAdmin()))return;const ev=eventos.find(e=>String(e.id)===String(id));if(!ev?.publicado)return;const url=socialShareURL(id);if(navigator.share){try{await navigator.share({title:ev.titulo,url})}catch(e){if(e.name!=='AbortError')prompt('Comparte el enlace:',url)}}else window.open('https://api.whatsapp.com/send?text='+encodeURIComponent(ev.titulo+' '+url),'_blank','noopener,noreferrer')}
 const getExperienceWhatsAppLink=(ev)=>'/reserva.html?experiencia='+encodeURIComponent(ev.id)
 window.reservarExperiencia=(id)=>{
