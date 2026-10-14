@@ -575,18 +575,20 @@ window.refreshManualBookings=async()=>{
  const money=n=>new Intl.NumberFormat('es-ES',{style:'currency',currency:'EUR'}).format(n);
  const active=rows.filter(r=>r.estado!=='cancelada'),confirmed=rows.filter(r=>r.estado==='confirmada');
  const pending=active.filter(r=>r.estado==='pendiente');
- document.getElementById('booking-totals').textContent='Plazas activas: '+active.reduce((n,r)=>n+r.plazas,0)+' · Aportaciones previstas: '+money(sum(active))+' · Confirmadas: '+money(sum(confirmed))+' · Pendientes de confirmar: '+money(sum(pending))+'. Canceladas excluidas.';
+ document.getElementById('booking-totals').textContent='Reservas confirmadas: '+confirmed.length+' · Asistentes confirmados: '+confirmed.reduce((n,r)=>n+Number(r.plazas||0),0)+' · Solicitudes pendientes: '+pending.length+' ('+pending.reduce((n,r)=>n+Number(r.plazas||0),0)+' plazas) · Plazas activas: '+active.reduce((n,r)=>n+Number(r.plazas||0),0)+' · Aportación prevista: '+money(sum(active))+' · Aportación de reservas confirmadas: '+money(sum(confirmed))+'. Canceladas excluidas.';
  const breakdown=capacityEvents.map(ev=>{
    const eventRows=(data||[]).filter(r=>String(r.experiencia_id)===String(ev.id));
-   const confirmedSeats=eventRows.filter(r=>r.estado==='confirmada').reduce((n,r)=>n+r.plazas,0);
-   const pendingSeats=eventRows.filter(r=>r.estado==='pendiente').reduce((n,r)=>n+r.plazas,0);
-   const available=ev.aforo_maximo==null?'Sin configurar':Math.max(0,ev.aforo_maximo-confirmedSeats);
-   return {ev,confirmedSeats,pendingSeats,available};
+   const confirmedBookings=eventRows.filter(r=>r.estado==='confirmada');
+   const confirmedSeats=confirmedBookings.reduce((n,r)=>n+Number(r.plazas||0),0);
+   const pendingBookings=eventRows.filter(r=>r.estado==='pendiente');
+   const pendingSeats=pendingBookings.reduce((n,r)=>n+Number(r.plazas||0),0);
+   const available=ev.aforo_maximo==null?'Sin configurar':Math.max(0,ev.aforo_maximo-confirmedSeats-pendingSeats);
+   return {ev,confirmedBookings:confirmedBookings.length,pendingBookings:pendingBookings.length,confirmedSeats,pendingSeats,available};
  });
  const capacityElement=document.getElementById('booking-event-capacity-list');
  if(capacityElement)capacityElement.replaceChildren(...breakdown.filter(x=>selectedExperience==='all'||String(x.ev.id)===selectedExperience).map(x=>{
    const line=document.createElement('p');
-   line.textContent=x.ev.titulo+': aforo '+(x.ev.aforo_maximo??'sin configurar')+' · confirmadas/cerradas '+x.confirmedSeats+' · pendientes '+x.pendingSeats+' · disponibles '+x.available;
+   line.textContent=x.ev.titulo+': aforo '+(x.ev.aforo_maximo??'sin configurar')+' · reservas confirmadas '+x.confirmedBookings+' · asistentes confirmados '+x.confirmedSeats+' · solicitudes pendientes '+x.pendingBookings+' ('+x.pendingSeats+' plazas) · disponibles para solicitudes '+x.available;
    return line;
  }));
  node.replaceChildren(...rows.map(row=>{
