@@ -8,12 +8,12 @@ async function loadEvent(){
  try{
   if(id!==null){
    if(!validId)throw Error('INVALID_EVENT_ID');
-   const {data,error}=await supabase.from('experiencias').select('id,titulo,fecha,hora,lugar,precio,publicado,imagen_url,descripcion,plazas').eq('id',id).eq('publicado',true).abortSignal(controller.signal).maybeSingle();
+   const {data,error}=await supabase.from('experiencias').select('id,titulo,fecha,hora,lugar,precio,publicado,imagen_url,descripcion,aforo_maximo').eq('id',id).eq('publicado',true).abortSignal(controller.signal).maybeSingle();
    if(error)throw error;
    if(!data)throw Error('NOT_FOUND');
    return data;
   }
-  const {data,error}=await supabase.from('experiencias').select('id,titulo,fecha,hora,lugar,precio,publicado,imagen_url,descripcion,plazas').eq('publicado',true).abortSignal(controller.signal).order('fecha',{ascending:true});
+  const {data,error}=await supabase.from('experiencias').select('id,titulo,fecha,hora,lugar,precio,publicado,imagen_url,descripcion,aforo_maximo').eq('publicado',true).abortSignal(controller.signal).order('fecha',{ascending:true});
   if(error)throw error;
   if(!data?.length)throw Error('NO_PUBLIC_EVENTS');
   const selector=document.getElementById('event-fallback');
@@ -45,7 +45,7 @@ if(event){
  document.getElementById('meta').textContent=[event.fecha?.replace(/^(\d{4})-(\d{2})-(\d{2})$/,'$3-$2-$1'),event.hora,event.lugar].filter(Boolean).join(' · ');
  const desc=document.getElementById('description');if(event.descripcion){desc.textContent=event.descripcion;desc.hidden=false;}
  const cover=document.getElementById('event-cover');try{const img=new URL(event.imagen_url||'',location.origin);if((img.protocol==='https:'||(img.protocol==='http:'&&['localhost','127.0.0.1'].includes(img.hostname)))&&event.imagen_url){cover.src=img.href;cover.alt='Fotografía de '+event.titulo;cover.hidden=false;cover.onerror=()=>{cover.hidden=true}}}catch{}
- if(event.plazas){document.getElementById('availability').textContent=String(event.plazas);}
+ if(event.aforo_maximo!=null){document.getElementById('availability').textContent='Aforo máximo: '+event.aforo_maximo+' plazas · Disponibilidad pendiente de confirmar.';}
  const eventDay=String(event.fecha||'').slice(0,10);
  const todayMadrid=new Date().toLocaleDateString('en-CA',{timeZone:'Europe/Madrid'});
  const finished=Boolean(eventDay&&eventDay<todayMadrid);
