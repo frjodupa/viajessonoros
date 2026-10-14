@@ -548,10 +548,16 @@ window.refreshManualBookings=async()=>{
  document.getElementById('booking-print-page')?.remove();
  node.textContent='Cargando reservas…';
  if(!(await hasValidAdmin())){node.textContent='Inicia sesión para ver las reservas.';return}
- const [{data,error},{data:liveEvents,error:eventError}]=await Promise.all([
-  supabase.from('reservas_whatsapp').select('id,experiencia_id,nombre,telefono,plazas,precio_unitario,importe_total,estado,pago_estado,origen,created_at').order('created_at',{ascending:false}).limit(200),
-  supabase.from('experiencias').select('id,titulo,fecha,hora,publicado,aforo_maximo')
- ]);
+ const allBookings=[];
+ let bookingsError=null;
+ for(let offset=0;offset<100000;offset+=500){
+  const {data:page,error}=await supabase.from('reservas_whatsapp').select('id,experiencia_id,nombre,telefono,plazas,precio_unitario,importe_total,estado,pago_estado,origen,created_at').order('created_at',{ascending:false}).order('id',{ascending:false}).range(offset,offset+499);
+  if(error){bookingsError=error;break}
+  allBookings.push(...(page||[]));
+  if(!page||page.length<500)break;
+ }
+ const [{data:liveEvents,error:eventError}]=await Promise.all([supabase.from('experiencias').select('id,titulo,fecha,hora,publicado,aforo_maximo')]);
+ const data=allBookings,error=bookingsError;
  if(eventError){node.textContent='No se ha podido actualizar el aforo: '+eventError.message;return}
  const capacityEvents=liveEvents||[];
  if(error){node.textContent='No se pudo cargar el listado: '+error.message;return}
