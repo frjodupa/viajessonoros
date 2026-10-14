@@ -507,17 +507,7 @@ const selectLandingExperiences = (items) => {
     .slice(0, LANDING_EVENTS_LIMIT)
 }
 
-const getEventWhatsAppLink = (experience) => {
-  const title = experience.titulo || ''
-  const date = formatExperienceDate(experience.fecha)
-  const time = formatExperienceTime(experience.hora)
-  const price = formatContribution(experience.precio)
-  const place = experience.lugar || ''
-  const schedule = [date, time].filter(Boolean).join(' · ')
-  const message = `Hola! Quiero reservar la experiencia "${title}" del ${schedule} (${price}) en ${place}. ¿Queda plaza? Mi nombre es:`
-
-  return whatsappLink(message)
-}
+const getEventWhatsAppLink = (experience) => `/reserva.html?experiencia=${encodeURIComponent(experience.id)}`
 
 const formatExperienceDate = (value) => {
   const date = parseExperienceDate(value)
@@ -603,12 +593,10 @@ const renderLandingEvent = (experience, isSingle = false) => {
         <a
           class="whatsapp-reserve-button"
           href="${getEventWhatsAppLink(experience)}"
-          target="_blank"
-          rel="noopener noreferrer"
           onclick="event.stopPropagation()"
         >
           ${icons.whatsapp}
-          Reservar por WhatsApp
+          Reservar plaza
         </a>
       `
     : `
@@ -1207,9 +1195,7 @@ app.innerHTML = `
         </p>
         <a
           class="button button-gold"
-          href="${links.general}"
-          target="_blank"
-          rel="noopener noreferrer"
+          href="/reserva.html"
         >
           Reserva tu experiencia ${renderIcon('arrow', 'icon-arrow')}
         </a>
