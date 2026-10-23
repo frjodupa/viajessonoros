@@ -134,18 +134,41 @@ async function createAttendancePdf(){
  if(pdfPreviewUrl)URL.revokeObjectURL(pdfPreviewUrl);
  pdfPreviewUrl=URL.createObjectURL(blob);
  const overlay=document.createElement('div');overlay.id='pdf-preview-overlay';
- overlay.style.cssText='position:fixed;inset:0;z-index:10010;background:#21162dcc;display:flex;align-items:center;justify-content:center;padding:12px';
- const box=document.createElement('section');box.style.cssText='background:white;border-radius:18px;width:min(100%,850px);height:min(94vh,1000px);padding:13px;display:flex;flex-direction:column;gap:10px';
- const label=document.createElement('strong');label.textContent='Vista previa · Control de asistencia';
- const viewer=document.createElement('iframe');viewer.title='Vista previa del PDF';viewer.src=pdfPreviewUrl;viewer.style.cssText='width:100%;flex:1;border:1px solid #e5dce9;border-radius:10px;background:white';
- const actions=document.createElement('div');actions.style.cssText='display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px';
- const save=document.createElement('button');save.type='button';save.textContent='Guardar PDF';
+ overlay.style.cssText='position:fixed;inset:0;z-index:10010;background:#21162ddd;display:flex;align-items:center;justify-content:center;padding:8px';
+ const box=document.createElement('section');box.setAttribute('role','dialog');box.setAttribute('aria-modal','true');box.setAttribute('aria-label','Vista previa del control de asistencia');box.style.cssText='box-sizing:border-box;background:#fff;border-radius:16px;width:min(100%,850px);height:min(94dvh,1000px);padding:12px;display:flex;flex-direction:column;gap:10px;min-height:0';
+ const label=document.createElement('strong');label.textContent='Control de asistencia · Vista previa';
+ const intro=document.createElement('small');intro.textContent='Vista legible en iPhone del contenido que se incluirá en el PDF. Documento privado.';
+ const actions=document.createElement('div');actions.style.cssText='display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:7px;flex:0 0 auto';
+ const save=document.createElement('button');save.type='button';save.textContent='Guardar PDF';save.style.cssText='padding:11px 5px;font-size:13px;min-height:46px';
  save.onclick=()=>pdf.save(filename);
- const share=document.createElement('button');share.type='button';share.textContent='Compartir';
+ const share=document.createElement('button');share.type='button';share.textContent='Compartir';share.style.cssText='padding:11px 5px;font-size:13px;min-height:46px';
  share.onclick=async()=>{if(navigator.canShare?.({files:[file]})&&navigator.share){try{await navigator.share({files:[file],title:'Control de asistencia · Viajes Sonoros'})}catch(e){if(e.name!=='AbortError')alert('No se pudo compartir: '+e.message)}}else{alert('Este navegador no admite compartir PDF. Usa Guardar PDF.')}};
- const close=document.createElement('button');close.type='button';close.className='secondary';close.textContent='Cerrar';
+ const close=document.createElement('button');close.type='button';close.className='secondary';close.textContent='Cerrar';close.style.cssText='padding:11px 5px;font-size:13px;min-height:46px';
  close.onclick=()=>{overlay.remove();URL.revokeObjectURL(pdfPreviewUrl);pdfPreviewUrl=null};
- actions.append(save,share,close);box.append(label,viewer,actions);overlay.append(box);document.body.append(overlay);
+ actions.append(save,share,close);
+ const preview=document.createElement('div');preview.style.cssText='flex:1;min-height:0;overflow-y:auto;-webkit-overflow-scrolling:touch;border:1px solid #e5dce9;border-radius:12px;padding:14px;background:#fff';
+ const header=document.createElement('h2');header.textContent='Viajes Sonoros · Control de asistencia';preview.append(header);
+ const generated=document.createElement('p');generated.textContent='Fecha de emisión: '+new Date().toLocaleString('es-ES');preview.append(generated);
+ const appendLine=(parent,label,value)=>{const el=document.createElement('p');el.style.cssText='margin:5px 0;line-height:1.5;overflow-wrap:anywhere';const strong=document.createElement('strong');strong.textContent=label;el.append(strong,document.createTextNode(String(value??'')));parent.append(el)};
+ for(const eventId of grouped){
+  const ev=events.find(x=>String(x.id)===eventId),rows=relevant.filter(r=>String(r.experiencia_id)===eventId);
+  const group=document.createElement('section');group.style.cssText='border-top:2px solid #e4d8ed;padding:14px 0';
+  const heading=document.createElement('h3');heading.textContent=ev?.titulo||'Experiencia '+eventId;group.append(heading);
+  appendLine(group,'Fecha: ',String(ev?.fecha||'').replace(/^(\d{4})-(\d{2})-(\d{2})$/,'$3-$2-$1')+' · '+String(ev?.hora||'').slice(0,5));
+  appendLine(group,'Lugar: ',ev?.lugar||'No especificado');
+  appendLine(group,'Reservas: ',rows.length+' · Plazas confirmadas: '+rows.filter(r=>r.estado==='confirmada').reduce((n,r)=>n+Number(r.plazas||0),0));
+  for(const row of rows){
+   const card=document.createElement('article');card.style.cssText='border:1px solid #e8deeb;border-radius:10px;margin:9px 0;padding:10px;background:#faf8fc';
+   appendLine(card,'☐ ',row.nombre+' · '+row.plazas+' plaza(s) · '+row.estado);
+   appendLine(card,'Teléfono: ',row.telefono);
+   appendLine(card,'Aportación: ',row.importe_total==null?'Por revisar':money(Number(row.importe_total)));
+   appendLine(card,'Estado del pago: ',row.pago_estado||'sin verificar');
+   appendLine(card,'Registrada: ',row.created_at?new Date(row.created_at).toLocaleString('es-ES'):'Sin fecha');
+   appendLine(card,'Referencia: ',row.id);group.append(card);
+  }preview.append(group);
+ }
+ box.append(label,intro,actions,preview);overlay.append(box);document.body.append(overlay);
+
 }
 $('attendance-pdf').addEventListener('click',async()=>{const btn=$('attendance-pdf');btn.disabled=true;try{await createAttendancePdf()}catch(e){alert('No se pudo generar el PDF: '+e.message)}finally{btn.disabled=false}});
 function render(){
