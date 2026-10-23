@@ -96,6 +96,7 @@ function openBookingEditor(row,ev,card){
  const close=document.createElement('button');close.type='button';close.className='secondary';close.textContent='Cerrar';close.onclick=()=>editor.remove();
  buttons.append(save,close);editor.append(heading,field,reasonLabel,warning,note,buttons);card.append(editor);
 }
+let pdfPreviewUrl=null;
 async function createAttendancePdf(){
  const id=$('event').value;
  const relevant=reservations.filter(r=>id==='all'||String(r.experiencia_id)===id);
@@ -104,31 +105,47 @@ async function createAttendancePdf(){
  const pdf=new jsPDF({unit:'mm',format:'a4'});
  let y=17;
  const newPage=()=>{pdf.addPage();y=17};
- const text=(s,size=10,bold=false)=>{pdf.setFont('helvetica',bold?'bold':'normal');pdf.setFontSize(size);for(const line of pdf.splitTextToSize(String(s||''),178)){if(y>275)newPage();pdf.text(line,16,y);y+=size*.49+1.5}};
+ const text=(s,size=10,bold=false)=>{pdf.setFont('helvetica',bold?'bold':'normal');pdf.setFontSize(size);for(const line of pdf.splitTextToSize(String(s||''),178)){if(y>272)newPage();pdf.text(line,16,y);y+=size*.49+1.5}};
  const grouped=[...new Set(relevant.map(r=>String(r.experiencia_id)))];
  text('VIAJES SONOROS - CONTROL DE ASISTENCIA',15,true);
- text('Incluye todas las reservas: confirmadas, pendientes y canceladas.',9);
- text('Generado: '+new Date().toLocaleString('es-ES'),9);
+ text('Documento privado. Incluye reservas confirmadas, pendientes, canceladas y otros estados.',9);
+ text('Fecha de emision: '+new Date().toLocaleString('es-ES'),9);
  for(const eventId of grouped){
   const ev=events.find(x=>String(x.id)===eventId),rows=relevant.filter(r=>String(r.experiencia_id)===eventId);
-  if(y>235)newPage();
-  y+=5;text((ev?.titulo||'Experiencia '+eventId)+' | '+(ev?.fecha||''),12,true);
-  text('Reservas: '+rows.length+' | Confirmadas: '+rows.filter(r=>r.estado==='confirmada').reduce((n,r)=>n+Number(r.plazas||0),0)+' plazas',9);
+  if(y>225)newPage();
+  const date=String(ev?.fecha||'').replace(/^(\d{4})-(\d{2})-(\d{2})$/,'$3-$2-$1');
+  y+=5;text((ev?.titulo||'Experiencia '+eventId),12,true);
+  text('Fecha: '+date+' | Hora: '+String(ev?.hora||'').slice(0,5),10);
+  text('Lugar: '+(ev?.lugar||'No especificado'),9);
+  text('Reservas: '+rows.length+' | Asistentes confirmados: '+rows.filter(r=>r.estado==='confirmada').reduce((n,r)=>n+Number(r.plazas||0),0)+' | Total previsto: '+money(rows.filter(r=>r.estado!=='cancelada').reduce((n,r)=>n+Number(r.importe_total||0),0)),9);
   for(const row of rows){
-   if(y>257)newPage();
-   text('[  ] '+row.nombre+' | '+row.plazas+' plaza(s) | '+row.estado,10,true);
-   text('Tel.: '+row.telefono+' | Importe: '+(row.importe_total==null?'Por revisar':money(Number(row.importe_total)))+' | Aportación: '+(row.pago_estado||'sin verificar'),8);
+   if(y>247)newPage();
+   text('[   ] '+row.nombre+' | '+row.plazas+' plaza(s) | '+row.estado,10,true);
+   text('Telefono: '+row.telefono+' | Aportacion: '+(row.importe_total==null?'Por revisar':money(Number(row.importe_total)))+' | Pago: '+(row.pago_estado||'sin verificar'),8);
+   text('Registro: '+(row.created_at?new Date(row.created_at).toLocaleString('es-ES'):'Sin fecha')+' | Referencia: '+row.id,8);
    pdf.setDrawColor(222);pdf.line(16,y,194,y);y+=3;
   }
  }
  const pages=pdf.getNumberOfPages();
- for(let p=1;p<=pages;p++){pdf.setPage(p);pdf.setFontSize(8);pdf.text('Documento de uso interno - '+p+' / '+pages,16,289)}
- const filename='viajes-sonoros-control-asistencia'+(id==='all'?'-todas':'-experiencia-'+id)+'.pdf';
+ for(let p=1;p<=pages;p++){pdf.setPage(p);pdf.setFontSize(8);pdf.text('Privado - Viajes Sonoros - '+p+' / '+pages,16,289)}
+ const filename='viajes-sonoros-asistencia'+(id==='all'?'-todas':'-experiencia-'+id)+'.pdf';
  const blob=pdf.output('blob'),file=new File([blob],filename,{type:'application/pdf'});
- if(navigator.canShare?.({files:[file]})&&navigator.share){
-  try{await navigator.share({files:[file],title:'Control de asistencia · Viajes Sonoros'});return}catch(e){if(e.name==='AbortError')return}
- }
- pdf.save(filename);
+ document.getElementById('pdf-preview-overlay')?.remove();
+ if(pdfPreviewUrl)URL.revokeObjectURL(pdfPreviewUrl);
+ pdfPreviewUrl=URL.createObjectURL(blob);
+ const overlay=document.createElement('div');overlay.id='pdf-preview-overlay';
+ overlay.style.cssText='position:fixed;inset:0;z-index:10010;background:#21162dcc;display:flex;align-items:center;justify-content:center;padding:12px';
+ const box=document.createElement('section');box.style.cssText='background:white;border-radius:18px;width:min(100%,850px);height:min(94vh,1000px);padding:13px;display:flex;flex-direction:column;gap:10px';
+ const label=document.createElement('strong');label.textContent='Vista previa · Control de asistencia';
+ const viewer=document.createElement('iframe');viewer.title='Vista previa del PDF';viewer.src=pdfPreviewUrl;viewer.style.cssText='width:100%;flex:1;border:1px solid #e5dce9;border-radius:10px;background:white';
+ const actions=document.createElement('div');actions.style.cssText='display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px';
+ const save=document.createElement('button');save.type='button';save.textContent='Guardar PDF';
+ save.onclick=()=>pdf.save(filename);
+ const share=document.createElement('button');share.type='button';share.textContent='Compartir';
+ share.onclick=async()=>{if(navigator.canShare?.({files:[file]})&&navigator.share){try{await navigator.share({files:[file],title:'Control de asistencia · Viajes Sonoros'})}catch(e){if(e.name!=='AbortError')alert('No se pudo compartir: '+e.message)}}else{alert('Este navegador no admite compartir PDF. Usa Guardar PDF.')}};
+ const close=document.createElement('button');close.type='button';close.className='secondary';close.textContent='Cerrar';
+ close.onclick=()=>{overlay.remove();URL.revokeObjectURL(pdfPreviewUrl);pdfPreviewUrl=null};
+ actions.append(save,share,close);box.append(label,viewer,actions);overlay.append(box);document.body.append(overlay);
 }
 $('attendance-pdf').addEventListener('click',async()=>{const btn=$('attendance-pdf');btn.disabled=true;try{await createAttendancePdf()}catch(e){alert('No se pudo generar el PDF: '+e.message)}finally{btn.disabled=false}});
 function render(){
