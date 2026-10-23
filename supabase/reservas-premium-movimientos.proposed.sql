@@ -16,3 +16,29 @@ revoke all on public.reservas_premium_movimientos from anon,authenticated;
 -- No habilitar escritura directa: implementar RPC transaccional autenticada por admin,
 -- con privilegios mínimos, auditoría y chequeo de aforo para aplazamientos.
 -- La fila original de reservas_whatsapp nunca se elimina en un aplazamiento.
+
+-- Auditoría automática propuesta (NO activar sin pruebas de rol/RLS).
+-- Cada actualización de estado o aportación produce una entrada inmutable.
+create or replace function public.vs_auditar_cambio_reserva()
+returns trigger language plpgsql security definer set search_path = ''
+as $$
+begin
+ if (old.estado,old.pago_estado) is distinct from (new.estado,new.pago_estado) then
+   insert into public.reservas_premium_movimientos
+    (reserva_id,tipo,estado_anterior,estado_nuevo,motivo,importe,actor)
+   values(new.id,
+     case when old.pago_estado is distinct from new.pago_estado then 'aportacion' else 'estado' end,
+     old.estado||' / '||old.pago_estado,
+     new.estado||' / '||new.pago_estado,
+     'Cambio de estado registrado automáticamente',
+     new.importe_total,auth.uid());
+ end if;
+ return new;
+end; $$;
+revoke all on function public.vs_auditar_cambio_reserva() from public,anon,authenticated;
+-- NOTA: auth.uid() puede ser NULL para escrituras con service_role.
+-- Revisar esquema actor, operaciones administrativas y función trigger
+-- antes de su activación; no ejecutar CREATE TRIGGER todavía.
+-- create trigger vs_auditar_cambio_reserva after update of estado,pago_estado
+-- on public.reservas_whatsapp for each row
+-- execute function public.vs_auditar_cambio_reserva();
