@@ -26,4 +26,26 @@ assert.throws(()=>aplazar(demo,input,''));
 const occupied=(list)=>list.filter(r=>!['cancelada','aplazada'].includes(r.estado)).reduce((sum,r)=>sum+r.plazas,0);
 assert.equal(occupied([demo]),2);
 assert.equal(occupied([result.reserva]),0);
+
+// Prueba de capacidad y conservación de saldo con otra experiencia ficticia.
+function asignarCredito(ledger,reservaId,experiencia,plazas,importeNecesario) {
+ if(!ledger.has(reservaId)) throw Error('No existe crédito');
+ if(!Number.isInteger(plazas)||plazas<1)throw Error('Número de plazas no válido');
+ if(experiencia.ocupadas+plazas>experiencia.aforo)throw Error('Aforo completo');
+ const credito=ledger.get(reservaId);
+ if(credito<importeNecesario)throw Error('Falta completar la aportación');
+ const updated={...experiencia,ocupadas:experiencia.ocupadas+plazas};
+ const next=new Map(ledger);next.delete(reservaId);
+ return {experiencia:updated,ledger:next,saldoRestante:credito-importeNecesario};
+}
+const destino={id:22,aforo:10,ocupadas:8};
+const transferida=asignarCredito(result.ledger,demo.id,destino,2,30);
+assert.equal(transferida.experiencia.ocupadas,10);
+assert.equal(transferida.saldoRestante,4);
+assert.equal(transferida.ledger.size,0);
+assert.equal(result.ledger.get(demo.id),34,'El crédito origen sigue intacto');
+assert.equal(destino.ocupadas,8,'El aforo origen sigue intacto');
+assert.throws(()=>asignarCredito(result.ledger,demo.id,destino,3,30),/Aforo completo/);
+assert.throws(()=>asignarCredito(result.ledger,demo.id,destino,2,35),/aportación/);
+assert.throws(()=>asignarCredito(transferida.ledger,demo.id,destino,1,10),/No existe crédito/);
 console.log('Simulación gratuita: saldo, duplicados, pago, rollback lógico y liberación de plazas OK.');
