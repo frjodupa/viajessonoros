@@ -10,4 +10,8 @@ assert.match(rpc,/for update/,'La reserva origen debe bloquearse antes de aplaza
 assert.match(rpc,/reserva_origen_id/,'Conservar referencia origen');
 assert.match(html,/const active=all\.filter\(r=>r\.estado!=='cancelada'&&r\.estado!=='aplazada'\)/,'Totales no deben incluir aplazadas');
 assert.match(html,/pago_estado:'recibido'/,'Confirmar implica pago recibido');
+const audit=readFileSync(new URL('../supabase/reservas-premium-movimientos.proposed.sql',import.meta.url),'utf8');
+assert.match(audit,/new\.estado = 'aplazada' and old\.estado is distinct from new\.estado/,'No registrar dos veces el aplazamiento');
+assert.match(rpc,/revoke all on function public\.vs_premium_aplazar/,'La RPC propuesta no debe quedar expuesta');
+assert.match(rpc,/v_email is distinct from 'info@viajessonoros\.es'/,'La RPC requiere autorización de administrador');
 console.log('Contrato estático Reservas Premium: comprobaciones básicas correctas.');
