@@ -16,13 +16,43 @@ async function load(){
   if(error)throw error;
   rows.push(...(data||[]));if(!data||data.length<500)break;
  }
- const {data:eventRows,error:eventError}=await supabase.from('experiencias').select('id,titulo,fecha,hora,aforo_maximo').order('fecha',{ascending:false});
+ const {data:eventRows,error:eventError}=await supabase.from('experiencias').select('id,titulo,fecha,hora,lugar,precio,descripcion,aforo_maximo').order('fecha',{ascending:false});
  if(eventError)throw eventError;
  reservations=rows;events=eventRows||[];
  const old=$('event').value;$('event').replaceChildren(new Option('Todas las experiencias','all'),...events.map(e=>new Option(e.titulo+' · '+e.fecha,String(e.id))));$('event').value=[...$('event').options].some(o=>o.value===old)?old:'all';
  setText('notice','Vista de gestión segura. Los aplazamientos con aportación se habilitarán después de validar el registro contable y la transferencia de plazas. Por ahora se gestionan en el módulo existente.');
  render();
 }
+const bookingMessage=(row,ev,confirmed)=>{
+ const date=String(ev?.fecha||'').match(/^(\\d{4})-(\\d{2})-(\\d{2})/);
+ const formatted=date?date[3]+'-'+date[2]+'-'+date[1]:'Fecha por confirmar';
+ const time=String(ev?.hora||'').slice(0,5);
+ const lines=[
+ confirmed?'✨ RESERVA CONFIRMADA · VIAJES SONOROS':'✨ SOLICITUD DE RESERVA · VIAJES SONOROS',
+ '',
+ 'Hola, '+row.nombre+'.',
+ confirmed?'Tu reserva está confirmada. Nos alegra compartir contigo esta experiencia de calma y escucha.':'Hemos recibido tu solicitud de reserva. Antes de confirmar tu plaza, necesitamos comprobar la disponibilidad y la aportación.',
+ '',
+ '🌿 '+(ev?.titulo||'Experiencia de Viajes Sonoros'),
+ '📅 '+formatted+(time?' · '+time+' h':''),
+ ev?.lugar?'📍 '+ev.lugar:'',
+ '👥 Plazas: '+row.plazas,
+ row.importe_total!=null?'🤍 Aportación prevista: '+money(Number(row.importe_total)):'',
+ '',
+ confirmed?'Tu plaza está reservada. Te esperamos para disfrutar de este encuentro.':'Cuando recibamos la aportación y comprobemos las plazas, te enviaremos la confirmación definitiva por WhatsApp.',
+ '',
+ 'Meditar es pasar tiempo con tu alma.',
+ 'María de la Osa y José Duque · Viajes Sonoros'
+ ];
+ return lines.filter(x=>x!==''||lines[lines.indexOf(x)-1]!=='').join('\\n').trim();
+};
+const openBookingWhatsApp=(row,ev,confirmed)=>{
+ const digits=String(row.telefono||'').replace(/[^\\d]/g,'');
+ const phone=digits.length===9?'34'+digits:digits;
+ if(phone.length<9||phone.length>15){alert('Comprueba el número de teléfono de esta reserva.');return}
+ const text=bookingMessage(row,ev,confirmed);
+ window.open('https://wa.me/'+phone+'?text='+encodeURIComponent(text),'_blank','noopener,noreferrer');
+};
 function render(){
  const term=$('search').value.trim().toLocaleLowerCase('es-ES'),eventId=$('event').value,status=$('status').value;
  const all=reservations.filter(r=>(eventId==='all'||String(r.experiencia_id)===eventId));
@@ -44,7 +74,13 @@ function render(){
   const buttons=document.createElement('div');buttons.className='booking-actions';
   const phone=document.createElement('a');phone.href='tel:'+row.telefono;phone.textContent='Llamar';
   const manage=document.createElement('a');manage.href='/experiencias.html';manage.textContent='Gestionar reserva';
-  buttons.append(phone,manage);article.append(top,detail,info,buttons);return article;
+  const request=document.createElement('button');request.type='button';request.textContent='WhatsApp · Solicitar confirmación';
+ request.addEventListener('click',()=>openBookingWhatsApp(row,event,false));
+ const confirmation=document.createElement('button');confirmation.type='button';confirmation.textContent='WhatsApp · Reserva confirmada';
+ confirmation.disabled=row.estado!=='confirmada';
+ confirmation.title=row.estado==='confirmada'?'Preparar mensaje confirmado':'Confirma primero la reserva desde el administrador';
+ confirmation.addEventListener('click',()=>openBookingWhatsApp(row,event,true));
+ buttons.append(phone,request,confirmation,manage);article.append(top,detail,info,buttons);return article;
  }));
  if(!filtered.length)setText('bookings','No hay reservas que coincidan con los filtros.');
 }
