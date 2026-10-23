@@ -53,11 +53,31 @@ const bookingMessage=(row,ev,confirmed)=>{
   'María de la Osa y José Duque · Viajes Sonoros'
  ].filter(Boolean).join('\n');
 };
-const openBookingWhatsApp=async(row,ev,confirmed)=>{
+const reminderMessage=(row,ev)=>{
+ const match=String(ev?.fecha||'').match(/^(\d{4})-(\d{2})-(\d{2})/);
+ const date=match?match[3]+'-'+match[2]+'-'+match[1]:'Fecha por confirmar';
+ const time=String(ev?.hora||'').slice(0,5);
+ const first=String(row.nombre||'').trim().split(/\s+/)[0]||'';
+ return [
+  '🌿 Recordatorio · Viajes Sonoros',
+  'Hola, '+first+'.',
+  'Te recordamos con cariño que mañana compartiremos nuestro encuentro sonoro. ✨',
+  '',
+  '🎶 '+(ev?.titulo||'Viaje Sonoro'),
+  '📅 '+date+(time?' · '+time+' h':''),
+  ev?.lugar?'📍 '+ev.lugar:'',
+  '👥 Tu reserva: '+row.plazas+' '+(Number(row.plazas)===1?'plaza':'plazas'),
+  '',
+  'Te esperamos para regalarte un espacio de calma, escucha y reconexión.',
+  'Si tienes alguna duda, puedes escribirnos por aquí.',
+  'María de la Osa y José Duque · Viajes Sonoros'
+ ].filter(Boolean).join('\n');
+};
+const openBookingWhatsApp=async(row,ev,confirmed,customMessage)=>{
  const digits=String(row.telefono||'').replace(/[^\d]/g,'');
  const phone=digits.length===9?'34'+digits:digits;
  if(phone.length<9||phone.length>15){alert('Comprueba el número de teléfono de esta reserva.');return}
- const message=bookingMessage(row,ev,confirmed);
+ const message=customMessage||bookingMessage(row,ev,confirmed);
  // Abrir primero la conversación, sin texto precargado que iOS desplaza hasta el final.
  // Copiar el mensaje para pegarlo manualmente desde su inicio.
  try{await navigator.clipboard.writeText(message)}
@@ -315,7 +335,8 @@ function render(){
  confirmation.disabled=row.estado!=='confirmada'||row.pago_estado!=='recibido';
  confirmation.title=confirmation.disabled?'Verifica y confirma primero el pago desde Gestionar esta reserva':'Preparar mensaje de reserva y aportación confirmadas';
  confirmation.addEventListener('click',()=>openBookingWhatsApp(row,event,true));
- request.className='whatsapp';confirmation.className='whatsapp';const del=document.createElement('button');del.type='button';del.className='danger';del.textContent='Borrar reserva';del.title='Desactivado hasta incorporar archivo de seguridad e historial de borrado';del.disabled=true;buttons.append(manage,request,confirmation,phone,del);if(row.estado==='confirmada'&&row.pago_estado!=='recibido'){const alert=document.createElement('p');alert.style.cssText='padding:9px;border-radius:10px;background:#fff2dc;color:#774818;font-weight:650';alert.textContent='Revisar: reserva confirmada sin pago registrado. Abre Gestionar para verificar la aportación.';article.append(top,detail,info,paymentStatus,alert,buttons)}else article.append(top,detail,info,paymentStatus,buttons);return article;
+ request.className='whatsapp';confirmation.className='whatsapp';const reminder=document.createElement('button');reminder.type='button';reminder.className='whatsapp';reminder.textContent='WhatsApp · Recordatorio (día anterior)';reminder.disabled=row.estado!=='confirmada'||row.pago_estado!=='recibido';reminder.title=reminder.disabled?'Disponible para reservas confirmadas y pagadas':'Copiar el recordatorio y abrir WhatsApp para enviarlo el día anterior';reminder.style.gridColumn='1/-1';reminder.addEventListener('click',()=>openBookingWhatsApp(row,event,true,reminderMessage(row,event)));
+ const del=document.createElement('button');del.type='button';del.className='danger';del.textContent='Borrar reserva';del.title='Desactivado hasta incorporar archivo de seguridad e historial de borrado';del.disabled=true;buttons.append(manage,request,confirmation,reminder,phone,del);if(row.estado==='confirmada'&&row.pago_estado!=='recibido'){const alert=document.createElement('p');alert.style.cssText='padding:9px;border-radius:10px;background:#fff2dc;color:#774818;font-weight:650';alert.textContent='Revisar: reserva confirmada sin pago registrado. Abre Gestionar para verificar la aportación.';article.append(top,detail,info,paymentStatus,alert,buttons)}else article.append(top,detail,info,paymentStatus,buttons);return article;
  }));
  if(!filtered.length)setText('bookings','No hay reservas que coincidan con los filtros.');
 }
