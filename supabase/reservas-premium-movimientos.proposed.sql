@@ -7,7 +7,7 @@ create table if not exists public.reservas_premium_movimientos(
  estado_anterior text, estado_nuevo text, motivo text,
  importe numeric(10,2), plazas_asistentes integer check(plazas_asistentes>=0),
  experiencia_destino_id bigint references public.experiencias(id),
- actor uuid not null references auth.users(id),
+ actor uuid references auth.users(id),
  created_at timestamptz not null default now()
 );
 create index if not exists reservas_premium_movimientos_reserva_fecha on public.reservas_premium_movimientos(reserva_id,created_at desc);
@@ -31,12 +31,12 @@ begin
      old.estado||' / '||old.pago_estado,
      new.estado||' / '||new.pago_estado,
      'Cambio de estado registrado automáticamente',
-     new.importe_total,auth.uid());
+     new.importe_total,(select auth.uid()));
  end if;
  return new;
 end; $$;
 revoke all on function public.vs_auditar_cambio_reserva() from public,anon,authenticated;
--- NOTA: auth.uid() puede ser NULL para escrituras con service_role.
+-- NOTA: auth.uid() puede ser NULL para escrituras con service_role; actor permite NULL y debe identificarse la fuente.
 -- Revisar esquema actor, operaciones administrativas y función trigger
 -- antes de su activación; no ejecutar CREATE TRIGGER todavía.
 -- create trigger vs_auditar_cambio_reserva after update of estado,pago_estado
