@@ -83,8 +83,9 @@ function openBookingEditor(row,ev,card){
  const note=document.createElement('p');note.setAttribute('role','status');
  const details=document.createElement('div');details.style.cssText='display:grid;gap:7px;padding:12px;border:1px solid #ded3e7;border-radius:11px;background:white';
  const detailLines=[
-  ['Aportación registrada: ',row.importe_total==null?'Pendiente de revisar':money(Number(row.importe_total))],
-  ['Estado de pago: ',row.pago_estado||'Sin verificar'],
+  ['Importe previsto de la reserva: ',row.importe_total==null?'Pendiente de revisar':money(Number(row.importe_total))],
+  ['Estado de la reserva: ',row.estado],
+  ['Estado del pago: ',row.pago_estado==='recibido'?'Recibido':row.pago_estado==='pendiente'?'Pendiente de verificar':row.pago_estado||'Sin verificar'],
   ['Reserva creada: ',row.created_at?new Date(row.created_at).toLocaleString('es-ES'):'Sin fecha'],
   ['Asistencia: ','Registro presencial pendiente de habilitar'],
   ['Historial de modificaciones: ','Se activará tras validar el módulo de auditoría']
@@ -233,7 +234,7 @@ function render(){
   const badge=document.createElement('span');badge.className='pill '+row.estado;badge.textContent=row.estado;
   top.append(identity,badge);
   const detail=document.createElement('p');detail.textContent=(event?.titulo||'Experiencia '+row.experiencia_id)+' · '+String(event?.fecha||'').replace(/^(\d{4})-(\d{2})-(\d{2})$/,'$3-$2-$1');
-  const info=document.createElement('p');info.textContent=row.plazas+' plazas · '+(row.importe_total==null?'Importe por revisar':money(Number(row.importe_total)))+' · Aportación: '+(row.pago_estado||'sin verificar');
+  const info=document.createElement('p');info.textContent=row.plazas+(Number(row.plazas)===1?' plaza':' plazas')+' · Importe previsto: '+(row.importe_total==null?'Por revisar':money(Number(row.importe_total)));const paymentStatus=document.createElement('p');paymentStatus.textContent='Pago: '+(row.pago_estado==='recibido'?'Recibido':row.pago_estado==='pendiente'?'Pendiente de verificar':row.pago_estado||'Sin verificar');
   const buttons=document.createElement('div');buttons.className='booking-actions';
   const phone=document.createElement('a');phone.href='tel:'+row.telefono;phone.textContent='Llamar';
   const manage=document.createElement('button');manage.type='button';manage.className='manage';manage.textContent='Gestionar esta reserva';
@@ -244,7 +245,7 @@ function render(){
  confirmation.disabled=row.estado!=='confirmada';
  confirmation.title=row.estado==='confirmada'?'Preparar mensaje confirmado':'Confirma primero la reserva desde el administrador';
  confirmation.addEventListener('click',()=>openBookingWhatsApp(row,event,true));
- request.className='whatsapp';confirmation.className='whatsapp';const del=document.createElement('button');del.type='button';del.className='danger';del.textContent='Borrar reserva';del.title='Desactivado hasta incorporar archivo de seguridad e historial de borrado';del.disabled=true;buttons.append(manage,request,confirmation,phone,del);article.append(top,detail,info,buttons);return article;
+ request.className='whatsapp';confirmation.className='whatsapp';const del=document.createElement('button');del.type='button';del.className='danger';del.textContent='Borrar reserva';del.title='Desactivado hasta incorporar archivo de seguridad e historial de borrado';del.disabled=true;buttons.append(manage,request,confirmation,phone,del);article.append(top,detail,info,paymentStatus,buttons);return article;
  }));
  if(!filtered.length)setText('bookings','No hay reservas que coincidan con los filtros.');
 }
