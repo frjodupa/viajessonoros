@@ -84,12 +84,12 @@ function openBookingEditor(row,ev,card){
  const buttons=document.createElement('div');buttons.className='row';
  const save=document.createElement('button');save.textContent='Guardar estado';save.type='button';
  save.addEventListener('click',async()=>{
-  if(status.value==='cancelada'&&!reason.value.trim()){note.textContent='Es obligatorio indicar por qué se cancela.';return}
+  if(status.value==='cancelada'){note.textContent='Cancelación protegida: el motivo debe conservarse en el historial. Esta acción se activará con el registro de motivos y aportaciones.';return}
   if(status.value==='cancelada'&&row.pago_estado==='recibido'){note.textContent='No se cancela una aportación recibida sin tramitar su devolución o aplazamiento. Esta operación se habilitará con el registro contable.';return}
   if(status.value===row.estado){note.textContent='No hay cambios de estado.';return}
   if(!confirm('¿Guardar cambio de estado de esta reserva?'))return;
   save.disabled=true;
-  try{await persistStatus(row,status.value);note.textContent='Estado actualizado. El motivo aún no se almacena: conservación de histórico pendiente de activar.';await load()}
+  try{await persistStatus(row,status.value);note.textContent='Estado actualizado correctamente.';await load()}
   catch(e){note.textContent='No se ha modificado la reserva: '+e.message}
   finally{save.disabled=false}
  });
@@ -159,7 +159,7 @@ function render(){
  confirmation.disabled=row.estado!=='confirmada';
  confirmation.title=row.estado==='confirmada'?'Preparar mensaje confirmado':'Confirma primero la reserva desde el administrador';
  confirmation.addEventListener('click',()=>openBookingWhatsApp(row,event,true));
- request.className='whatsapp';confirmation.className='whatsapp';buttons.append(manage,request,confirmation,phone);article.append(top,detail,info,buttons);return article;
+ request.className='whatsapp';confirmation.className='whatsapp';const del=document.createElement('button');del.type='button';del.className='danger';del.textContent='Borrar reserva';del.title='Desactivado hasta incorporar archivo de seguridad e historial de borrado';del.disabled=true;buttons.append(manage,request,confirmation,phone,del);article.append(top,detail,info,buttons);return article;
  }));
  if(!filtered.length)setText('bookings','No hay reservas que coincidan con los filtros.');
 }
