@@ -15,7 +15,8 @@ async function load(){
  if(auth.error||!isAuthorized(auth.data?.user)){showLogin('Acceso restringido. Inicia sesión como administrador para consultar las reservas.');return}
  const rows=[];
  for(let start=0;start<100000;start+=500){
-  const {data,error}=await supabase.from('reservas_whatsapp').select('id,experiencia_id,nombre,telefono,plazas,importe_total,estado,pago_estado,created_at').order('created_at',{ascending:false}).order('id',{ascending:false}).range(start,start+499);
+  let {data,error}=await supabase.from('reservas_whatsapp').select('id,experiencia_id,nombre,telefono,plazas,importe_total,estado,pago_estado,created_at,aplazamiento_motivo,aplazamiento_resolucion').order('created_at',{ascending:false}).order('id',{ascending:false}).range(start,start+499);
+  if(error&&String(error.code)==='42703'){({data,error}=await supabase.from('reservas_whatsapp').select('id,experiencia_id,nombre,telefono,plazas,importe_total,estado,pago_estado,created_at').order('created_at',{ascending:false}).order('id',{ascending:false}).range(start,start+499));}
   if(error)throw error;
   rows.push(...(data||[]));if(!data||data.length<500)break;
  }
