@@ -81,6 +81,15 @@ function openBookingEditor(row,ev,card){
  const reason=document.createElement('textarea');reason.placeholder='Ej.: No puede asistir; conservar la aportación para otra experiencia.';reasonLabel.append(reason);
  const warning=document.createElement('p');warning.textContent='Si hay una aportación recibida, no canceles sin registrar antes su devolución o aplazamiento. El sistema Premium de saldos sigue en preparación.';
  const note=document.createElement('p');note.setAttribute('role','status');
+ const details=document.createElement('div');details.style.cssText='display:grid;gap:7px;padding:12px;border:1px solid #ded3e7;border-radius:11px;background:white';
+ const detailLines=[
+  ['Aportación registrada: ',row.importe_total==null?'Pendiente de revisar':money(Number(row.importe_total))],
+  ['Estado de pago: ',row.pago_estado||'Sin verificar'],
+  ['Reserva creada: ',row.created_at?new Date(row.created_at).toLocaleString('es-ES'):'Sin fecha'],
+  ['Asistencia: ','Registro presencial pendiente de habilitar'],
+  ['Historial de modificaciones: ','Se activará tras validar el módulo de auditoría']
+ ];
+ for(const [label,value] of detailLines){const line=document.createElement('p');line.style.cssText='margin:0;line-height:1.5';const strong=document.createElement('strong');strong.textContent=label;line.append(strong,document.createTextNode(value));details.append(line)}
  const buttons=document.createElement('div');buttons.className='row';
  const save=document.createElement('button');save.textContent='Guardar estado';save.type='button';
  save.addEventListener('click',async()=>{
@@ -94,7 +103,7 @@ function openBookingEditor(row,ev,card){
   finally{save.disabled=false}
  });
  const close=document.createElement('button');close.type='button';close.className='secondary';close.textContent='Cerrar';close.onclick=()=>editor.remove();
- buttons.append(save,close);editor.append(heading,field,reasonLabel,warning,note,buttons);card.append(editor);
+ buttons.append(save,close);editor.append(heading,details,field,reasonLabel,warning,note,buttons);card.append(editor);
 }
 let pdfPreviewUrl=null;
 async function createAttendancePdf(){
