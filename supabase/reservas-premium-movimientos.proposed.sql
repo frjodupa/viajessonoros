@@ -23,6 +23,11 @@ create or replace function public.vs_auditar_cambio_reserva()
 returns trigger language plpgsql security definer set search_path = ''
 as $$
 begin
+ -- El aplazamiento registra su propio movimiento con motivo y crédito en la RPC.
+ -- Evitar duplicar la anotación genérica generada por este trigger.
+ if new.estado = 'aplazada' and old.estado is distinct from new.estado then
+   return new;
+ end if;
  if (old.estado,old.pago_estado) is distinct from (new.estado,new.pago_estado) then
    insert into public.reservas_premium_movimientos
     (reserva_id,tipo,estado_anterior,estado_nuevo,motivo,importe,actor)
