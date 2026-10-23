@@ -1,0 +1,13 @@
+import {readFileSync} from 'node:fs';
+import assert from 'node:assert/strict';
+const sql=readFileSync(new URL('../supabase/booking-capacity-guard.proposed.sql',import.meta.url),'utf8');
+const rpc=readFileSync(new URL('../supabase/reservas-premium-aplazar-rpc.proposed.sql',import.meta.url),'utf8');
+const html=readFileSync(new URL('../reservas-premium.html',import.meta.url),'utf8');
+assert.match(sql,/new\.estado in \('cancelada','aplazada'\)/,'Aplazada debe dejar de ocupar plazas');
+assert.match(sql,/estado not in \('cancelada','aplazada'\)/,'Aplazada no puede contar en el aforo');
+assert.match(rpc,/v_reserva\.pago_estado <> 'recibido'/,'Aplazamiento solo después de recibir pago');
+assert.match(rpc,/for update/,'La reserva origen debe bloquearse antes de aplazar');
+assert.match(rpc,/reserva_origen_id/,'Conservar referencia origen');
+assert.match(html,/const active=all\.filter\(r=>r\.estado!=='cancelada'&&r\.estado!=='aplazada'\)/,'Totales no deben incluir aplazadas');
+assert.match(html,/pago_estado:'recibido'/,'Confirmar implica pago recibido');
+console.log('Contrato estático Reservas Premium: comprobaciones básicas correctas.');
