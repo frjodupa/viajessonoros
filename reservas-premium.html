@@ -117,7 +117,14 @@ async function createAttendancePdf(){
   y+=5;text((ev?.titulo||'Experiencia '+eventId),12,true);
   text('Fecha: '+date+' | Hora: '+String(ev?.hora||'').slice(0,5),10);
   text('Lugar: '+(ev?.lugar||'No especificado'),9);
-  text('Reservas: '+rows.length+' | Asistentes confirmados: '+rows.filter(r=>r.estado==='confirmada').reduce((n,r)=>n+Number(r.plazas||0),0)+' | Total previsto: '+money(rows.filter(r=>r.estado!=='cancelada').reduce((n,r)=>n+Number(r.importe_total||0),0)),9);
+  const confirmed=rows.filter(r=>r.estado==='confirmada'),pending=rows.filter(r=>r.estado==='pendiente'),active=rows.filter(r=>r.estado!=='cancelada'&&r.estado!=='aplazada');
+  const seats=list=>list.reduce((n,r)=>n+Number(r.plazas||0),0);
+  const amount=list=>list.reduce((n,r)=>n+Number(r.importe_total||0),0);
+  const capacity=ev?.aforo_maximo==null?null:Number(ev.aforo_maximo);
+  const available=capacity==null?null:Math.max(0,capacity-seats(active));
+  text('Reservas totales: '+rows.length+' | Aforo maximo: '+(capacity??'No configurado'),9);
+  text('Plazas confirmadas: '+seats(confirmed)+' | Pendientes: '+seats(pending)+' | Activas: '+seats(active)+' | Disponibles: '+(available??'Sin configurar'),9);
+  text('Aportaciones previstas: '+money(amount(active))+' | Confirmadas: '+money(amount(confirmed))+' | Pendientes: '+money(amount(pending)),9);
   for(const row of rows){
    if(y>247)newPage();
    text('[   ] '+row.nombre+' | '+row.plazas+' plaza(s) | '+row.estado,10,true);
@@ -156,7 +163,20 @@ async function createAttendancePdf(){
   const heading=document.createElement('h3');heading.textContent=ev?.titulo||'Experiencia '+eventId;group.append(heading);
   appendLine(group,'Fecha: ',String(ev?.fecha||'').replace(/^(\d{4})-(\d{2})-(\d{2})$/,'$3-$2-$1')+' · '+String(ev?.hora||'').slice(0,5));
   appendLine(group,'Lugar: ',ev?.lugar||'No especificado');
-  appendLine(group,'Reservas: ',rows.length+' · Plazas confirmadas: '+rows.filter(r=>r.estado==='confirmada').reduce((n,r)=>n+Number(r.plazas||0),0));
+  const confirmed=rows.filter(r=>r.estado==='confirmada'),pending=rows.filter(r=>r.estado==='pendiente'),active=rows.filter(r=>r.estado!=='cancelada'&&r.estado!=='aplazada');
+  const seats=list=>list.reduce((n,r)=>n+Number(r.plazas||0),0);
+  const amount=list=>list.reduce((n,r)=>n+Number(r.importe_total||0),0);
+  const capacity=ev?.aforo_maximo==null?null:Number(ev.aforo_maximo);
+  const available=capacity==null?null:Math.max(0,capacity-seats(active));
+  appendLine(group,'Reservas totales: ',rows.length);
+  appendLine(group,'Aforo máximo: ',capacity??'No configurado');
+  appendLine(group,'Plazas confirmadas: ',seats(confirmed));
+  appendLine(group,'Plazas pendientes: ',seats(pending));
+  appendLine(group,'Plazas activas: ',seats(active));
+  appendLine(group,'Plazas disponibles: ',available??'Sin configurar');
+  appendLine(group,'Aportaciones previstas: ',money(amount(active)));
+  appendLine(group,'Aportaciones confirmadas: ',money(amount(confirmed)));
+  appendLine(group,'Aportaciones pendientes: ',money(amount(pending)));
   for(const row of rows){
    const card=document.createElement('article');card.style.cssText='border:1px solid #e8deeb;border-radius:10px;margin:9px 0;padding:10px;background:#faf8fc';
    appendLine(card,'☐ ',row.nombre+' · '+row.plazas+' plaza(s) · '+row.estado);
