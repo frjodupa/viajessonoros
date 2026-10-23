@@ -195,7 +195,7 @@ function render(){
  const term=$('search').value.trim().toLocaleLowerCase('es-ES'),eventId=$('event').value,status=$('status').value;
  const all=reservations.filter(r=>(eventId==='all'||String(r.experiencia_id)===eventId));
  const filtered=all.filter(r=>(status==='all'||r.estado===status)&&(!term||r.nombre.toLocaleLowerCase('es-ES').includes(term)||r.telefono.includes(term)));
- const active=all.filter(r=>r.estado!=='cancelada');
+ const active=all.filter(r=>r.estado!=='cancelada'&&r.estado!=='aplazada');
  setText('m-confirmed',String(active.filter(r=>r.estado==='confirmada').reduce((n,r)=>n+Number(r.plazas||0),0)));
  setText('m-pending',String(active.filter(r=>r.estado==='pendiente').reduce((n,r)=>n+Number(r.plazas||0),0)));
  setText('m-reservations',String(active.length));
