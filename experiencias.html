@@ -72,7 +72,19 @@ body.operational-page {
   }
   .admin-experience-actions button:nth-child(3){grid-column:1/-1;background:#5B3F98!important;color:#fff!important;font-weight:700}
 }
-.admin-module-navigation{margin:16px 0 24px}.admin-module-navigation button{background:#5b3f98;color:#fff;border:0;border-radius:12px;padding:16px 23px;font:600 16px Montserrat,Arial,sans-serif;min-height:54px;cursor:pointer}.admin-module-navigation button:focus-visible{outline:3px solid #3b9db8;outline-offset:2px}</style>
+.admin-module-navigation{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));max-width:850px;margin:22px auto 28px;gap:14px;width:100%}
+.admin-module-navigation .admin-module-link{box-sizing:border-box;display:flex;align-items:center;gap:14px;min-height:94px;width:100%;padding:17px 19px;border:1px solid transparent;border-radius:20px;text-decoration:none;text-align:left;font:inherit;cursor:pointer;box-shadow:0 9px 25px rgba(62,34,90,.10);transition:transform .18s ease,box-shadow .18s ease}
+.admin-module-navigation .admin-module-link:hover{transform:translateY(-2px);box-shadow:0 12px 28px rgba(62,34,90,.15)}
+.admin-module-navigation .admin-module-link:focus-visible{outline:3px solid #3b9db8;outline-offset:3px}
+.admin-module-navigation .admin-module-primary{background:#5b3f98;color:white}
+.admin-module-navigation .admin-module-premium{background:linear-gradient(145deg,#fff,#eee6f7);border-color:#d9cce7;color:#4d337e}
+.admin-module-navigation .admin-module-icon{display:grid;place-items:center;flex:0 0 46px;width:46px;height:46px;border-radius:14px;background:rgba(255,255,255,.18)}
+.admin-module-navigation .admin-module-premium .admin-module-icon{background:#e4d7f2}
+.admin-module-navigation .admin-module-icon svg{width:24px;height:24px;stroke:currentColor}
+.admin-module-navigation .admin-module-copy{display:grid;gap:5px;min-width:0}
+.admin-module-navigation .admin-module-name{font-weight:750;font-size:16px;line-height:1.3}
+.admin-module-navigation .admin-module-description{font-weight:450;font-size:12px;line-height:1.4;opacity:.88}
+@media(max-width:700px){.admin-module-navigation{grid-template-columns:minmax(0,1fr);max-width:420px;gap:12px}.admin-module-navigation .admin-module-link{min-height:82px;padding:15px 16px;border-radius:18px}}</style>
 <link rel="stylesheet" href="/secondary.css">
 <link rel="stylesheet" href="/whatsapp-button.css">
 <link rel="stylesheet" href="/experience-detail.css">
@@ -783,7 +795,9 @@ function renderAdminPanel(){ return `${headerHTML()}<main class="admin-premium-s
     <button onclick="window.logout()" class="admin-logout">Cerrar sesión</button>
   </div>
 
-  <nav class="admin-module-navigation" aria-label="Módulos del administrador"><button type="button" onclick="window.openBookingsModule()">Reservas y participantes →</button><a href="/reservas-premium.html" style="display:inline-flex;align-items:center;min-height:54px;padding:12px 19px;margin-left:10px;border-radius:12px;background:#eee6f5;color:#5b3f98;font-weight:700;text-decoration:none">Reservas Premium ↗</a></nav>
+  <nav class="admin-module-navigation" aria-label="Módulos del administrador">
+<button type="button" class="admin-module-link admin-module-primary" onclick="window.openBookingsModule()"><span class="admin-module-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M7 3v4M17 3v4M3 10h18M8 15l2 2 5-5"/></svg></span><span class="admin-module-copy"><span class="admin-module-name">Reservas y participantes</span><span class="admin-module-description">Confirmaciones, estados y asistencia</span></span></button>
+<a href="/reservas-premium.html" class="admin-module-link admin-module-premium"><span class="admin-module-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l2.5 5.5L20 10l-5.5 2.5L12 18l-2.5-5.5L4 10l5.5-2.5L12 2Z"/><path d="M19 17l.9 2.1L22 20l-2.1.9L19 23l-.9-2.1L16 20l2.1-.9L19 17Z"/></svg></span><span class="admin-module-copy"><span class="admin-module-name">Reservas Premium</span><span class="admin-module-description">Aplazamientos, aportaciones y control avanzado</span></span></a></nav>
   <section class="admin-assistant-intro" aria-labelledby="assistant-title">
     <span>Asistente de creación</span>
     <h3 id="assistant-title">Crea el borrador completo desde datos reales</h3>
