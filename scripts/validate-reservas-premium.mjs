@@ -14,4 +14,8 @@ const audit=readFileSync(new URL('../supabase/reservas-premium-movimientos.propo
 assert.match(audit,/new\.estado = 'aplazada' and old\.estado is distinct from new\.estado/,'No registrar dos veces el aplazamiento');
 assert.match(rpc,/revoke all on function public\.vs_premium_aplazar/,'La RPC propuesta no debe quedar expuesta');
 assert.match(rpc,/v_email is distinct from 'info@viajessonoros\.es'/,'La RPC requiere autorización de administrador');
+const migration=readFileSync(new URL('../supabase/reservas-premium-estado-aforo.proposed.sql',import.meta.url),'utf8');
+assert.match(migration,/CHECK \(estado IN \('pendiente','confirmada','cancelada','aplazada'\)\)/,'La migración debe admitir aplazada');
+assert.match(migration,/estado NOT IN \('cancelada','aplazada'\)/,'La guardia debe liberar plazas aplazadas');
+assert.match(migration,/BEGIN;[\s\S]*COMMIT;/,'La modificación conjunta debe ser transaccional');
 console.log('Contrato estático Reservas Premium: comprobaciones básicas correctas.');
