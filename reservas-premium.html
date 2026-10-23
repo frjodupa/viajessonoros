@@ -33,35 +33,35 @@ async function load(){
  render();
 }
 const bookingMessage=(row,ev,confirmed)=>{
- const date=String(ev?.fecha||'').match(/^(\d{4})-(\d{2})-(\d{2})/);
- const formatted=date?date[3]+'-'+date[2]+'-'+date[1]:'Fecha por confirmar';
+ const match=String(ev?.fecha||'').match(/^(\d{4})-(\d{2})-(\d{2})/);
+ const date=match?match[3]+'-'+match[2]+'-'+match[1]:'Fecha por confirmar';
  const time=String(ev?.hora||'').slice(0,5);
- const lines=[
- confirmed?'✨ RESERVA CONFIRMADA · VIAJES SONOROS':'✨ SOLICITUD DE RESERVA · VIAJES SONOROS',
- '',
- 'Hola, '+row.nombre+'.',
- confirmed?'Tu reserva está confirmada. Nos alegra compartir contigo esta experiencia de calma y escucha.':'Hemos recibido tu solicitud de reserva. Antes de confirmar tu plaza, necesitamos comprobar la disponibilidad y la aportación.',
- '',
- '🌿 '+(ev?.titulo||'Experiencia de Viajes Sonoros'),
- ev?.descripcion?String(ev.descripcion).trim().slice(0,260):'',
- '📅 '+formatted+(time?' · '+time+' h':''),
- ev?.lugar?'📍 '+ev.lugar:'',
- '👥 Plazas: '+row.plazas,
- row.importe_total!=null?'🤍 Aportación de la reserva: '+money(Number(row.importe_total)):'',
- '',
- confirmed?'Tu plaza está reservada. Te esperamos para disfrutar de este encuentro.':'Cuando recibamos la aportación y comprobemos las plazas, te enviaremos la confirmación definitiva por WhatsApp.',
- '',
- 'Meditar es pasar tiempo con tu alma.',
- 'María de la Osa y José Duque · Viajes Sonoros'
- ];
- return lines.join('\n').replace(/\n{3,}/g,'\n\n').trim();
+ const first=String(row.nombre||'').trim().split(/\s+/)[0]||'';
+ return [
+  confirmed?'🌿 Reserva confirmada · Viajes Sonoros':'🌿 Solicitud de reserva · Viajes Sonoros',
+  'Hola, '+first+'. '+(confirmed?'Tu reserva está confirmada.':'Hemos recibido tu solicitud; está pendiente de confirmación.'),
+  '',
+  '✨ '+(ev?.titulo||'Viaje Sonoro'),
+  '📅 '+date+(time?' · '+time+' h':''),
+  ev?.lugar?'📍 '+ev.lugar:'',
+  '👥 '+row.plazas+' '+(Number(row.plazas)===1?'plaza':'plazas'),
+  row.importe_total==null?'':'🤍 Aportación: '+money(Number(row.importe_total)),
+  '',
+  confirmed?'Te esperamos para compartir este encuentro.':'Te confirmaremos las plazas por WhatsApp cuando comprobemos la disponibilidad y la aportación.',
+  'María de la Osa y José Duque · Viajes Sonoros'
+ ].filter(Boolean).join('\n');
 };
-const openBookingWhatsApp=(row,ev,confirmed)=>{
+const openBookingWhatsApp=async(row,ev,confirmed)=>{
  const digits=String(row.telefono||'').replace(/[^\d]/g,'');
  const phone=digits.length===9?'34'+digits:digits;
  if(phone.length<9||phone.length>15){alert('Comprueba el número de teléfono de esta reserva.');return}
- const text=bookingMessage(row,ev,confirmed);
- window.open('https://wa.me/'+phone+'?text='+encodeURIComponent(text),'_blank','noopener,noreferrer');
+ const message=bookingMessage(row,ev,confirmed);
+ // Abrir primero la conversación, sin texto precargado que iOS desplaza hasta el final.
+ // Copiar el mensaje para pegarlo manualmente desde su inicio.
+ try{await navigator.clipboard.writeText(message)}
+ catch{const area=document.createElement('textarea');area.value=message;area.style.cssText='position:fixed;left:-9999px;top:0';document.body.append(area);area.select();try{document.execCommand('copy')}finally{area.remove()}}
+ alert('Mensaje breve copiado. Se abrirá WhatsApp: pega el texto en el chat para revisarlo desde el principio.');
+ window.open('https://wa.me/'+phone,'_blank','noopener,noreferrer');
 };
 async function persistStatus(row,next){
  const {data,error}=await supabase.from('reservas_whatsapp').update({estado:next}).eq('id',row.id).eq('estado',row.estado).select('estado').maybeSingle();
