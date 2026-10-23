@@ -24,7 +24,7 @@ async function load(){
  render();
 }
 const bookingMessage=(row,ev,confirmed)=>{
- const date=String(ev?.fecha||'').match(/^(\\d{4})-(\\d{2})-(\\d{2})/);
+ const date=String(ev?.fecha||'').match(/^(\d{4})-(\d{2})-(\d{2})/);
  const formatted=date?date[3]+'-'+date[2]+'-'+date[1]:'Fecha por confirmar';
  const time=String(ev?.hora||'').slice(0,5);
  const lines=[
@@ -44,10 +44,10 @@ const bookingMessage=(row,ev,confirmed)=>{
  'Meditar es pasar tiempo con tu alma.',
  'María de la Osa y José Duque · Viajes Sonoros'
  ];
- return lines.filter(x=>x!==''||lines[lines.indexOf(x)-1]!=='').join('\\n').trim();
+ return lines.join('\n').replace(/\n{3,}/g,'\n\n').trim();
 };
 const openBookingWhatsApp=(row,ev,confirmed)=>{
- const digits=String(row.telefono||'').replace(/[^\\d]/g,'');
+ const digits=String(row.telefono||'').replace(/[^\d]/g,'');
  const phone=digits.length===9?'34'+digits:digits;
  if(phone.length<9||phone.length>15){alert('Comprueba el número de teléfono de esta reserva.');return}
  const text=bookingMessage(row,ev,confirmed);
