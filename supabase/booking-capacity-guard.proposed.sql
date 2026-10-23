@@ -33,14 +33,14 @@ begin
     raise exception 'Experiencia inexistente' using errcode = '23503';
   end if;
 
-  if new.estado = 'cancelada' or v_capacity is null then
+  if new.estado in ('cancelada','aplazada') or v_capacity is null then
     return new;
   end if;
 
   select coalesce(sum(plazas), 0) into v_taken
   from public.reservas_whatsapp
   where experiencia_id = new.experiencia_id
-    and estado <> 'cancelada'
+    and estado not in ('cancelada','aplazada')
     and (tg_op = 'INSERT' or id <> new.id);
 
   if v_taken + new.plazas > v_capacity then
