@@ -64,10 +64,14 @@ const openBookingWhatsApp=async(row,ev,confirmed)=>{
  window.open('https://wa.me/'+phone,'_blank','noopener,noreferrer');
 };
 async function persistStatus(row,next){
- const {data,error}=await supabase.from('reservas_whatsapp').update({estado:next}).eq('id',row.id).eq('estado',row.estado).select('estado').maybeSingle();
+ if(next!=='confirmada'&&next!=='pendiente')throw Error('Este movimiento necesita el historial seguro.');
+ const changes=next==='confirmada'?{estado:'confirmada',pago_estado:'recibido'}:{estado:'pendiente',pago_estado:row.pago_estado};
+ const {data,error}=await supabase.from('reservas_whatsapp').update(changes)
+  .eq('id',row.id).eq('estado',row.estado).eq('pago_estado',row.pago_estado)
+  .select('estado,pago_estado').maybeSingle();
  if(error)throw error;
- if(!data)throw Error('El estado cambió en otra sesión. Actualiza el listado.');
- row.estado=data.estado;
+ if(!data)throw Error('Los datos de esta reserva cambiaron. Actualiza la lista.');
+ row.estado=data.estado;row.pago_estado=data.pago_estado;
 }
 function openBookingEditor(row,ev,card){
  document.querySelectorAll('.editor').forEach(node=>node.remove());
@@ -79,7 +83,7 @@ function openBookingEditor(row,ev,card){
  status.value=row.estado;field.append(status);
  const reasonLabel=document.createElement('label');reasonLabel.textContent='Motivo del cambio (obligatorio para aplazar o cancelar)';
  const reason=document.createElement('textarea');reason.placeholder='Ej.: No puede asistir; conservar la aportación para otra experiencia.';reasonLabel.append(reason);
- const warning=document.createElement('p');warning.textContent='Si hay una aportación recibida, no canceles sin registrar antes su devolución o aplazamiento. El sistema Premium de saldos sigue en preparación.';
+ const warning=document.createElement('p');warning.textContent='Confirmar reserva significa confirmar que la aportación ya se ha recibido. Esta acción actualiza ambos estados juntos. No marques recibido sin comprobar el ingreso.';
  const note=document.createElement('p');note.setAttribute('role','status');
  const details=document.createElement('div');details.style.cssText='display:grid;gap:7px;padding:12px;border:1px solid #ded3e7;border-radius:11px;background:white';
  const detailLines=[
@@ -92,12 +96,13 @@ function openBookingEditor(row,ev,card){
  ];
  for(const [label,value] of detailLines){const line=document.createElement('p');line.style.cssText='margin:0;line-height:1.5';const strong=document.createElement('strong');strong.textContent=label;line.append(strong,document.createTextNode(value));details.append(line)}
  const buttons=document.createElement('div');buttons.className='row';
- const save=document.createElement('button');save.textContent='Guardar estado';save.type='button';
+ const save=document.createElement('button');save.textContent='Guardar y confirmar pago';save.type='button';
  save.addEventListener('click',async()=>{
   if(status.value==='aplazada'){note.textContent='Aplazamiento preparado: es necesario guardar el motivo, conservar la aportación y liberar las plazas en una única operación segura. No se ha modificado esta reserva.';return}
   if(status.value==='cancelada'){note.textContent='Cancelación protegida: el motivo debe conservarse en el historial. Esta acción se activará con el registro de motivos y aportaciones.';return}
-  if(status.value===row.estado){note.textContent='No hay cambios de estado.';return}
-  if(!confirm('¿Guardar cambio de estado de esta reserva?'))return;
+  if(status.value===row.estado&&!(status.value==='confirmada'&&row.pago_estado!=='recibido')){note.textContent='No hay cambios de estado ni pago.';return}
+  if(status.value==='pendiente'&&row.pago_estado==='recibido'){note.textContent='La aportación ya está recibida. Para pasar a pendiente sin perder su registro hace falta el flujo especial de revisión.';return}
+  if(!confirm(status.value==='confirmada'?'¿Has comprobado que la aportación se ha recibido? Se marcarán juntos RESERVA CONFIRMADA y PAGO RECIBIDO.':'¿Cambiar el estado de esta reserva a pendiente?'))return;
   save.disabled=true;
   try{await persistStatus(row,status.value);note.textContent='Estado actualizado correctamente.';await load()}
   catch(e){note.textContent='No se ha modificado la reserva: '+e.message}
@@ -234,7 +239,7 @@ function render(){
   const badge=document.createElement('span');badge.className='pill '+row.estado;badge.textContent=row.estado;
   top.append(identity,badge);
   const detail=document.createElement('p');detail.textContent=(event?.titulo||'Experiencia '+row.experiencia_id)+' · '+String(event?.fecha||'').replace(/^(\d{4})-(\d{2})-(\d{2})$/,'$3-$2-$1');
-  const info=document.createElement('p');info.textContent=row.plazas+(Number(row.plazas)===1?' plaza':' plazas')+' · Importe previsto: '+(row.importe_total==null?'Por revisar':money(Number(row.importe_total)));const paymentStatus=document.createElement('p');paymentStatus.textContent='Pago: '+(row.pago_estado==='recibido'?'Recibido':row.pago_estado==='pendiente'?'Pendiente de verificar':row.pago_estado||'Sin verificar');
+  const info=document.createElement('p');info.textContent=row.plazas+(Number(row.plazas)===1?' plaza':' plazas')+' · Importe previsto: '+(row.importe_total==null?'Por revisar':money(Number(row.importe_total)));const paymentStatus=document.createElement('p');paymentStatus.textContent='Estado del pago: '+(row.pago_estado==='recibido'?'Recibido':row.pago_estado==='pendiente'?'Pendiente de verificar':row.pago_estado||'Sin verificar');
   const buttons=document.createElement('div');buttons.className='booking-actions';
   const phone=document.createElement('a');phone.href='tel:'+row.telefono;phone.textContent='Llamar';
   const manage=document.createElement('button');manage.type='button';manage.className='manage';manage.textContent='Gestionar esta reserva';
@@ -242,10 +247,10 @@ function render(){
   const request=document.createElement('button');request.type='button';request.textContent='WhatsApp · Solicitar confirmación';
  request.addEventListener('click',()=>openBookingWhatsApp(row,event,false));
  const confirmation=document.createElement('button');confirmation.type='button';confirmation.textContent='WhatsApp · Reserva confirmada';
- confirmation.disabled=row.estado!=='confirmada';
- confirmation.title=row.estado==='confirmada'?'Preparar mensaje confirmado':'Confirma primero la reserva desde el administrador';
+ confirmation.disabled=row.estado!=='confirmada'||row.pago_estado!=='recibido';
+ confirmation.title=confirmation.disabled?'Verifica y confirma primero el pago desde Gestionar esta reserva':'Preparar mensaje de reserva y aportación confirmadas';
  confirmation.addEventListener('click',()=>openBookingWhatsApp(row,event,true));
- request.className='whatsapp';confirmation.className='whatsapp';const del=document.createElement('button');del.type='button';del.className='danger';del.textContent='Borrar reserva';del.title='Desactivado hasta incorporar archivo de seguridad e historial de borrado';del.disabled=true;buttons.append(manage,request,confirmation,phone,del);article.append(top,detail,info,paymentStatus,buttons);return article;
+ request.className='whatsapp';confirmation.className='whatsapp';const del=document.createElement('button');del.type='button';del.className='danger';del.textContent='Borrar reserva';del.title='Desactivado hasta incorporar archivo de seguridad e historial de borrado';del.disabled=true;buttons.append(manage,request,confirmation,phone,del);if(row.estado==='confirmada'&&row.pago_estado!=='recibido'){const alert=document.createElement('p');alert.style.cssText='padding:9px;border-radius:10px;background:#fff2dc;color:#774818;font-weight:650';alert.textContent='Revisar: reserva confirmada sin pago registrado. Abre Gestionar para verificar la aportación.';article.append(top,detail,info,paymentStatus,alert,buttons)}else article.append(top,detail,info,paymentStatus,buttons);return article;
  }));
  if(!filtered.length)setText('bookings','No hay reservas que coincidan con los filtros.');
 }
