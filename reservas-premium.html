@@ -75,17 +75,17 @@ function openBookingEditor(row,ev,card){
  const heading=document.createElement('strong');heading.textContent='Editar reserva de '+row.nombre;
  const field=document.createElement('label');field.textContent='Estado de la reserva';
  const status=document.createElement('select');
- for(const state of ['pendiente','confirmada','cancelada']){const opt=new Option(state[0].toUpperCase()+state.slice(1),state);status.add(opt)}
+ for(const state of ['pendiente','confirmada','aplazada','cancelada']){const opt=new Option(state[0].toUpperCase()+state.slice(1),state);status.add(opt)}
  status.value=row.estado;field.append(status);
- const reasonLabel=document.createElement('label');reasonLabel.textContent='Motivo (obligatorio al cancelar)';
- const reason=document.createElement('textarea');reason.placeholder='Ej.: La persona no puede asistir. Revisar aportación antes de cancelar.';reasonLabel.append(reason);
+ const reasonLabel=document.createElement('label');reasonLabel.textContent='Motivo del cambio (obligatorio para aplazar o cancelar)';
+ const reason=document.createElement('textarea');reason.placeholder='Ej.: No puede asistir; conservar la aportación para otra experiencia.';reasonLabel.append(reason);
  const warning=document.createElement('p');warning.textContent='Si hay una aportación recibida, no canceles sin registrar antes su devolución o aplazamiento. El sistema Premium de saldos sigue en preparación.';
  const note=document.createElement('p');note.setAttribute('role','status');
  const buttons=document.createElement('div');buttons.className='row';
  const save=document.createElement('button');save.textContent='Guardar estado';save.type='button';
  save.addEventListener('click',async()=>{
+  if(status.value==='aplazada'){note.textContent='Aplazamiento preparado: es necesario guardar el motivo, conservar la aportación y liberar las plazas en una única operación segura. No se ha modificado esta reserva.';return}
   if(status.value==='cancelada'){note.textContent='Cancelación protegida: el motivo debe conservarse en el historial. Esta acción se activará con el registro de motivos y aportaciones.';return}
-  if(status.value==='cancelada'&&row.pago_estado==='recibido'){note.textContent='No se cancela una aportación recibida sin tramitar su devolución o aplazamiento. Esta operación se habilitará con el registro contable.';return}
   if(status.value===row.estado){note.textContent='No hay cambios de estado.';return}
   if(!confirm('¿Guardar cambio de estado de esta reserva?'))return;
   save.disabled=true;
