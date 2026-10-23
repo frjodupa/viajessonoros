@@ -104,3 +104,4 @@ if (errors.length) {
 console.log('Validación Viajes Sonoros completada: estructura, SEO, seguridad documental y configuración pública correctos.');
 
 import './validate-reservas-premium.mjs';
+import './simulate-reservas-premium.mjs';
