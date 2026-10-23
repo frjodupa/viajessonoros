@@ -48,4 +48,20 @@ assert.equal(destino.ocupadas,8,'El aforo origen sigue intacto');
 assert.throws(()=>asignarCredito(result.ledger,demo.id,destino,3,30),/Aforo completo/);
 assert.throws(()=>asignarCredito(result.ledger,demo.id,destino,2,35),/aportación/);
 assert.throws(()=>asignarCredito(transferida.ledger,demo.id,destino,1,10),/No existe crédito/);
+
+// Caso de aportación superior: el remanente no puede desaparecer.
+// Se modela un libro auxiliar de créditos para impedir pérdidas contables.
+function transferenciaConRemanente(credito,precio) {
+ if (!Number.isFinite(credito)||!Number.isFinite(precio)||credito<0||precio<0)throw Error('Importes inválidos');
+ if (precio>credito) return {aplicado:credito,pendiente:precio-credito,remanente:0,confirmable:false};
+ return {aplicado:precio,pendiente:0,remanente:credito-precio,confirmable:true};
+}
+const diferenciaFavor=transferenciaConRemanente(34,30);
+assert.deepEqual(diferenciaFavor,{aplicado:30,pendiente:0,remanente:4,confirmable:true});
+assert.equal(diferenciaFavor.aplicado+diferenciaFavor.remanente,34);
+const diferenciaPendiente=transferenciaConRemanente(34,40);
+assert.deepEqual(diferenciaPendiente,{aplicado:34,pendiente:6,remanente:0,confirmable:false});
+assert.equal(diferenciaPendiente.aplicado+diferenciaPendiente.pendiente,40);
+assert.throws(()=>transferenciaConRemanente(-1,20));
+assert.throws(()=>transferenciaConRemanente(20,NaN));
 console.log('Simulación gratuita: saldo, duplicados, pago, rollback lógico y liberación de plazas OK.');
