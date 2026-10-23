@@ -80,7 +80,7 @@ function openBookingEditor(row,ev,card){
  const field=document.createElement('label');field.textContent='Acción sobre la reserva';
  const status=document.createElement('select');
  for(const state of ['pendiente','confirmada']){const opt=new Option(state[0].toUpperCase()+state.slice(1),state);status.add(opt)}
- status.value=row.estado;field.append(status);
+ status.value=['pendiente','confirmada'].includes(row.estado)?row.estado:'pendiente';field.append(status);
  const reasonLabel=document.createElement('label');reasonLabel.textContent='Motivo para una operación especial (aplazamiento o cancelación: aún no disponibles)';
  const reason=document.createElement('textarea');reason.placeholder='Ej.: No puede asistir; conservar la aportación para otra experiencia.';reasonLabel.append(reason);
  const warning=document.createElement('p');warning.textContent='Orden correcto: solicitud pendiente → comprobar ingreso → confirmar reserva y pago conjuntamente → enviar confirmación por WhatsApp → controlar asistencia. Los aplazamientos y cancelaciones permanecerán protegidos hasta activar el historial seguro.';
@@ -98,6 +98,7 @@ function openBookingEditor(row,ev,card){
  const buttons=document.createElement('div');buttons.className='row';
  const save=document.createElement('button');save.textContent='Confirmar reserva y pago recibido';save.type='button';
  const updateLabel=()=>{save.textContent=status.value==='confirmada'?'Confirmar reserva y pago recibido':'Guardar como pendiente';};status.addEventListener('change',updateLabel);updateLabel();
+ if(!['pendiente','confirmada'].includes(row.estado)){save.disabled=true;status.disabled=true;note.textContent='Reserva en estado especial: no se permite cambiarla desde el flujo normal.';}
  save.addEventListener('click',async()=>{
   if(status.value==='aplazada'){note.textContent='Aplazamiento preparado: es necesario guardar el motivo, conservar la aportación y liberar las plazas en una única operación segura. No se ha modificado esta reserva.';return}
   if(status.value==='cancelada'){note.textContent='Cancelación protegida: el motivo debe conservarse en el historial. Esta acción se activará con el registro de motivos y aportaciones.';return}
