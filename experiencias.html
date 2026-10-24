@@ -139,6 +139,36 @@ body.operational-page {
 .admin-premium-shell .admin-module-navigation{display:none!important}
 .admin-modern-editor-close{display:block;margin:0 0 14px auto;background:#eee8f5;border:1px solid #d8cae4;border-radius:12px;color:#4b327b;padding:10px 16px;font-weight:700}
 .admin-premium-shell.admin-editor-collapsed .admin-modern-editor-close{display:none!important}
+
+/* Admin premium v2: portada de app, edición separada y navegación móvil */
+.admin-premium-shell.admin-editor-collapsed .admin-premium-topbar{display:none!important}
+.admin-premium-shell.admin-editor-collapsed .admin-modern-hero{background:transparent;border:0;box-shadow:none;padding:0}
+.admin-premium-shell.admin-editor-collapsed .admin-modern-events{display:none}
+.admin-premium-shell.admin-editor-collapsed .admin-modern-active{display:none}
+.admin-app-home{display:grid;gap:15px}
+.admin-app-spotlight{overflow:hidden;border-radius:21px;background:#fff;border:1px solid #e6dfeb;box-shadow:0 8px 30px #34255f0b}
+.admin-app-spotlight img{width:100%;height:220px;object-fit:cover;display:block}
+.admin-app-spotlight-body{padding:15px}
+.admin-app-spotlight-title{display:flex;gap:9px;align-items:center;justify-content:space-between}
+.admin-app-spotlight h3{color:#302344;font-size:20px;margin:0 0 5px}
+.admin-app-spotlight p{margin:5px 0 12px;color:#6c6373;line-height:1.45;font-size:13px}
+.admin-app-status{background:#e5f5eb;color:#216b47;border-radius:9px;padding:7px 9px;font-size:11px;font-weight:700}
+.admin-app-stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:9px}
+.admin-app-stat{border-radius:15px;padding:15px 7px;text-align:center;background:#e9f6f2}
+.admin-app-stat:nth-child(2){background:#fff0f3}.admin-app-stat:nth-child(3){background:#efedfc}.admin-app-stat:nth-child(4){background:#eaf7ef}
+.admin-app-stat strong{display:block;font-size:24px;color:#282742}
+.admin-app-stat span{font-size:11px;color:#615968}
+.admin-app-block{background:white;border:1px solid #eee6ec;border-radius:18px;padding:14px}
+.admin-app-block h3{margin:0 0 12px;color:#302344;font-size:16px}
+.admin-app-line{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:10px 0;border-top:1px solid #f1edf3;color:#4c4458;font-size:13px}
+.admin-app-line small{color:#766e7b}
+.admin-app-line a{font-weight:700;color:#5b3f98}
+.admin-app-bottom{position:sticky;bottom:8px;z-index:30;display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:2px;border:1px solid #e9e2ed;background:#fffffff5;padding:7px 4px;border-radius:20px;box-shadow:0 6px 27px #39295524;backdrop-filter:blur(10px)}
+.admin-app-bottom a,.admin-app-bottom button{display:grid;justify-items:center;gap:3px;background:transparent;border:0;color:#6b6376;font:600 10px Montserrat,system-ui,sans-serif;text-decoration:none;padding:8px 2px}
+.admin-app-bottom .is-current{color:#326c55;background:#e8f5ed;border-radius:13px}
+.admin-app-bottom b{font-size:21px;line-height:1.1;font-weight:500}
+.admin-premium-shell:not(.admin-editor-collapsed) .admin-app-home{display:none!important}
+@media(max-width:700px){.admin-app-spotlight img{height:185px}.admin-app-stats{gap:6px}.admin-app-stat strong{font-size:21px}.admin-app-stat span{font-size:10px}.admin-premium-shell.admin-editor-collapsed .admin-modern-tools{grid-template-columns:repeat(4,minmax(0,1fr));gap:5px}.admin-premium-shell.admin-editor-collapsed .admin-modern-tool{min-height:63px;font-size:10px;flex-direction:column;padding:8px 3px}.admin-app-bottom{bottom:5px}}
 </style>
 <link rel="stylesheet" href="/secondary.css">
 <link rel="stylesheet" href="/whatsapp-button.css">
@@ -544,9 +574,27 @@ window.editarEvento=async(id)=>{ window.showAdminEditor(); if(!(await hasValidAd
   if(capacityNote){const {data:reservations}=await supabase.from('reservas_whatsapp').select('plazas,estado').eq('experiencia_id',id);const occupied=(reservations||[]).filter(r=>r.estado==='confirmada').reduce((n,r)=>n+r.plazas,0),waiting=(reservations||[]).filter(r=>r.estado==='pendiente').reduce((n,r)=>n+r.plazas,0);capacityNote.textContent='Confirmadas/cerradas: '+occupied+' · Pendientes: '+waiting+' · Disponibles: '+(ev.aforo_maximo==null?'Aforo sin configurar':Math.max(0,ev.aforo_maximo-occupied));}
   if(ev.imagen_url){setPreviewSources(ev.imagen_url);document.getElementById('image-details').textContent='Imagen actual. Puedes cambiar los datos o sustituir la imagen; el encuadre se adapta automáticamente.';document.getElementById('preview-img').style.display='grid'} imageDataUrl=ev.imagen_url||null;window.updateAssistantState(); window.scrollTo({top:0,behavior:'smooth'}) }
 window.borrarEvento=async(id)=>{ if(!(await hasValidAdmin())){view='admin-login';render();return} if(!confirm('¿Borrar?')) return; const {error}=await supabase.from('experiencias').delete().eq('id',id); if(error){alert('Error: '+error.message);return} renderAdminList() }
+async function loadAdminAppDetails(ev){
+ const set=(id,t)=>{const node=document.getElementById(id);if(node)node.textContent=String(t)};
+ set('admin-app-title',ev.titulo);set('admin-app-status',ev.publicado?'Publicada':'Borrador');
+ set('admin-app-description',String(ev.fecha||'').split('-').reverse().join('-')+' · '+String(ev.hora||'').slice(0,5)+' · '+(ev.lugar||'Lugar pendiente'));
+ const image=document.getElementById('admin-app-image'),url=safeImageURL(ev.imagen_url);
+ if(image){image.hidden=!url;if(url)image.src=url}
+ const edit=document.getElementById('admin-app-edit');if(edit)edit.onclick=()=>window.editarEvento(ev.id);
+ const {data,error}=await supabase.from('reservas_whatsapp').select('nombre,plazas,estado,pago_estado,created_at').eq('experiencia_id',ev.id).order('created_at',{ascending:false}).limit(100);
+ const recent=document.getElementById('admin-app-recent'),comms=document.getElementById('admin-app-communications');
+ if(error){if(recent)recent.textContent='No se pudo consultar las reservas';if(comms)comms.textContent='No se pudo consultar las comunicaciones';return}
+ const rows=data||[],active=rows.filter(x=>!['cancelada','aplazada'].includes(x.estado));
+ const seats=list=>list.reduce((n,x)=>n+Number(x.plazas||0),0);
+ const confirmed=rows.filter(x=>x.estado==='confirmada'&&x.pago_estado==='recibido');
+ set('admin-app-confirmed',seats(confirmed));set('admin-app-pending',seats(active)-seats(confirmed));set('admin-app-capacity',ev.aforo_maximo??'—');set('admin-app-available',ev.aforo_maximo==null?'—':Math.max(0,Number(ev.aforo_maximo)-seats(active)));
+ if(recent){recent.replaceChildren();if(!rows.length)recent.textContent='Todavía no hay reservas';for(const r of rows.slice(0,4)){const line=document.createElement('div');line.className='admin-app-line';const name=document.createElement('span');name.textContent=r.nombre+' · '+r.plazas+' '+(Number(r.plazas)===1?'plaza':'plazas');const state=document.createElement('small');state.textContent=r.estado;line.append(name,state);recent.append(line)}}
+ if(comms){comms.replaceChildren();const link=document.createElement('a');link.href='/reservas-premium.html?experiencia='+encodeURIComponent(ev.id)+'#communications-panel';link.textContent='Abrir comunicaciones y recordatorios →';const p=document.createElement('div');p.className='admin-app-line';p.textContent='Reservas por confirmar: '+rows.filter(x=>x.estado==='pendiente').length;p.append(link);comms.append(p)}
+}
 window.selectAdminExperience=(id)=>{
  const ev=eventos.find(e=>String(e.id)===String(id));
  if(!ev)return;
+ loadAdminAppDetails(ev).catch(console.error);
  const target=document.getElementById('admin-modern-active');
  if(!target)return;
  target.replaceChildren();
@@ -887,6 +935,13 @@ function renderAdminPanel(){ return `${headerHTML()}<main class="admin-premium-s
 
   <section class="admin-modern-summary" aria-label="Panel de control de experiencias">
     <div class="admin-modern-hero"><div><h3>Panel de experiencias</h3><p>Selecciona una experiencia y gestiona sus reservas, comunicaciones y promoción desde un solo lugar.</p></div><button class="admin-modern-new" type="button" onclick="window.showAdminEditor()">＋ Nueva experiencia</button></div>
+    <section class="admin-app-home" aria-label="Resumen de la experiencia activa">
+      <article class="admin-app-spotlight"><img id="admin-app-image" alt="Imagen de la experiencia seleccionada" hidden><div class="admin-app-spotlight-body"><div class="admin-app-spotlight-title"><h3 id="admin-app-title">Experiencia</h3><span class="admin-app-status" id="admin-app-status"></span></div><p id="admin-app-description"></p><button type="button" class="admin-modern-new" id="admin-app-edit">Editar experiencia</button></div></article>
+      <div class="admin-app-stats" aria-label="Plazas y disponibilidad"><div class="admin-app-stat"><strong id="admin-app-confirmed">—</strong><span>Confirmadas</span></div><div class="admin-app-stat"><strong id="admin-app-pending">—</strong><span>Pendientes</span></div><div class="admin-app-stat"><strong id="admin-app-capacity">—</strong><span>Aforo total</span></div><div class="admin-app-stat"><strong id="admin-app-available">—</strong><span>Disponibles</span></div></div>
+      <div class="admin-app-block"><h3>Comunicaciones pendientes</h3><div id="admin-app-communications">Consultando reservas…</div></div>
+      <div class="admin-app-block"><h3>Últimas reservas</h3><div id="admin-app-recent">Consultando reservas…</div></div>
+      <nav class="admin-app-bottom" aria-label="Navegación inferior"><button type="button" class="is-current" onclick="document.querySelector('.admin-modern-summary')?.scrollIntoView({behavior:'smooth'})"><b>⌂</b>Experiencias</button><a href="/reservas-premium.html"><b>▦</b>Reservas</a><a href="/reservas-premium.html#communications-panel"><b>▢</b>Mensajes</a><a href="/reservas-premium.html#attendance-report"><b>▥</b>Informes</a><button type="button" onclick="window.showAdminEditor()"><b>⚙</b>Editar</button></nav>
+    </section>
     <div id="admin-modern-events" class="admin-modern-events" aria-label="Experiencias disponibles"><p>Cargando experiencias…</p></div>
     <div id="admin-modern-active" class="admin-modern-active" aria-live="polite"><p>Selecciona una experiencia para acceder a sus acciones.</p></div>
     <div class="admin-modern-tools" aria-label="Accesos rápidos">
