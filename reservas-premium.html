@@ -1,0 +1,393 @@
+<!doctype html><html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Reservas Premium | Viajes Sonoros</title><meta name="robots" content="noindex,nofollow"><style>
+:root{font-family:Montserrat,system-ui,sans-serif;color:#321b42;background:#faf7f4}*{box-sizing:border-box}[hidden]{display:none!important}body{margin:0}header{background:#fff;border-bottom:1px solid #e7dfeb;padding:16px max(18px,calc((100vw - 1150px)/2));display:flex;align-items:center;justify-content:space-between;gap:15px}header img{width:100px}a{color:#5b3f98}main{max-width:1150px;margin:auto;padding:24px 16px 60px}h1{font:500 clamp(2.5rem,7vw,4.2rem) Georgia,serif;margin:8px 0}h2{margin:0 0 8px;font-size:1.18rem}.hint{color:#66566b;line-height:1.5}.metrics{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin:25px 0}.metric,.panel,.booking{background:#fff;border:1px solid #eadfea;border-radius:16px;padding:20px;box-shadow:0 5px 23px #321b420a}.metric strong{display:block;font-size:2rem;color:#5b3f98}.metric span{font-size:.88rem;color:#66566b}.toolbar{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin:0 0 18px}button,input,select{font:inherit;border-radius:10px;padding:11px 14px}button{border:0;background:#5b3f98;color:#fff;cursor:pointer}button.secondary{background:#eee7f3;color:#49335a}button:disabled{opacity:.5;cursor:not-allowed}input,select{border:1px solid #cdbdd2;background:white;min-width:0}.search{flex:1;min-width:160px}.bookings{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.booking{display:flex;flex-direction:column;gap:9px}.booking-top{display:flex;justify-content:space-between;align-items:start;gap:10px}.booking h3{margin:0;font-size:1.06rem}.booking p{margin:0;color:#625469;font-size:.91rem}.pill{border-radius:999px;padding:5px 9px;font-size:.76rem;font-weight:700;background:#efe9f7;color:#5b3f98;white-space:nowrap}.pill.confirmada{background:#e2f5eb;color:#176c44}.pill.cancelada{background:#f7e6e6;color:#a33434}.booking-actions{margin-top:auto;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;padding-top:8px}.booking-actions button,.booking-actions a{min-width:0;min-height:44px;width:100%;text-align:center;font-size:.86rem;font-weight:650;padding:10px 8px;overflow-wrap:anywhere}.booking-actions .manage{grid-column:1/-1;background:#5b3f98;color:#fff}.booking-actions .danger{background:#fff0f0;color:#9b2936}.booking-actions .whatsapp{background:#e7f4e9;color:#196b44}.booking-actions .disabled{opacity:.55}.editor{display:grid;gap:10px;margin-top:10px;background:#f8f4fa;border-radius:12px;padding:14px}.editor label{display:grid;gap:5px;font-size:.91rem}.editor textarea{min-height:74px;resize:vertical;font:inherit;border:1px solid #cdbdd2;border-radius:9px;padding:10px}.editor select{width:100%}.editor .row{display:flex;flex-wrap:wrap;gap:8px}.editor .row button{flex:1;min-width:120px}.pdf-button{background:#5b3f98}.booking-actions a{padding:10px 12px;text-decoration:none;border-radius:9px;background:#eee7f3;font-weight:650}.notice{border-left:4px solid #5b3f98;background:#f0eaf5;padding:14px;border-radius:9px;margin:20px 0;line-height:1.5}@media(max-width:700px){.metrics{grid-template-columns:repeat(2,minmax(0,1fr))}.bookings{grid-template-columns:1fr}header img{width:80px}.metric{padding:14px}.metric strong{font-size:1.55rem}}@media(max-width:360px){.metrics{grid-template-columns:1fr}}
+ .auth-panel{max-width:440px;margin:20px auto;padding:22px;border-radius:16px;background:#fff;border:1px solid #eadfea}.auth-panel label{display:block;margin:12px 0}.auth-panel input{display:block;width:100%;margin-top:6px}.auth-panel button{width:100%;margin-top:8px} .auth-panel[hidden],#private-content[hidden]{display:none!important}.booking-tabs{display:flex;gap:8px;overflow-x:auto;padding:5px 0 16px;scrollbar-width:thin}.booking-tabs button{flex:0 0 auto;background:#fff;border:1px solid #e3d9e8;color:#594765;border-radius:999px;padding:11px 15px;font-weight:700;min-height:44px}.booking-tabs button[aria-selected="true"]{background:#5b3f98;color:white;border-color:#5b3f98}.booking-tabs button:disabled{opacity:.45}.premium-bottom{position:sticky;bottom:0;z-index:20;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:2px;max-width:730px;margin:12px auto 0;border:1px solid #e4d9e7;border-radius:22px;background:#ffffffed;box-shadow:0 10px 35px #321b4226;padding:7px;backdrop-filter:blur(12px)}.premium-bottom button{display:grid;justify-items:center;gap:4px;background:transparent;color:#614c6e;padding:9px 2px;font-size:11px;min-height:58px;border-radius:14px}.premium-bottom button[aria-current="page"]{background:#eee6f7;color:#5b3f98;font-weight:750}.premium-bottom svg{width:23px;height:23px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}.booking-identity{display:flex;align-items:center;gap:12px;min-width:0}.booking-identity img{width:70px;height:70px;object-fit:cover;border-radius:13px;background:#f3eaf4;flex:0 0 auto}.booking-top{align-items:center}.booking-actions{margin-top:8px}.booking-actions button{border-radius:12px}.booking-actions .manage{font-weight:750}.panel{scroll-margin-top:20px}#dashboard-anchor{scroll-margin-top:20px}@media(max-width:700px){main{padding-bottom:16px}.booking{padding:16px}.booking-identity img{width:64px;height:64px}.booking-tabs{margin-left:-2px;margin-right:-2px}.premium-bottom{position:sticky;bottom:8px}} </style></head><body><header><img src="/logo-oficial.png" alt="Viajes Sonoros"><a href="/experiencias.html">← Volver a experiencias</a></header><main><div class="hint">ADMINISTRACIÓN · MÓDULO INDEPENDIENTE</div><h1>Reservas Premium</h1><p class="hint">Flujo único: solicitud → ingreso comprobado → reserva confirmada → WhatsApp → asistencia.</p><div class="notice" id="notice">Comprobando sesión segura…</div><form id="auth-form" class="auth-panel" hidden><h2>Acceso de administración</h2><p class="hint">Inicia sesión con las credenciales del administrador de Viajes Sonoros para ver las reservas en este dominio de pruebas.</p><label>Correo electrónico<input id="auth-email" type="email" autocomplete="username" required></label><label>Contraseña<input id="auth-password" type="password" autocomplete="current-password" required></label><button type="submit" id="auth-submit">Entrar en Reservas Premium</button><p id="auth-error" role="alert"></p></form><div id="private-content" hidden><section class="panel" id="event-quick-summary" aria-label="Control de asistentes"><h2>Control del evento</h2><div id="event-totals" class="metrics"></div><p class="hint">Las plazas confirmadas solo cuentan cuando el pago consta como recibido. El aforo disponible descuenta también las solicitudes pendientes.</p></section><section id="dashboard-anchor" class="metrics" hidden aria-label="Resumen"><div class="metric"><strong id="m-confirmed">—</strong><span>Asistentes confirmados</span></div><div class="metric"><strong id="m-pending">—</strong><span>Plazas pendientes</span></div><div class="metric"><strong id="m-reservations">—</strong><span>Reservas activas</span></div><div class="metric"><strong id="m-amount">—</strong><span>Aportación prevista</span></div></section><section class="panel" id="communications-panel"><h2>Comunicaciones pendientes</h2><p class="hint">Mensajes preparados para WhatsApp. Abrir el chat no confirma su envío: marca «Enviado» únicamente después de mandarlo.</p><div id="communications-list" class="bookings" aria-live="polite"></div></section><section class="panel" id="reservas-listado"><h2>Reservas y participantes</h2><p class="hint">1. Revisa solicitudes pendientes. 2. Comprueba el ingreso. 3. Confirma reserva y pago a la vez. 4. Envía WhatsApp de confirmación. 5. Utiliza el listado de asistencia el día del evento.</p><div class="booking-tabs" role="tablist" aria-label="Filtrar reservas por estado"><button type="button" role="tab" data-state="all" aria-selected="true">Todas</button><button type="button" role="tab" data-state="pendiente" aria-selected="false">Pendientes</button><button type="button" role="tab" data-state="confirmada" aria-selected="false">Confirmadas</button><button type="button" role="tab" data-state="revisar" aria-selected="false">Revisar pagos</button><button type="button" role="tab" data-state="cancelada" aria-selected="false">Canceladas</button><button type="button" role="tab" disabled aria-selected="false" title="Disponible cuando esté implantado el historial de aplazamientos">Aplazadas · Próximamente</button></div><div class="toolbar"><input id="search" class="search" placeholder="Buscar por nombre o teléfono" aria-label="Buscar reservas"><select id="event" aria-label="Experiencia"><option value="all">Todas las experiencias</option></select><select id="status" aria-label="Estado"><option value="all">Todos los estados</option><option value="pendiente">Pendientes</option><option value="confirmada">Confirmadas</option><option value="cancelada">Canceladas</option><option value="revisar">Confirmadas sin pago registrado</option></select><button type="button" id="reload" class="secondary">Actualizar</button><button type="button" id="attendance-pdf" class="pdf-button">Ver informe de asistencia</button></div><div id="bookings" class="bookings" aria-live="polite"></div></section><section class="panel" id="finance-panel" hidden style="margin-top:16px"><h2>Control de aportaciones</h2><p class="hint">Importes según el registro administrativo, sin sustituir la conciliación bancaria.</p><div id="finance-summary" class="metrics"></div></section><nav class="premium-bottom" aria-label="Navegación de reservas"><button type="button" id="nav-bookings" aria-current="page"><svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M7 3v4M17 3v4M3 10h18"/></svg>Reservas</button><button type="button" id="nav-summary"><svg viewBox="0 0 24 24"><path d="M3 21v-8h5v8M10 21V4h5v17M17 21v-12h4v12"/></svg>Resumen</button><button type="button" id="nav-attendance"><svg viewBox="0 0 24 24"><path d="M7 3h8l4 4v14H5V3h2M14 3v5h5M8 14l3 3 5-6"/></svg>Asistencia</button><button type="button" id="nav-admin"><svg viewBox="0 0 24 24"><path d="M3 12h18M3 12l7-7M3 12l7 7"/></svg>Volver</button></nav></div></main><script type="module">
+import {supabase} from '/src/supabase.js';
+const $=id=>document.getElementById(id);
+let reservations=[],events=[],manualPostponeEnabled=false,communicationSent=new Set();
+const adminEmail='info@viajessonoros.es';
+const isAuthorized=user=>user?.email?.toLowerCase()===adminEmail;
+const showLogin=message=>{$('private-content').hidden=true;$('auth-form').hidden=false;setText('notice',message);};
+const money=n=>new Intl.NumberFormat('es-ES',{style:'currency',currency:'EUR'}).format(n);
+const setText=(id,value)=>$(id).textContent=value;
+async function load(){
+ setText('notice','Consultando reservas…');
+ const auth=await supabase.auth.getUser();
+ if(auth.error||!isAuthorized(auth.data?.user)){showLogin('Acceso restringido. Inicia sesión como administrador para consultar las reservas.');return}
+ const rows=[];
+ for(let start=0;start<100000;start+=500){
+  let {data,error}=await supabase.from('reservas_whatsapp').select('id,experiencia_id,nombre,telefono,plazas,importe_total,estado,pago_estado,created_at,aplazamiento_motivo,aplazamiento_resolucion').order('created_at',{ascending:false}).order('id',{ascending:false}).range(start,start+499);
+  if(error&&(String(error.code)==='42703'||String(error.code)==='PGRST204'||String(error.code)==='PGRST200')){manualPostponeEnabled=false;({data,error}=await supabase.from('reservas_whatsapp').select('id,experiencia_id,nombre,telefono,plazas,importe_total,estado,pago_estado,created_at').order('created_at',{ascending:false}).order('id',{ascending:false}).range(start,start+499));}
+  if(error)throw error;
+  if(data?.length&&Object.prototype.hasOwnProperty.call(data[0],'aplazamiento_motivo'))manualPostponeEnabled=true;
+  rows.push(...(data||[]));if(!data||data.length<500)break;
+ }
+ const {data:eventRows,error:eventError}=await supabase.from('experiencias').select('id,titulo,fecha,hora,lugar,precio,descripcion,imagen_url,aforo_maximo').order('fecha',{ascending:false});
+ if(eventError)throw eventError;
+ reservations=rows;events=eventRows||[];
+ const {data:sentRows,error:sentError}=await supabase.from('vs_reserva_comunicaciones').select('reserva_id,tipo');
+ if(sentError)throw new Error('No se pudo consultar el estado de los mensajes: '+sentError.message);
+ communicationSent=new Set((sentRows||[]).map(entry=>entry.reserva_id+':'+entry.tipo));
+ const old=$('event').value;
+ const today=new Intl.DateTimeFormat('en-CA',{timeZone:'Europe/Madrid',year:'numeric',month:'2-digit',day:'2-digit'}).format(new Date());
+ const future=events.filter(e=>String(e.fecha||'')>=today).sort((a,b)=>String(a.fecha).localeCompare(String(b.fecha)));
+ const preferred=future[0]||events[0];
+ $('event').replaceChildren(new Option('Todas las experiencias','all'),...events.map(e=>new Option(e.titulo+' · '+e.fecha,String(e.id))));
+ const requested=new URLSearchParams(location.search).get('experiencia');
+ $('event').value=events.some(e=>String(e.id)===requested)?requested:events.some(e=>String(e.id)===old)?old:preferred?String(preferred.id):'all';
+ $('auth-form').hidden=true;$('private-content').hidden=false;
+ setText('notice','Gestiona las reservas, los mensajes y los asistentes. Los aplazamientos se registrarán manualmente cuando estén habilitados los campos correspondientes.');
+ render();
+ const focus=location.hash;
+ if(focus==='#communications-panel'||focus==='#attendance-report')requestAnimationFrame(()=>{if(focus==='#attendance-report')$('attendance-pdf')?.click();else $('communications-panel')?.scrollIntoView({block:'start'})});
+}
+const bookingMessage=(row,ev,confirmed)=>{
+ const match=String(ev?.fecha||'').match(/^(\d{4})-(\d{2})-(\d{2})/);
+ const date=match?match[3]+'-'+match[2]+'-'+match[1]:'Fecha por confirmar';
+ const time=String(ev?.hora||'').slice(0,5);
+ const first=String(row.nombre||'').trim().split(/\s+/)[0]||'';
+ return [
+  confirmed?'🌿 Reserva confirmada · Viajes Sonoros':'🌿 Solicitud de reserva · Viajes Sonoros',
+  'Hola, '+first+'. '+(confirmed?'Tu reserva está confirmada.':'Hemos recibido tu solicitud; está pendiente de confirmación.'),
+  '',
+  '✨ '+(ev?.titulo||'Viaje Sonoro'),
+  '📅 '+date+(time?' · '+time+' h':''),
+  ev?.lugar?'📍 '+ev.lugar:'',
+  '👥 '+row.plazas+' '+(Number(row.plazas)===1?'plaza':'plazas'),
+  row.importe_total==null?'':'🤍 Aportación: '+money(Number(row.importe_total)),
+  '',
+  confirmed?'Te esperamos para compartir este encuentro.':'Te confirmaremos las plazas por WhatsApp cuando comprobemos la disponibilidad y la aportación.',
+  'María de la Osa y José Duque · Viajes Sonoros'
+ ].filter(Boolean).join('\n');
+};
+const reminderMessage=(row,ev)=>{
+ const match=String(ev?.fecha||'').match(/^(\d{4})-(\d{2})-(\d{2})/);
+ const date=match?match[3]+'-'+match[2]+'-'+match[1]:'Fecha por confirmar';
+ const time=String(ev?.hora||'').slice(0,5);
+ const first=String(row.nombre||'').trim().split(/\s+/)[0]||'';
+ return [
+  '🌿 Recordatorio · Viajes Sonoros',
+  'Hola, '+first+'.',
+  'Te recordamos que mañana nos encontraremos para compartir esta experiencia. ✨',
+  '',
+  '🎶 '+(ev?.titulo||'Viaje Sonoro'),
+  '📅 '+date+(time?' · '+time+' h':''),
+  ev?.lugar?'📍 '+ev.lugar:'',
+  '👥 Tu reserva: '+row.plazas+' '+(Number(row.plazas)===1?'plaza':'plazas'),
+  '',
+  'Te esperamos para regalarte un espacio de calma, escucha y reconexión.',
+  'Si tienes alguna duda, puedes escribirnos por aquí.',
+  'María de la Osa y José Duque · Viajes Sonoros'
+ ].filter(Boolean).join('\n');
+};
+const openBookingWhatsApp=async(row,ev,confirmed,customMessage)=>{
+ const digits=String(row.telefono||'').replace(/[^\d]/g,'');
+ const phone=digits.length===9?'34'+digits:digits;
+ if(phone.length<9||phone.length>15){alert('Comprueba el número de teléfono de esta reserva.');return}
+ const message=customMessage||bookingMessage(row,ev,confirmed);
+ // Abrir primero la conversación, sin texto precargado que iOS desplaza hasta el final.
+ // Copiar el mensaje para pegarlo manualmente desde su inicio.
+ try{await navigator.clipboard.writeText(message)}
+ catch{const area=document.createElement('textarea');area.value=message;area.style.cssText='position:fixed;left:-9999px;top:0';document.body.append(area);area.select();try{document.execCommand('copy')}finally{area.remove()}}
+ alert('Mensaje breve copiado. Se abrirá WhatsApp: pega el texto en el chat para revisarlo desde el principio.');
+ window.open('https://wa.me/'+phone,'_blank','noopener,noreferrer');
+};
+async function persistStatus(row,next){
+ if(next!=='confirmada'&&next!=='pendiente')throw Error('Este movimiento necesita el historial seguro.');
+ const changes=next==='confirmada'?{estado:'confirmada',pago_estado:'recibido'}:{estado:'pendiente',pago_estado:row.pago_estado};
+ const {data,error}=await supabase.from('reservas_whatsapp').update(changes)
+  .eq('id',row.id).eq('estado',row.estado).eq('pago_estado',row.pago_estado)
+  .select('estado,pago_estado').maybeSingle();
+ if(error)throw error;
+ if(!data)throw Error('Los datos de esta reserva cambiaron. Actualiza la lista.');
+ row.estado=data.estado;row.pago_estado=data.pago_estado;
+}
+function openBookingEditor(row,ev,card){
+ document.querySelectorAll('.editor').forEach(node=>node.remove());
+ const editor=document.createElement('div');editor.className='editor';
+ const heading=document.createElement('strong');heading.textContent='Editar reserva de '+row.nombre;
+ const field=document.createElement('label');field.textContent='Acción sobre la reserva';
+ const status=document.createElement('select');
+ for(const state of ['pendiente','confirmada','aplazada']){const opt=new Option(state[0].toUpperCase()+state.slice(1),state);status.add(opt)}
+ status.value=['pendiente','confirmada','aplazada'].includes(row.estado)?row.estado:'pendiente';field.append(status);
+ const reasonLabel=document.createElement('label');reasonLabel.textContent='Motivo del aplazamiento';
+ const reason=document.createElement('textarea');reason.placeholder='Ej.: No puede asistir a esta fecha.';reason.value=row.aplazamiento_motivo||'';reasonLabel.append(reason);
+ const resolutionLabel=document.createElement('label');resolutionLabel.textContent='¿Qué hacer con la aportación?';
+ const resolution=document.createElement('select');for(const [value,label] of [['','Elegir una opción'],['devolucion','Devolución manual'],['siguiente_experiencia','Conservar para la siguiente experiencia']])resolution.add(new Option(label,value));resolution.value=row.aplazamiento_resolucion||'';resolutionLabel.append(resolution);
+ const toggleSpecial=()=>{reasonLabel.hidden=status.value!=='aplazada';resolutionLabel.hidden=status.value!=='aplazada'};status.addEventListener('change',toggleSpecial);toggleSpecial();
+ const warning=document.createElement('p');warning.textContent='Orden correcto: solicitud pendiente → comprobar ingreso → confirmar reserva y pago conjuntamente → enviar confirmación por WhatsApp → controlar asistencia. Para aplazar, indica motivo y selecciona devolución manual o conservar para la siguiente experiencia. No se realiza ningún reembolso ni traslado de dinero automáticamente.';
+ const note=document.createElement('p');note.setAttribute('role','status');
+ const details=document.createElement('div');details.style.cssText='display:grid;gap:7px;padding:12px;border:1px solid #ded3e7;border-radius:11px;background:white';
+ const detailLines=[
+  ['Importe previsto de la reserva: ',row.importe_total==null?'Pendiente de revisar':money(Number(row.importe_total))],
+  ['Estado de la reserva: ',row.estado],
+  ['Estado del pago: ',row.pago_estado==='recibido'?'Recibido':row.pago_estado==='pendiente'?'Pendiente de verificar':row.pago_estado||'Sin verificar'],
+  ...(row.estado==='aplazada'?[['Motivo: ',row.aplazamiento_motivo||'No registrado'],['Resolución: ',row.aplazamiento_resolucion==='devolucion'?'Devolución manual':row.aplazamiento_resolucion==='siguiente_experiencia'?'Conservar para siguiente experiencia':'Pendiente de definir']]:[]),
+  ['Reserva creada: ',row.created_at?new Date(row.created_at).toLocaleString('es-ES'):'Sin fecha'],
+  ['Asistencia: ','Registro presencial pendiente de habilitar'],
+  ['Historial de modificaciones: ','Se activará tras validar el módulo de auditoría']
+ ];
+ for(const [label,value] of detailLines){const line=document.createElement('p');line.style.cssText='margin:0;line-height:1.5';const strong=document.createElement('strong');strong.textContent=label;line.append(strong,document.createTextNode(value));details.append(line)}
+ const buttons=document.createElement('div');buttons.className='row';
+ const save=document.createElement('button');save.textContent='Confirmar reserva y pago recibido';save.type='button';
+ const updateLabel=()=>{save.textContent=status.value==='confirmada'?'Confirmar reserva y pago recibido':status.value==='aplazada'?(manualPostponeEnabled?'Guardar aplazamiento manual':'Copiar datos del aplazamiento'):'Guardar como pendiente';};status.addEventListener('change',updateLabel);updateLabel();
+ if(!manualPostponeEnabled){const caution=document.createElement('p');caution.style.cssText='color:#85521c;font-weight:650';caution.textContent='Aplazamiento aún sin guardado en la web. Puedes copiar los datos para anotarlos manualmente.';resolutionLabel.append(caution)}
+ if(!['pendiente','confirmada','aplazada'].includes(row.estado)){save.disabled=true;status.disabled=true;note.textContent='Reserva en estado especial: no se permite cambiarla desde el flujo normal.';}
+ save.addEventListener('click',async()=>{
+  if(status.value==='aplazada'){
+   if(!manualPostponeEnabled){if(reason.value.trim().length<5||!resolution.value){note.textContent='Introduce el motivo y selecciona la gestión de la aportación.';return}const description=resolution.value==='devolucion'?'Devolución manual':'Conservar para la siguiente experiencia';const summary='VIAJES SONOROS · APLAZAMIENTO PENDIENTE DE REGISTRO\nParticipante: '+row.nombre+'\nEvento: '+(ev?.titulo||row.experiencia_id)+'\nPlazas: '+row.plazas+'\nMotivo: '+reason.value.trim()+'\nAportación: '+(row.importe_total==null?'Sin importe':money(Number(row.importe_total)))+'\nResolución: '+description+'\nIMPORTANTE: no se ha guardado en el administrador.';try{await navigator.clipboard.writeText(summary);note.textContent='Datos copiados. El aplazamiento NO se ha guardado en la web. Puedes pegar la nota en tu registro manual.'}catch(e){note.textContent='No se ha podido copiar ni guardar. Conserva el motivo fuera del formulario.'}return}
+   if(reason.value.trim().length<5||!resolution.value){note.textContent='Indica el motivo y elige devolución o permanencia para otra experiencia.';return}
+   if(!confirm('¿Guardar esta reserva como aplazada? La devolución o aplicación a la siguiente experiencia se gestionará manualmente.'))return;
+   save.disabled=true;
+   try{const changes={estado:'aplazada',aplazamiento_motivo:reason.value.trim(),aplazamiento_resolucion:resolution.value};const {data,error}=await supabase.from('reservas_whatsapp').update(changes).eq('id',row.id).eq('estado',row.estado).select('id').maybeSingle();if(error)throw error;if(!data)throw Error('La reserva cambió en otra sesión.');note.textContent='Aplazamiento guardado. La resolución económica queda pendiente de gestión manual.';await load()}catch(e){note.textContent='No se ha guardado el aplazamiento: '+e.message+' (requiere activar la migración segura).'}finally{save.disabled=false}return}
+  if(status.value==='cancelada'){note.textContent='Cancelación protegida: el motivo debe conservarse en el historial. Esta acción se activará con el registro de motivos y aportaciones.';return}
+  if(status.value===row.estado&&!(status.value==='confirmada'&&row.pago_estado!=='recibido')){note.textContent='No hay cambios de estado ni pago.';return}
+  if(status.value==='pendiente'&&row.pago_estado==='recibido'){note.textContent='La aportación ya está recibida. Para pasar a pendiente sin perder su registro hace falta el flujo especial de revisión.';return}
+  if(!confirm(status.value==='confirmada'?'¿Has comprobado que la aportación se ha recibido? Se marcarán juntos RESERVA CONFIRMADA y PAGO RECIBIDO.':'¿Cambiar el estado de esta reserva a pendiente?'))return;
+  save.disabled=true;
+  try{await persistStatus(row,status.value);note.textContent='Estado actualizado correctamente.';await load()}
+  catch(e){note.textContent='No se ha modificado la reserva: '+e.message}
+  finally{save.disabled=false}
+ });
+ const close=document.createElement('button');close.type='button';close.className='secondary';close.textContent='Cerrar';close.onclick=()=>editor.remove();
+ buttons.append(save,close);editor.append(heading,details,field,reasonLabel,resolutionLabel,warning,note,buttons);card.append(editor);
+}
+let pdfPreviewUrl=null;
+async function createAttendancePdf(){
+ const id=$('event').value;
+ const relevant=reservations.filter(r=>id==='all'||String(r.experiencia_id)===id);
+ if(!relevant.length){alert('No hay reservas para este listado.');return}
+ const {jsPDF}=await import('jspdf');
+ const pdf=new jsPDF({unit:'mm',format:'a4'});
+ let y=17;
+ const newPage=()=>{pdf.addPage();y=17};
+ const text=(s,size=10,bold=false)=>{pdf.setFont('helvetica',bold?'bold':'normal');pdf.setFontSize(size);for(const line of pdf.splitTextToSize(String(s||''),178)){if(y>272)newPage();pdf.text(line,16,y);y+=size*.49+1.5}};
+ const grouped=[...new Set(relevant.map(r=>String(r.experiencia_id)))];
+ text('VIAJES SONOROS - CONTROL DE ASISTENCIA',15,true);
+ text('Documento privado. Incluye reservas confirmadas, pendientes, canceladas y otros estados.',9);
+ text('Fecha de emision: '+new Date().toLocaleString('es-ES'),9);
+ for(const eventId of grouped){
+  const ev=events.find(x=>String(x.id)===eventId),rows=relevant.filter(r=>String(r.experiencia_id)===eventId);
+  if(y>225)newPage();
+  const date=String(ev?.fecha||'').replace(/^(\d{4})-(\d{2})-(\d{2})$/,'$3-$2-$1');
+  y+=5;text((ev?.titulo||'Experiencia '+eventId),12,true);
+  text('Fecha: '+date+' | Hora: '+String(ev?.hora||'').slice(0,5),10);
+  text('Lugar: '+(ev?.lugar||'No especificado'),9);
+  const confirmed=rows.filter(r=>r.estado==='confirmada'),pending=rows.filter(r=>r.estado==='pendiente'),active=rows.filter(r=>r.estado!=='cancelada'&&r.estado!=='aplazada');
+  const seats=list=>list.reduce((n,r)=>n+Number(r.plazas||0),0);
+  const amount=list=>list.reduce((n,r)=>n+Number(r.importe_total||0),0);
+  const capacity=ev?.aforo_maximo==null?null:Number(ev.aforo_maximo);
+  const available=capacity==null?null:Math.max(0,capacity-seats(active));
+  text('Reservas totales: '+rows.length+' | Aforo maximo: '+(capacity??'No configurado'),9);
+  text('Plazas confirmadas: '+seats(confirmed)+' | Pendientes: '+seats(pending)+' | Activas: '+seats(active)+' | Disponibles: '+(available??'Sin configurar'),9);
+  text('Aportaciones previstas: '+money(amount(active))+' | Confirmadas: '+money(amount(confirmed))+' | Pendientes: '+money(amount(pending)),9);
+  for(const row of rows){
+   if(y>247)newPage();
+   text('[   ] '+row.nombre+' | '+row.plazas+' plaza(s) | '+row.estado,10,true);
+   text('Telefono: '+row.telefono+' | Aportacion: '+(row.importe_total==null?'Por revisar':money(Number(row.importe_total)))+' | Pago: '+(row.pago_estado||'sin verificar'),8);
+   text('Registro: '+(row.created_at?new Date(row.created_at).toLocaleString('es-ES'):'Sin fecha')+' | Referencia: '+row.id,8);
+   pdf.setDrawColor(222);pdf.line(16,y,194,y);y+=3;
+  }
+ }
+ const pages=pdf.getNumberOfPages();
+ for(let p=1;p<=pages;p++){pdf.setPage(p);pdf.setFontSize(8);pdf.text('Privado - Viajes Sonoros - '+p+' / '+pages,16,289)}
+ const filename='viajes-sonoros-asistencia'+(id==='all'?'-todas':'-experiencia-'+id)+'.pdf';
+ const blob=pdf.output('blob'),file=new File([blob],filename,{type:'application/pdf'});
+ document.getElementById('pdf-preview-overlay')?.remove();
+ if(pdfPreviewUrl)URL.revokeObjectURL(pdfPreviewUrl);
+ pdfPreviewUrl=URL.createObjectURL(blob);
+ const overlay=document.createElement('div');overlay.id='pdf-preview-overlay';
+ overlay.style.cssText='position:fixed;inset:0;z-index:10010;background:#21162ddd;display:flex;align-items:center;justify-content:center;padding:8px';
+ const box=document.createElement('section');box.setAttribute('role','dialog');box.setAttribute('aria-modal','true');box.setAttribute('aria-label','Vista previa del control de asistencia');box.style.cssText='box-sizing:border-box;background:#fff;border-radius:16px;width:min(100%,850px);height:min(94dvh,1000px);padding:12px;display:flex;flex-direction:column;gap:10px;min-height:0';
+ const label=document.createElement('strong');label.textContent='Control de asistencia · Vista previa';
+ const intro=document.createElement('small');intro.textContent='Vista legible en iPhone del contenido que se incluirá en el PDF. Documento privado.';
+ const actions=document.createElement('div');actions.style.cssText='display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:7px;flex:0 0 auto';
+ const save=document.createElement('button');save.type='button';save.textContent='Guardar PDF';save.style.cssText='padding:11px 5px;font-size:13px;min-height:46px';
+ save.onclick=()=>pdf.save(filename);
+ const share=document.createElement('button');share.type='button';share.textContent='Compartir';share.style.cssText='padding:11px 5px;font-size:13px;min-height:46px';
+ share.onclick=async()=>{if(navigator.canShare?.({files:[file]})&&navigator.share){try{await navigator.share({files:[file],title:'Control de asistencia · Viajes Sonoros'})}catch(e){if(e.name!=='AbortError')alert('No se pudo compartir: '+e.message)}}else{alert('Este navegador no admite compartir PDF. Usa Guardar PDF.')}};
+ const close=document.createElement('button');close.type='button';close.className='secondary';close.textContent='Cerrar';close.style.cssText='padding:11px 5px;font-size:13px;min-height:46px';
+ close.onclick=()=>{overlay.remove();URL.revokeObjectURL(pdfPreviewUrl);pdfPreviewUrl=null};
+ actions.append(save,share,close);
+ const preview=document.createElement('div');preview.style.cssText='flex:1;min-height:0;overflow-y:auto;-webkit-overflow-scrolling:touch;border:1px solid #e5dce9;border-radius:12px;padding:14px;background:#fff';
+ const header=document.createElement('h2');header.textContent='Viajes Sonoros · Control de asistencia';preview.append(header);
+ const generated=document.createElement('p');generated.textContent='Fecha de emisión: '+new Date().toLocaleString('es-ES');preview.append(generated);
+ const appendLine=(parent,label,value)=>{const el=document.createElement('p');el.style.cssText='margin:5px 0;line-height:1.5;overflow-wrap:anywhere';const strong=document.createElement('strong');strong.textContent=label;el.append(strong,document.createTextNode(String(value??'')));parent.append(el)};
+ for(const eventId of grouped){
+  const ev=events.find(x=>String(x.id)===eventId),rows=relevant.filter(r=>String(r.experiencia_id)===eventId);
+  const group=document.createElement('section');group.style.cssText='border-top:2px solid #e4d8ed;padding:14px 0';
+  const heading=document.createElement('h3');heading.textContent=ev?.titulo||'Experiencia '+eventId;group.append(heading);
+  appendLine(group,'Fecha: ',String(ev?.fecha||'').replace(/^(\d{4})-(\d{2})-(\d{2})$/,'$3-$2-$1')+' · '+String(ev?.hora||'').slice(0,5));
+  appendLine(group,'Lugar: ',ev?.lugar||'No especificado');
+  const confirmed=rows.filter(r=>r.estado==='confirmada'),pending=rows.filter(r=>r.estado==='pendiente'),active=rows.filter(r=>r.estado!=='cancelada'&&r.estado!=='aplazada');
+  const seats=list=>list.reduce((n,r)=>n+Number(r.plazas||0),0);
+  const amount=list=>list.reduce((n,r)=>n+Number(r.importe_total||0),0);
+  const capacity=ev?.aforo_maximo==null?null:Number(ev.aforo_maximo);
+  const available=capacity==null?null:Math.max(0,capacity-seats(active));
+  appendLine(group,'Reservas totales: ',rows.length);
+  appendLine(group,'Aforo máximo: ',capacity??'No configurado');
+  appendLine(group,'Plazas confirmadas: ',seats(confirmed));
+  appendLine(group,'Plazas pendientes: ',seats(pending));
+  appendLine(group,'Plazas activas: ',seats(active));
+  appendLine(group,'Plazas disponibles: ',available??'Sin configurar');
+  appendLine(group,'Aportaciones previstas: ',money(amount(active)));
+  appendLine(group,'Aportaciones confirmadas: ',money(amount(confirmed)));
+  appendLine(group,'Aportaciones pendientes: ',money(amount(pending)));
+  for(const row of rows){
+   const card=document.createElement('article');card.style.cssText='border:1px solid #e8deeb;border-radius:10px;margin:9px 0;padding:10px;background:#faf8fc';
+   appendLine(card,'☐ ',row.nombre+' · '+row.plazas+' plaza(s) · '+row.estado);
+   appendLine(card,'Teléfono: ',row.telefono);
+   appendLine(card,'Aportación: ',row.importe_total==null?'Por revisar':money(Number(row.importe_total)));
+   appendLine(card,'Estado del pago: ',row.pago_estado||'sin verificar');
+   appendLine(card,'Registrada: ',row.created_at?new Date(row.created_at).toLocaleString('es-ES'):'Sin fecha');
+   appendLine(card,'Referencia: ',row.id);group.append(card);
+  }preview.append(group);
+ }
+ box.append(label,intro,actions,preview);overlay.append(box);document.body.append(overlay);
+
+}
+function showAttendanceReport(){
+ const chosen=$('event').value;
+ const rows=reservations.filter(r=>chosen==='all'||String(r.experiencia_id)===chosen);
+ if(!rows.length){alert('No hay reservas en esta experiencia.');return;}
+ document.getElementById('attendance-report-modal')?.remove();
+ const modal=document.createElement('div');modal.id='attendance-report-modal';
+ modal.style.cssText='position:fixed;inset:0;z-index:10020;background:#20172cdd;padding:12px;display:grid;place-items:center';
+ const panel=document.createElement('section');panel.style.cssText='box-sizing:border-box;width:min(100%,760px);height:min(92dvh,980px);background:white;border-radius:16px;padding:18px;display:flex;flex-direction:column;gap:14px;overflow:hidden';
+ const heading=document.createElement('h2');heading.textContent='Informe de asistentes';heading.style.margin='0';
+ const details=document.createElement('div');details.style.cssText='flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch';
+ const add=(parent,value,tag='p')=>{const node=document.createElement(tag);node.textContent=value;node.style.cssText='margin:8px 0;line-height:1.5';parent.append(node);return node};
+ for(const id of [...new Set(rows.map(r=>String(r.experiencia_id)))]){
+  const ev=events.find(e=>String(e.id)===id),group=rows.filter(r=>String(r.experiencia_id)===id);
+  const active=group.filter(r=>!['cancelada','aplazada'].includes(r.estado));
+  const seats=group=>group.reduce((sum,r)=>sum+Number(r.plazas||0),0);
+  const confirmed=active.filter(r=>r.estado==='confirmada'&&r.pago_estado==='recibido');
+  const pending=active.filter(r=>r.estado!=='confirmada'||r.pago_estado!=='recibido');
+  const date=String(ev?.fecha||'').replace(/^(\\d{4})-(\\d{2})-(\\d{2})$/,'$3-$2-$1');
+  add(details,(ev?.titulo||'Experiencia')+' · '+date,'h3');
+  add(details,'Reservas: '+group.length+' · Confirmados: '+seats(confirmed)+' · Pendientes: '+seats(pending)+' · Aforo: '+(ev?.aforo_maximo??'Sin definir')+' · Disponibles: '+(ev?.aforo_maximo==null?'—':Math.max(0,Number(ev.aforo_maximo)-seats(active))));
+  add(details,'Aportación registrada como recibida: '+money(confirmed.reduce((sum,r)=>sum+Number(r.importe_total||0),0)));
+  for(const row of group){
+   const line=document.createElement('label');line.style.cssText='display:flex;align-items:center;gap:12px;padding:12px 4px;border-bottom:1px solid #ddd';
+   const check=document.createElement('input');check.type='checkbox';check.style.cssText='width:24px;height:24px;flex-shrink:0';check.setAttribute('aria-label','Marcar asistencia de '+row.nombre);
+   const copy=document.createElement('span');copy.textContent=row.nombre+' · '+row.plazas+' plaza(s) · '+row.estado+' · '+(row.pago_estado||'sin verificar');
+   line.append(check,copy);details.append(line);
+  }
+ }
+ const actions=document.createElement('div');actions.style.cssText='display:grid;grid-template-columns:1fr 1fr;gap:8px';
+ const pdf=document.createElement('button');pdf.textContent='Guardar PDF';pdf.type='button';
+ pdf.onclick=async()=>{pdf.disabled=true;try{await createAttendancePdf();modal.remove()}catch(e){alert('No se pudo crear el PDF: '+e.message)}finally{pdf.disabled=false}};
+ const close=document.createElement('button');close.textContent='Cerrar informe';close.className='secondary';close.type='button';close.onclick=()=>modal.remove();
+ actions.append(pdf,close);panel.append(heading,details,actions);modal.append(panel);document.body.append(modal);
+}
+$('attendance-pdf').addEventListener('click',showAttendanceReport);
+function renderCommunications(){
+ const target=$('communications-list');target.replaceChildren();
+ const picked=$('event').value;
+ const todayParts=new Intl.DateTimeFormat('en-GB',{timeZone:'Europe/Madrid',year:'numeric',month:'2-digit',day:'2-digit'}).formatToParts(new Date());
+ const part=t=>todayParts.find(x=>x.type===t)?.value;
+ const today=part('year')+'-'+part('month')+'-'+part('day');
+ const tomorrow=new Date(today+'T12:00:00Z');tomorrow.setUTCDate(tomorrow.getUTCDate()+1);const next=tomorrow.toISOString().slice(0,10);
+ const jobs=[];
+ for(const row of reservations){
+  if(picked!=='all'&&String(row.experiencia_id)!==picked)continue;
+  const ev=events.find(e=>String(e.id)===String(row.experiencia_id));
+  if(!ev||row.estado==='cancelada'||row.estado==='aplazada')continue;
+  let tipo=null;
+  if(row.estado==='pendiente')tipo='solicitud';
+  else if(row.estado==='confirmada'&&row.pago_estado==='recibido'){
+   if(!communicationSent.has(row.id+':confirmacion'))tipo='confirmacion';
+   else if(String(ev.fecha).slice(0,10)===next)tipo='recordatorio';
+  }
+  if(tipo&&!communicationSent.has(row.id+':'+tipo))jobs.push({row,ev,tipo});
+ }
+ if(!jobs.length){const empty=document.createElement('p');empty.textContent='No hay comunicaciones pendientes para este filtro.';target.append(empty);return;}
+ for(const {row,ev,tipo} of jobs){
+  const card=document.createElement('article');card.className='booking';
+  const name=document.createElement('h3');name.textContent=row.nombre+' · '+row.plazas+' '+(Number(row.plazas)===1?'plaza':'plazas');
+  const line=document.createElement('p');line.textContent=(tipo==='solicitud'?'Solicitud pendiente':tipo==='confirmacion'?'Confirmación pendiente':'Recordatorio para mañana')+' · '+(ev.titulo||'Experiencia')+' · '+String(ev.fecha||'').slice(0,10);
+  const controls=document.createElement('div');controls.className='booking-actions';
+  const open=document.createElement('button');open.type='button';open.className='whatsapp';open.textContent='Abrir WhatsApp';
+  open.onclick=()=>openBookingWhatsApp(row,ev,tipo==='confirmacion',tipo==='recordatorio'?reminderMessage(row,ev):undefined);
+  const sent=document.createElement('button');sent.type='button';sent.textContent='Marcar enviado';sent.className='manage';
+  sent.onclick=async()=>{if(!confirm('¿Ya has enviado este mensaje por WhatsApp a '+row.nombre+'?'))return;sent.disabled=true;try{const {error}=await supabase.from('vs_reserva_comunicaciones').upsert({reserva_id:row.id,tipo},{onConflict:'reserva_id,tipo'});if(error)throw error;communicationSent.add(row.id+':'+tipo);renderCommunications()}catch(e){alert('No se ha guardado el envío: '+e.message);sent.disabled=false}};
+  controls.append(open,sent);card.append(name,line,controls);target.append(card);
+ }
+}
+function render(){
+ renderCommunications();
+ const term=$('search').value.trim().toLocaleLowerCase('es-ES'),eventId=$('event').value,status=$('status').value;
+ const all=reservations.filter(r=>(eventId==='all'||String(r.experiencia_id)===eventId));
+ const filtered=all.filter(r=>(status==='all'||(status==='revisar'?r.estado==='confirmada'&&r.pago_estado!=='recibido':r.estado===status))&&(!term||r.nombre.toLocaleLowerCase('es-ES').includes(term)||r.telefono.includes(term)));
+ const active=all.filter(r=>r.estado!=='cancelada'&&r.estado!=='aplazada');
+ setText('m-confirmed',String(active.filter(r=>r.estado==='confirmada'&&r.pago_estado==='recibido').reduce((n,r)=>n+Number(r.plazas||0),0)));
+ setText('m-pending',String(active.filter(r=>r.estado==='pendiente'||(r.estado==='confirmada'&&r.pago_estado!=='recibido')).reduce((n,r)=>n+Number(r.plazas||0),0)));
+ setText('m-reservations',String(active.length));
+ setText('m-amount',money(active.reduce((n,r)=>n+Number(r.importe_total||0),0)));
+ const confirmedPaid=active.filter(r=>r.estado==='confirmada'&&r.pago_estado==='recibido');
+ const confirmedSeats=confirmedPaid.reduce((n,r)=>n+Number(r.plazas||0),0);
+ const pendingSeats=active.filter(r=>r.estado==='pendiente'||(r.estado==='confirmada'&&r.pago_estado!=='recibido')).reduce((n,r)=>n+Number(r.plazas||0),0);
+ const capacity=eventId==='all'?null:events.find(e=>String(e.id)===eventId)?.aforo_maximo;
+ const totalCards=[
+  ['Plazas confirmadas y pagadas',confirmedSeats],
+  ['Plazas pendientes de verificar',pendingSeats],
+  ['Asistentes previstos',confirmedSeats+pendingSeats],
+  ['Aforo total',capacity==null?'—':Number(capacity)],
+  ['Plazas disponibles',capacity==null?'—':Math.max(0,Number(capacity)-confirmedSeats-pendingSeats)],
+  ['Aportaciones recibidas',money(confirmedPaid.reduce((n,r)=>n+Number(r.importe_total||0),0))]
+ ];
+ $('event-totals').replaceChildren(...totalCards.map(([label,value])=>{const card=document.createElement('div');card.className='metric';const number=document.createElement('strong');number.textContent=String(value);const caption=document.createElement('span');caption.textContent=label;card.append(number,caption);return card}));
+ const received=all.filter(r=>r.pago_estado==='recibido'&&r.estado!=='cancelada'&&r.estado!=='aplazada');
+ const waiting=active.filter(r=>r.pago_estado!=='recibido');
+ const mismatch=active.filter(r=>r.estado==='confirmada'&&r.pago_estado!=='recibido');
+ const buckets=[
+  ['Aportación marcada recibida',money(received.reduce((n,r)=>n+Number(r.importe_total||0),0))],
+  ['Pendiente de verificar',money(waiting.reduce((n,r)=>n+Number(r.importe_total||0),0))],
+  ['Confirmadas por revisar',String(mismatch.length)],
+  ['Reservas canceladas',String(all.filter(r=>r.estado==='cancelada').length)],
+  ['Aplazamientos',String(all.filter(r=>r.estado==='aplazada').length)]
+ ];
+ $('finance-summary').replaceChildren(...buckets.map(([label,value])=>{
+  const box=document.createElement('div');box.className='metric';
+  const amount=document.createElement('strong');amount.textContent=value;
+  const title=document.createElement('span');title.textContent=label;
+  box.append(amount,title);return box;
+ }));
+ $('bookings').replaceChildren(...filtered.map(row=>{
+  const event=events.find(e=>String(e.id)===String(row.experiencia_id));
+  const article=document.createElement('article');article.className='booking';
+  const top=document.createElement('div');top.className='booking-top';
+  const identity=document.createElement('div');identity.className='booking-identity';
+  if(event?.imagen_url){const photo=document.createElement('img');photo.src=event.imagen_url;photo.alt='Imagen de la experiencia';photo.loading='lazy';identity.append(photo)}
+  const heading=document.createElement('h3');heading.textContent=row.nombre;identity.append(heading);
+  const badge=document.createElement('span');badge.className='pill '+row.estado;badge.textContent=row.estado;
+  top.append(identity,badge);
+  const detail=document.createElement('p');detail.textContent=(event?.titulo||'Experiencia '+row.experiencia_id)+' · '+String(event?.fecha||'').replace(/^(\d{4})-(\d{2})-(\d{2})$/,'$3-$2-$1');
+  const info=document.createElement('p');info.textContent=row.plazas+(Number(row.plazas)===1?' plaza':' plazas')+' · Importe previsto: '+(row.importe_total==null?'Por revisar':money(Number(row.importe_total)));const paymentStatus=document.createElement('p');paymentStatus.textContent='Estado del pago: '+(row.pago_estado==='recibido'?'Recibido':row.pago_estado==='pendiente'?'Pendiente de verificar':row.pago_estado||'Sin verificar');
+  const buttons=document.createElement('div');buttons.className='booking-actions';
+  const phone=document.createElement('a');phone.href='tel:'+row.telefono;phone.textContent='Llamar';
+  const manage=document.createElement('button');manage.type='button';manage.className='manage';manage.textContent=row.estado==='confirmada'&&row.pago_estado!=='recibido'?'Revisar y confirmar pago':row.estado==='pendiente'?'Comprobar pago y confirmar':'Gestionar reserva';
+  manage.addEventListener('click',()=>openBookingEditor(row,event,article));
+  const request=document.createElement('button');request.type='button';request.textContent='WhatsApp · Solicitar confirmación';
+ request.disabled=row.estado!=='pendiente';
+ request.title=request.disabled?'Solo para solicitudes pendientes':'Preparar mensaje para solicitud pendiente';
+ request.addEventListener('click',()=>openBookingWhatsApp(row,event,false));
+ const confirmation=document.createElement('button');confirmation.type='button';confirmation.textContent='WhatsApp · Reserva confirmada';
+ confirmation.disabled=row.estado!=='confirmada'||row.pago_estado!=='recibido';
+ confirmation.title=confirmation.disabled?'Verifica y confirma primero el pago desde Gestionar esta reserva':'Preparar mensaje de reserva y aportación confirmadas';
+ confirmation.addEventListener('click',()=>openBookingWhatsApp(row,event,true));
+ request.className='whatsapp';confirmation.className='whatsapp';const reminder=document.createElement('button');reminder.type='button';reminder.className='whatsapp';reminder.textContent='WhatsApp · Recordatorio (día anterior)';reminder.disabled=row.estado!=='confirmada'||row.pago_estado!=='recibido';reminder.title=reminder.disabled?'Disponible para reservas confirmadas y pagadas':'Copiar el recordatorio y abrir WhatsApp para enviarlo el día anterior';reminder.style.gridColumn='1/-1';reminder.addEventListener('click',()=>{const date=String(event?.fecha||'').slice(0,10);if(!/^\d{4}-\d{2}-\d{2}$/.test(date)){alert('Revisa la fecha del evento antes de preparar el recordatorio.');return}const dayBefore=new Date(date+'T12:00:00Z');dayBefore.setUTCDate(dayBefore.getUTCDate()-1);const expected=dayBefore.toISOString().slice(0,10);const parts=new Intl.DateTimeFormat('en-GB',{timeZone:'Europe/Madrid',year:'numeric',month:'2-digit',day:'2-digit'}).formatToParts(new Date());const val=t=>parts.find(p=>p.type===t)?.value;const today=val('year')+'-'+val('month')+'-'+val('day');if(today!==expected&&!confirm('El recordatorio está pensado para el '+expected.split('-').reverse().join('-')+'. ¿Preparar igualmente el texto que dice «mañana»?'))return;openBookingWhatsApp(row,event,true,reminderMessage(row,event))});
+ const del=document.createElement('button');del.type='button';del.className='danger';del.textContent='Borrar reserva';del.title='Desactivado hasta incorporar archivo de seguridad e historial de borrado';del.disabled=true;buttons.append(manage,request,confirmation,reminder,phone,del);if(row.estado==='confirmada'&&row.pago_estado!=='recibido'){const alert=document.createElement('p');alert.style.cssText='padding:9px;border-radius:10px;background:#fff2dc;color:#774818;font-weight:650';alert.textContent='Revisar: reserva confirmada sin pago registrado. Abre Gestionar para verificar la aportación.';article.append(top,detail,info,paymentStatus,alert,buttons)}else article.append(top,detail,info,paymentStatus,buttons);return article;
+ }));
+ if(!filtered.length)setText('bookings','No hay reservas que coincidan con los filtros.');
+}
+$('auth-form').addEventListener('submit',async e=>{e.preventDefault();const button=$('auth-submit');button.disabled=true;setText('auth-error','');try{const {data,error}=await supabase.auth.signInWithPassword({email:$('auth-email').value.trim(),password:$('auth-password').value});if(error)throw error;if(!isAuthorized(data.user)){await supabase.auth.signOut();throw new Error('Esta cuenta no tiene acceso al administrador.')} $('auth-password').value='';await load()}catch(error){setText('auth-error','No se pudo iniciar sesión: '+error.message)}finally{button.disabled=false}});
+document.querySelectorAll('.booking-tabs [data-state]').forEach(btn=>btn.addEventListener('click',()=>{$('status').value=btn.dataset.state;render();document.querySelectorAll('.booking-tabs [data-state]').forEach(tab=>tab.setAttribute('aria-selected',String(tab===btn)))}));
+$('nav-bookings').onclick=()=>document.getElementById('reservas-listado').scrollIntoView({behavior:'smooth'});
+$('nav-summary').onclick=()=>document.getElementById('event-quick-summary').scrollIntoView({behavior:'smooth'});
+$('nav-attendance').onclick=()=>$('attendance-pdf').click();
+$('nav-admin').onclick=()=>location.assign('/experiencias.html');
+$('status').addEventListener('change',()=>document.querySelectorAll('.booking-tabs [data-state]').forEach(tab=>tab.setAttribute('aria-selected',String(tab.dataset.state===$('status').value))));
+for(const id of ['search','event','status'])$(id).addEventListener(id==='search'?'input':'change',render);
+$('reload').addEventListener('click',()=>load().catch(e=>setText('notice','Error de carga: '+e.message)));
+load().catch(e=>setText('notice','No se pudieron cargar las reservas: '+e.message));
+</script></body></html>
