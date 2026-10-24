@@ -131,6 +131,14 @@ body.operational-page {
  body.experiences-page .admin-modern-active p{font-size:12px!important;line-height:1.45!important}
  body.experiences-page .admin-modern-tool{min-height:55px!important;font-size:12px!important;padding:9px!important}
 }
+
+/* Una pantalla de control; el editor solo se despliega al crear o editar */
+.admin-premium-shell.admin-editor-collapsed .admin-assistant-intro,
+.admin-premium-shell.admin-editor-collapsed .admin-premium-grid,
+.admin-premium-shell.admin-editor-collapsed .admin-image-section-full{display:none!important}
+.admin-premium-shell .admin-module-navigation{display:none!important}
+.admin-modern-editor-close{display:block;margin:0 0 14px auto;background:#eee8f5;border:1px solid #d8cae4;border-radius:12px;color:#4b327b;padding:10px 16px;font-weight:700}
+.admin-premium-shell.admin-editor-collapsed .admin-modern-editor-close{display:none!important}
 </style>
 <link rel="stylesheet" href="/secondary.css">
 <link rel="stylesheet" href="/whatsapp-button.css">
@@ -531,7 +539,7 @@ window.guardarEvento=async()=>{
     window.scrollTo({top:0,behavior:'smooth'})
   }catch(err){ if(errorElement){errorElement.textContent='No se pudo guardar: '+err.message;errorElement.style.display='block'} } finally{ if(btn){ btn.textContent='Guardar experiencia'; btn.disabled=false } }
 }
-window.editarEvento=async(id)=>{ if(!(await hasValidAdmin())){view='admin-login';render();return} const ev=eventos.find(e=>e.id==id); if(!ev) return; editId=id;fileToUpload=null;selectedTemplateKey='';assistantDraft=null;assistantVariant=0;if(optimizedImage)releaseOptimizedImage(optimizedImage);if(sourceOptimizedImage&&sourceOptimizedImage!==optimizedImage)releaseOptimizedImage(sourceOptimizedImage);optimizedImage=null;sourceOptimizedImage=null;existingImageFocus=null; document.getElementById('f-titulo').value=ev.titulo||''; document.getElementById('f-fecha').value=ev.fecha||''; document.getElementById('f-hora').value=String(ev.hora||'').slice(0,5); document.getElementById('f-precio').value=ev.precio||''; document.getElementById('f-aforo-maximo').value=ev.aforo_maximo??''; document.getElementById('f-lugar').value=ev.lugar||'';document.getElementById('f-localidad').value='';document.getElementById('f-card-text').value=''; document.getElementById('f-desc').value=ev.descripcion||'';document.getElementById('f-additional').value=''; document.getElementById('f-imagen').value=ev.imagen_url||''; document.getElementById('f-publicado').value=String(ev.publicado===true);
+window.editarEvento=async(id)=>{ window.showAdminEditor(); if(!(await hasValidAdmin())){view='admin-login';render();return} const ev=eventos.find(e=>e.id==id); if(!ev) return; editId=id;fileToUpload=null;selectedTemplateKey='';assistantDraft=null;assistantVariant=0;if(optimizedImage)releaseOptimizedImage(optimizedImage);if(sourceOptimizedImage&&sourceOptimizedImage!==optimizedImage)releaseOptimizedImage(sourceOptimizedImage);optimizedImage=null;sourceOptimizedImage=null;existingImageFocus=null; document.getElementById('f-titulo').value=ev.titulo||''; document.getElementById('f-fecha').value=ev.fecha||''; document.getElementById('f-hora').value=String(ev.hora||'').slice(0,5); document.getElementById('f-precio').value=ev.precio||''; document.getElementById('f-aforo-maximo').value=ev.aforo_maximo??''; document.getElementById('f-lugar').value=ev.lugar||'';document.getElementById('f-localidad').value='';document.getElementById('f-card-text').value=''; document.getElementById('f-desc').value=ev.descripcion||'';document.getElementById('f-additional').value=''; document.getElementById('f-imagen').value=ev.imagen_url||''; document.getElementById('f-publicado').value=String(ev.publicado===true);
   const capacityNote=document.getElementById('admin-event-capacity');
   if(capacityNote){const {data:reservations}=await supabase.from('reservas_whatsapp').select('plazas,estado').eq('experiencia_id',id);const occupied=(reservations||[]).filter(r=>r.estado==='confirmada').reduce((n,r)=>n+r.plazas,0),waiting=(reservations||[]).filter(r=>r.estado==='pendiente').reduce((n,r)=>n+r.plazas,0);capacityNote.textContent='Confirmadas/cerradas: '+occupied+' · Pendientes: '+waiting+' · Disponibles: '+(ev.aforo_maximo==null?'Aforo sin configurar':Math.max(0,ev.aforo_maximo-occupied));}
   if(ev.imagen_url){setPreviewSources(ev.imagen_url);document.getElementById('image-details').textContent='Imagen actual. Puedes cambiar los datos o sustituir la imagen; el encuadre se adapta automáticamente.';document.getElementById('preview-img').style.display='grid'} imageDataUrl=ev.imagen_url||null;window.updateAssistantState(); window.scrollTo({top:0,behavior:'smooth'}) }
@@ -865,7 +873,9 @@ function renderManualBookingManager(){
 function renderBookingsModule(){return `${headerHTML()}<main class="admin-premium-shell"><div class="admin-premium-topbar"><div><span class="admin-premium-kicker">ADMIN · RESERVAS</span><h2>Gestión de reservas</h2><p>Reservas existentes, participantes, aforo y aportaciones.</p></div><button type="button" onclick="window.backToExperiencesAdmin()" class="admin-logout">← Volver a experiencias</button></div>${renderManualBookingManager()}</main>`}
 window.openBookingsModule=async()=>{if(!(await hasValidAdmin())){view='admin-login';render();return}view='admin-bookings';render()}
 window.backToExperiencesAdmin=async()=>{if(!(await hasValidAdmin())){view='admin-login';render();return}view='admin-panel';render()}
-function renderAdminPanel(){ return `${headerHTML()}<main class="admin-premium-shell">
+window.showAdminEditor=()=>{const shell=document.querySelector('.admin-premium-shell');shell?.classList.remove('admin-editor-collapsed');requestAnimationFrame(()=>{document.querySelector('.admin-assistant-intro')?.scrollIntoView({behavior:'smooth',block:'start'})})};
+window.hideAdminEditor=()=>{const shell=document.querySelector('.admin-premium-shell');shell?.classList.add('admin-editor-collapsed');requestAnimationFrame(()=>shell?.scrollIntoView({behavior:'smooth',block:'start'}))};
+function renderAdminPanel(){ return `${headerHTML()}<main class="admin-premium-shell admin-editor-collapsed">
   <div class="admin-premium-topbar">
     <div>
       <span class="admin-premium-kicker">ADMIN · EXPERIENCIAS</span>
@@ -876,19 +886,20 @@ function renderAdminPanel(){ return `${headerHTML()}<main class="admin-premium-s
   </div>
 
   <section class="admin-modern-summary" aria-label="Panel de control de experiencias">
-    <div class="admin-modern-hero"><div><h3>Panel de experiencias</h3><p>Selecciona una experiencia y gestiona sus reservas, comunicaciones y promoción desde un solo lugar.</p></div><button class="admin-modern-new" type="button" onclick="document.getElementById('f-titulo')?.focus();document.getElementById('f-titulo')?.scrollIntoView({behavior:'smooth',block:'center'})">＋ Nueva experiencia</button></div>
+    <div class="admin-modern-hero"><div><h3>Panel de experiencias</h3><p>Selecciona una experiencia y gestiona sus reservas, comunicaciones y promoción desde un solo lugar.</p></div><button class="admin-modern-new" type="button" onclick="window.showAdminEditor()">＋ Nueva experiencia</button></div>
     <div id="admin-modern-events" class="admin-modern-events" aria-label="Experiencias disponibles"><p>Cargando experiencias…</p></div>
     <div id="admin-modern-active" class="admin-modern-active" aria-live="polite"><p>Selecciona una experiencia para acceder a sus acciones.</p></div>
     <div class="admin-modern-tools" aria-label="Accesos rápidos">
       <button type="button" class="admin-modern-tool" onclick="window.openBookingsModule()">♧ Reservas</button>
       <a class="admin-modern-tool" href="/reservas-premium.html#communications-panel">◉ Comunicaciones</a>
-      <button type="button" class="admin-modern-tool" onclick="document.querySelector('.admin-assistant-intro')?.scrollIntoView({behavior:'smooth'})">✧ Promoción</button>
+      <button type="button" class="admin-modern-tool" onclick="window.showAdminEditor()">✧ Promoción</button>
       <a class="admin-modern-tool" href="/reservas-premium.html#attendance-report">☑ Asistencia</a>
     </div>
   </section>
   <nav class="admin-module-navigation" aria-label="Módulos del administrador">
 <button type="button" class="admin-module-link admin-module-primary" onclick="window.openBookingsModule()"><span class="admin-module-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M7 3v4M17 3v4M3 10h18M8 15l2 2 5-5"/></svg></span><span class="admin-module-copy"><span class="admin-module-name">Reservas y participantes</span><span class="admin-module-description">Confirmaciones, estados y asistencia</span></span></button>
 <a href="/reservas-premium.html" class="admin-module-link admin-module-premium"><span class="admin-module-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l2.5 5.5L20 10l-5.5 2.5L12 18l-2.5-5.5L4 10l5.5-2.5L12 2Z"/><path d="M19 17l.9 2.1L22 20l-2.1.9L19 23l-.9-2.1L16 20l2.1-.9L19 17Z"/></svg></span><span class="admin-module-copy"><span class="admin-module-name">Reservas Premium y WhatsApp</span><span class="admin-module-description">Comunicaciones pendientes, asistentes y totales</span></span></a></nav>
+  <button class="admin-modern-editor-close" type="button" onclick="window.hideAdminEditor()">← Volver al panel</button>
   <section class="admin-assistant-intro" aria-labelledby="assistant-title">
     <span>Asistente de creación</span>
     <h3 id="assistant-title">Crea el borrador completo desde datos reales</h3>
