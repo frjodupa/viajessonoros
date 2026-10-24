@@ -169,6 +169,17 @@ body.operational-page {
 .admin-app-bottom b{font-size:21px;line-height:1.1;font-weight:500}
 .admin-premium-shell:not(.admin-editor-collapsed) .admin-app-home{display:none!important}
 @media(max-width:700px){.admin-app-spotlight img{height:185px}.admin-app-stats{gap:6px}.admin-app-stat strong{font-size:21px}.admin-app-stat span{font-size:10px}.admin-premium-shell.admin-editor-collapsed .admin-modern-tools{grid-template-columns:repeat(4,minmax(0,1fr));gap:5px}.admin-premium-shell.admin-editor-collapsed .admin-modern-tool{min-height:63px;font-size:10px;flex-direction:column;padding:8px 3px}.admin-app-bottom{bottom:5px}}
+
+/* iPhone: navegación fija sin solapamientos ni módulos repetidos */
+.admin-premium-shell.admin-editor-collapsed .admin-modern-tools,
+.admin-premium-shell.admin-editor-collapsed .admin-list-section{display:none!important}
+.admin-premium-shell.admin-editor-collapsed{padding-bottom:calc(112px + env(safe-area-inset-bottom,0px))!important}
+.admin-premium-shell.admin-editor-collapsed .admin-app-bottom{position:fixed!important;left:50%!important;transform:translateX(-50%)!important;bottom:calc(10px + env(safe-area-inset-bottom,0px))!important;width:min(calc(100% - 24px),680px)!important;max-width:680px!important;box-sizing:border-box;z-index:50!important}
+.admin-app-bottom a,.admin-app-bottom button{min-width:0!important;width:100%!important;box-sizing:border-box!important;white-space:normal!important;overflow-wrap:break-word!important;text-align:center!important;font-size:10px!important;line-height:1.2!important}
+.admin-app-bottom b{font-size:20px!important}
+.admin-premium-shell.admin-editor-collapsed .admin-app-home{min-width:0;width:100%}
+.admin-app-line>span{min-width:0;overflow-wrap:anywhere}
+@media(max-width:420px){.admin-app-bottom a,.admin-app-bottom button{font-size:9px!important;padding:7px 1px!important}.admin-app-bottom b{font-size:18px!important}}
 </style>
 <link rel="stylesheet" href="/secondary.css">
 <link rel="stylesheet" href="/whatsapp-button.css">
