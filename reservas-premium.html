@@ -345,18 +345,6 @@ function render(){
  const confirmedSeats=confirmedPaid.reduce((n,r)=>n+Number(r.plazas||0),0);
  const pendingSeats=active.filter(r=>r.estado==='pendiente'||(r.estado==='confirmada'&&r.pago_estado!=='recibido')).reduce((n,r)=>n+Number(r.plazas||0),0);
  const capacity=eventId==='all'?null:events.find(e=>String(e.id)===eventId)?.aforo_maximo;
- const totalCards=[
-  ['Plazas confirmadas y pagadas',confirmedSeats],
-  ['Plazas pendientes de verificar',pendingSeats],
-  ['Asistentes previstos',confirmedSeats+pendingSeats],
-  ['Aforo total',capacity==null?'—':Number(capacity)],
-  ['Plazas disponibles',capacity==null?'—':Math.max(0,Number(capacity)-confirmedSeats-pendingSeats)],
-  ['Aportaciones recibidas',money(confirmedPaid.reduce((n,r)=>n+Number(r.importe_total||0),0))]
- ];
- $('event-totals').replaceChildren(...totalCards.map(([label,value])=>{const card=document.createElement('div');card.className='metric';const number=document.createElement('strong');number.textContent=String(value);const caption=document.createElement('span');caption.textContent=label;card.append(number,caption);return card}));
- const received=all.filter(r=>r.pago_estado==='recibido'&&r.estado!=='cancelada'&&r.estado!=='aplazada');
- const waiting=active.filter(r=>r.pago_estado!=='recibido');
- const mismatch=active.filter(r=>r.estado==='confirmada'&&r.pago_estado!=='recibido');
  const roomRentCards=()=>{
   const ids=eventId==='all'?[...new Set(all.map(r=>String(r.experiencia_id)))]:[eventId];
   let base=0,persons=0,postponed=0,cancelled=0,valid=true;
@@ -379,6 +367,19 @@ function render(){
   return {persons,postponed,cancelled,rent:valid?money(Math.round(base*20)/100):'—'};
  };
  const roomRental=roomRentCards();
+ const totalCards=[
+  ['Plazas confirmadas y pagadas',confirmedSeats],
+  ['Plazas pendientes de verificar',pendingSeats],
+  ['Asistentes previstos',confirmedSeats+pendingSeats],
+  ['Aforo total',capacity==null?'—':Number(capacity)],
+  ['Plazas disponibles',capacity==null?'—':Math.max(0,Number(capacity)-confirmedSeats-pendingSeats)],
+  ['Aportaciones recibidas',money(confirmedPaid.reduce((n,r)=>n+Number(r.importe_total||0),0))],
+  ['Alquiler de sala · 20 % ('+roomRental.persons+' plazas)',roomRental.rent]
+ ];
+ $('event-totals').replaceChildren(...totalCards.map(([label,value])=>{const card=document.createElement('div');card.className='metric';const number=document.createElement('strong');number.textContent=String(value);const caption=document.createElement('span');caption.textContent=label;card.append(number,caption);return card}));
+ const received=all.filter(r=>r.pago_estado==='recibido'&&r.estado!=='cancelada'&&r.estado!=='aplazada');
+ const waiting=active.filter(r=>r.pago_estado!=='recibido');
+ const mismatch=active.filter(r=>r.estado==='confirmada'&&r.pago_estado!=='recibido');
 const buckets=[
   ['Aportación marcada recibida',money(received.reduce((n,r)=>n+Number(r.importe_total||0),0))],
   ['Pendiente de verificar',money(waiting.reduce((n,r)=>n+Number(r.importe_total||0),0))],
