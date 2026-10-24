@@ -376,7 +376,7 @@ function render(){
   ['Aportaciones recibidas',money(confirmedPaid.reduce((n,r)=>n+Number(r.importe_total||0),0))],
   ['Alquiler de sala · 20 % ('+roomRental.persons+' plazas)',roomRental.rent]
  ];
- $('event-totals').replaceChildren(...totalCards.map(([label,value])=>{const card=document.createElement('div');card.className='metric';const number=document.createElement('strong');number.textContent=String(value);const caption=document.createElement('span');caption.textContent=label;card.append(number,caption);return card}));
+ $('event-totals').replaceChildren(...totalCards.map(([label,value])=>{const card=document.createElement('div');card.className='metric';const number=document.createElement('strong');number.textContent=String(value);const caption=document.createElement('span');caption.textContent=label;card.append(number,caption);if(label.startsWith('Alquiler de sala · 20 %')){card.style.gridColumn='1 / -1';card.style.background='#f4f0f7';card.style.borderColor='#d9c9e9'}return card}));
  const received=all.filter(r=>r.pago_estado==='recibido'&&r.estado!=='cancelada'&&r.estado!=='aplazada');
  const waiting=active.filter(r=>r.pago_estado!=='recibido');
  const mismatch=active.filter(r=>r.estado==='confirmada'&&r.pago_estado!=='recibido');
