@@ -119,6 +119,39 @@ async function persistStatus(row,next){
  if(!data)throw Error('Los datos de esta reserva cambiaron. Actualiza la lista.');
  row.estado=data.estado;row.pago_estado=data.pago_estado;
 }
+function preparePostponedTransfer(row,origin,card){
+ document.querySelectorAll('.transfer-preview').forEach(el=>el.remove());
+ const panel=document.createElement('section');panel.className='editor transfer-preview';
+ const heading=document.createElement('strong');heading.textContent='Preparar traslado manual de '+row.nombre;
+ const help=document.createElement('p');help.textContent='Simulación sin cambios en las reservas. El traslado efectivo necesita una operación transaccional con control de crédito y aforo.';
+ const select=document.createElement('select');select.setAttribute('aria-label','Próxima experiencia de destino');
+ const sourceDate=String(origin?.fecha||'').slice(0,10);
+ const today=new Intl.DateTimeFormat('en-CA',{timeZone:'Europe/Madrid',year:'numeric',month:'2-digit',day:'2-digit'}).format(new Date());
+ const targets=events.filter(e=>String(e.id)!==String(row.experiencia_id)&&String(e.fecha||'')>sourceDate&&String(e.fecha||'')>=today).sort((a,b)=>String(a.fecha).localeCompare(String(b.fecha)));
+ select.add(new Option('Selecciona próxima experiencia',''));
+ for(const ev of targets)select.add(new Option(ev.titulo+' · '+String(ev.fecha).split('-').reverse().join('-'),String(ev.id)));
+ const detail=document.createElement('p');detail.className='hint';
+ const copy=document.createElement('button');copy.type='button';copy.textContent='Copiar propuesta de traslado';copy.disabled=true;
+ let summary='';
+ select.onchange=()=>{
+  const ev=targets.find(e=>String(e.id)===select.value);copy.disabled=true;
+  if(!ev){detail.textContent='Selecciona una experiencia futura.';return}
+  const occupied=reservations.filter(r=>String(r.experiencia_id)===String(ev.id)&&!['cancelada','aplazada'].includes(r.estado)).reduce((n,r)=>n+Number(r.plazas||0),0);
+  const capacity=ev.aforo_maximo==null?null:Number(ev.aforo_maximo);
+  const free=capacity===null?null:capacity-occupied,places=Number(row.plazas||0);
+  const unit=Number(String(ev.precio??'').replace('€','').replace(',','.').trim());
+  const newCost=Number.isFinite(unit)?places*unit:null;
+  const credit=Number(row.importe_total||0);
+  summary='Propuesta de traslado (NO ejecutada)\\nOrigen: '+(origin?.titulo||'Experiencia')+'\\nReserva: '+row.nombre+' · '+places+' plaza(s)\\nDestino: '+ev.titulo+' · '+ev.fecha+'\\nPlazas disponibles: '+(free??'Sin aforo definido')+'\\nCrédito origen registrado: '+money(credit)+'\\nAportación destino: '+(newCost===null?'Por comprobar':money(newCost))+'\\nDiferencia: '+(newCost===null?'Por comprobar':money(newCost-credit))+'\\nPendiente de validar y ejecutar transacción administrativa.';
+  const valid=free!==null&&free>=places&&places>0&&newCost!==null;
+  detail.textContent=valid?'Propuesta viable por aforo. Crédito: '+money(credit)+'; nueva aportación: '+money(newCost)+'; diferencia: '+money(newCost-credit)+'. No se ha realizado el traslado.':'No se puede preparar: comprueba el aforo disponible, las plazas y el precio del destino.';
+  copy.disabled=!valid;
+ };
+ copy.onclick=async()=>{try{await navigator.clipboard.writeText(summary);alert('Propuesta copiada. La reserva original permanece aplazada y el destino no está reservado.')}catch(e){alert('No se ha podido copiar la propuesta.')}};
+ const close=document.createElement('button');close.type='button';close.className='secondary';close.textContent='Cerrar';close.onclick=()=>panel.remove();
+ if(!targets.length)detail.textContent='Todavía no hay ninguna experiencia futura posterior a la original.';
+ panel.append(heading,help,select,detail,copy,close);card.append(panel);
+}
 function openBookingEditor(row,ev,card){
  document.querySelectorAll('.editor').forEach(node=>node.remove());
  const editor=document.createElement('div');editor.className='editor';
@@ -409,6 +442,12 @@ const buckets=[
   const phone=document.createElement('a');phone.href='tel:'+row.telefono;phone.textContent='Llamar';
   const manage=document.createElement('button');manage.type='button';manage.className='manage';manage.textContent=row.estado==='confirmada'&&row.pago_estado!=='recibido'?'Revisar y confirmar pago':row.estado==='pendiente'?'Comprobar pago y confirmar':'Gestionar reserva';
   manage.addEventListener('click',()=>openBookingEditor(row,event,article));
+  if(row.estado==='aplazada'){
+   const transfer=document.createElement('button');transfer.type='button';transfer.className='manage';
+   transfer.textContent='Preparar traslado al siguiente evento';
+   transfer.onclick=()=>preparePostponedTransfer(row,event,article);
+   buttons.append(transfer);
+  }
   const request=document.createElement('button');request.type='button';request.textContent='WhatsApp · Solicitar confirmación';
  request.disabled=row.estado!=='pendiente';
  request.title=request.disabled?'Solo para solicitudes pendientes':'Preparar mensaje para solicitud pendiente';
