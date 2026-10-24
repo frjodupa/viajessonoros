@@ -359,18 +359,24 @@ function render(){
  const mismatch=active.filter(r=>r.estado==='confirmada'&&r.pago_estado!=='recibido');
  const roomRentCards=()=>{
   const ids=eventId==='all'?[...new Set(all.map(r=>String(r.experiencia_id)))]:[eventId];
-  let base=0,persons=0,postponed=0,valid=true;
+  let base=0,persons=0,postponed=0,cancelled=0,valid=true;
   for(const id of ids){
    const ev=events.find(e=>String(e.id)===id);
    if(!ev)continue;
+   const group=all.filter(r=>String(r.experiencia_id)===id);
+   const seats=rows=>rows.reduce((n,r)=>n+Number(r.plazas||0),0);
+   const excludedPostponed=seats(group.filter(r=>r.estado==='aplazada'));
+   const excludedCancelled=seats(group.filter(r=>r.estado==='cancelada'));
+   // Los estados son excluyentes. Restar significa excluir del cómputo,
+   // no descontar una segunda vez las plazas ya apartadas.
+   const eligible=group.filter(r=>r.estado==='confirmada');
+   const actual=seats(eligible);
+   persons+=actual;postponed+=excludedPostponed;cancelled+=excludedCancelled;
    const raw=String(ev.precio??'').replace('€','').replace(',','.').trim(),unit=Number(raw);
-   const group=all.filter(r=>String(r.experiencia_id)===id),confirmed=group.filter(r=>r.estado==='confirmada');
-   const seats=confirmed.reduce((n,r)=>n+Number(r.plazas||0),0);
-   persons+=seats;postponed+=group.filter(r=>r.estado==='aplazada').reduce((n,r)=>n+Number(r.plazas||0),0);
    if(!raw||!Number.isFinite(unit)||unit<0){valid=false;continue}
-   base+=seats*unit;
+   base+=actual*unit;
   }
-  return {persons,postponed,rent:valid?money(Math.round(base*20)/100):'—'};
+  return {persons,postponed,cancelled,rent:valid?money(Math.round(base*20)/100):'—'};
  };
  const roomRental=roomRentCards();
 const buckets=[
@@ -379,7 +385,7 @@ const buckets=[
   ['Confirmadas por revisar',String(mismatch.length)],
   ['Reservas canceladas',String(all.filter(r=>r.estado==='cancelada').length)],
   ['Aplazamientos',String(all.filter(r=>r.estado==='aplazada').length)],
-  ['Alquiler de sala · 20 %',roomRental.rent]
+  ['Alquiler de sala · 20 % · '+roomRental.persons+' plazas (aplazadas -'+roomRental.postponed+', canceladas -'+roomRental.cancelled+')',roomRental.rent]
  ];
  $('finance-summary').replaceChildren(...buckets.map(([label,value])=>{
   const box=document.createElement('div');box.className='metric';
