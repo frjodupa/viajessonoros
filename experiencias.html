@@ -180,6 +180,13 @@ body.operational-page {
 .admin-premium-shell.admin-editor-collapsed .admin-app-home{min-width:0;width:100%}
 .admin-app-line>span{min-width:0;overflow-wrap:anywhere}
 @media(max-width:420px){.admin-app-bottom a,.admin-app-bottom button{font-size:9px!important;padding:7px 1px!important}.admin-app-bottom b{font-size:18px!important}}
+
+/* Revisión de iPhone: menú legible por encima de widgets externos */
+.admin-premium-shell.admin-editor-collapsed .admin-app-bottom{z-index:10050!important;padding:8px!important;grid-template-columns:repeat(5,minmax(0,1fr))!important}
+.admin-premium-shell.admin-editor-collapsed .admin-app-bottom>a,
+.admin-premium-shell.admin-editor-collapsed .admin-app-bottom>button{font-size:10px!important;letter-spacing:-.2px;overflow:hidden!important;min-width:0}
+.admin-premium-shell.admin-editor-collapsed .admin-app-line{flex-wrap:wrap;align-items:flex-start}
+.admin-premium-shell.admin-editor-collapsed .admin-app-line a{display:block;max-width:100%}
 </style>
 <link rel="stylesheet" href="/secondary.css">
 <link rel="stylesheet" href="/whatsapp-button.css">
@@ -600,7 +607,7 @@ async function loadAdminAppDetails(ev){
  const confirmed=rows.filter(x=>x.estado==='confirmada'&&x.pago_estado==='recibido');
  set('admin-app-confirmed',seats(confirmed));set('admin-app-pending',seats(active)-seats(confirmed));set('admin-app-capacity',ev.aforo_maximo??'—');set('admin-app-available',ev.aforo_maximo==null?'—':Math.max(0,Number(ev.aforo_maximo)-seats(active)));
  if(recent){recent.replaceChildren();if(!rows.length)recent.textContent='Todavía no hay reservas';for(const r of rows.slice(0,4)){const line=document.createElement('div');line.className='admin-app-line';const name=document.createElement('span');name.textContent=r.nombre+' · '+r.plazas+' '+(Number(r.plazas)===1?'plaza':'plazas');const state=document.createElement('small');state.textContent=r.estado;line.append(name,state);recent.append(line)}}
- if(comms){comms.replaceChildren();const link=document.createElement('a');link.href='/reservas-premium.html?experiencia='+encodeURIComponent(ev.id)+'#communications-panel';link.textContent='Abrir comunicaciones y recordatorios →';const p=document.createElement('div');p.className='admin-app-line';p.textContent='Reservas por confirmar: '+rows.filter(x=>x.estado==='pendiente').length;p.append(link);comms.append(p)}
+ if(comms){comms.replaceChildren();const link=document.createElement('a');link.href='/reservas-premium.html?experiencia='+encodeURIComponent(ev.id)+'#communications-panel';link.textContent='Abrir comunicaciones y recordatorios →';const p=document.createElement('div');p.className='admin-app-line';p.textContent='Reservas pendientes: '+rows.filter(x=>x.estado==='pendiente').length+' · Confirmadas: '+confirmed.length+'. ';p.append(link);comms.append(p)}
 }
 window.selectAdminExperience=(id)=>{
  const ev=eventos.find(e=>String(e.id)===String(id));
