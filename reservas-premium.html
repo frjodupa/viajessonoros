@@ -80,7 +80,10 @@ const reminderMessage=(row,ev)=>{
  ].filter(Boolean).join('\n');
 };
 const reviewMessage=(row,ev)=>{
- const first=String(row.nombre||'').trim().split(/\s+/)[0]||'';
+ const full=String(row.nombre||'').trim();
+ const words=full.split(/\s+/).filter(Boolean);
+ const suggested=words.length>1&&/^MAR[IÍ]A$/i.test(words[0])&&!/^(DE|DEL|LA|LOS|LAS)$/i.test(words[1])?words[1]:words[0]||'';
+ const first=String(row.reviewGreeting||suggested||'').trim();
  return [
   '🌿 Hola, '+first+'.',
   '',
@@ -396,7 +399,7 @@ function render(){
  const eventDate=String(event?.fecha||'').slice(0,10);
  review.disabled=row.estado!=='confirmada'||!/^\d{4}-\d{2}-\d{2}$/.test(eventDate)||eventDate>todayLocal;
  review.title=review.disabled?'Disponible para reservas confirmadas cuando se haya celebrado la experiencia':'Solicitar una opinión sincera después de la experiencia; comprueba que la persona asistió';
- review.onclick=()=>{if(!confirm('¿Esta persona asistió a la experiencia? Se preparará una solicitud de reseña, sin enviarla automáticamente.'))return;openBookingWhatsApp(row,event,true,reviewMessage(row,event))};
+ review.onclick=()=>{if(!confirm('¿Esta persona asistió a la experiencia? Se preparará una solicitud de reseña, sin enviarla automáticamente.'))return;const words=String(row.nombre||'').trim().split(/\s+/).filter(Boolean);const suggested=words.length>1&&/^MAR[IÍ]A$/i.test(words[0])&&!/^(DE|DEL|LA|LOS|LAS)$/i.test(words[1])?words[1]:words[0]||'';const greeting=prompt('Comprueba el nombre para el saludo. Reserva: '+String(row.nombre||''),suggested);if(greeting===null)return;const clean=greeting.trim();if(!clean){alert('Introduce el nombre que quieras usar en el saludo.');return}openBookingWhatsApp({...row,reviewGreeting:clean},event,true,reviewMessage({...row,reviewGreeting:clean},event))};
  const del=document.createElement('button');del.type='button';del.className='danger';del.textContent='Borrar reserva';del.title='Desactivado hasta incorporar archivo de seguridad e historial de borrado';del.disabled=true;buttons.append(manage,request,confirmation,reminder,review,phone,del);if(row.estado==='confirmada'&&row.pago_estado!=='recibido'){const alert=document.createElement('p');alert.style.cssText='padding:9px;border-radius:10px;background:#fff2dc;color:#774818;font-weight:650';alert.textContent='Revisar: reserva confirmada sin pago registrado. Abre Gestionar para verificar la aportación.';article.append(top,detail,info,paymentStatus,alert,buttons)}else article.append(top,detail,info,paymentStatus,buttons);return article;
  }));
  if(!filtered.length)setText('bookings','No hay reservas que coincidan con los filtros.');
