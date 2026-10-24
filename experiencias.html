@@ -72,7 +72,129 @@ body.operational-page {
   }
   .admin-experience-actions button:nth-child(3){grid-column:1/-1;background:#5B3F98!important;color:#fff!important;font-weight:700}
 }
-.admin-module-navigation{margin:16px 0 24px}.admin-module-navigation button{background:#5b3f98;color:#fff;border:0;border-radius:12px;padding:16px 23px;font:600 16px Montserrat,Arial,sans-serif;min-height:54px;cursor:pointer}.admin-module-navigation button:focus-visible{outline:3px solid #3b9db8;outline-offset:2px}</style>
+.admin-module-navigation{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));max-width:850px;margin:22px auto 28px;gap:14px;width:100%}
+.admin-module-navigation .admin-module-link{box-sizing:border-box;display:flex;align-items:center;gap:14px;min-height:94px;width:100%;padding:17px 19px;border:1px solid transparent;border-radius:20px;text-decoration:none;text-align:left;font:inherit;cursor:pointer;box-shadow:0 9px 25px rgba(62,34,90,.10);transition:transform .18s ease,box-shadow .18s ease}
+.admin-module-navigation .admin-module-link:hover{transform:translateY(-2px);box-shadow:0 12px 28px rgba(62,34,90,.15)}
+.admin-module-navigation .admin-module-link:focus-visible{outline:3px solid #3b9db8;outline-offset:3px}
+.admin-module-navigation .admin-module-primary{background:#5b3f98;color:white}
+.admin-module-navigation .admin-module-premium{background:linear-gradient(145deg,#fff,#eee6f7);border-color:#d9cce7;color:#4d337e}
+.admin-module-navigation .admin-module-icon{display:grid;place-items:center;flex:0 0 46px;width:46px;height:46px;border-radius:14px;background:rgba(255,255,255,.18)}
+.admin-module-navigation .admin-module-premium .admin-module-icon{background:#e4d7f2}
+.admin-module-navigation .admin-module-icon svg{width:24px;height:24px;stroke:currentColor}
+.admin-module-navigation .admin-module-copy{display:grid;gap:5px;min-width:0}
+.admin-module-navigation .admin-module-name{font-weight:750;font-size:16px;line-height:1.3}
+.admin-module-navigation .admin-module-description{font-weight:450;font-size:12px;line-height:1.4;opacity:.88}
+@media(max-width:700px){.admin-module-navigation{grid-template-columns:minmax(0,1fr);max-width:420px;gap:12px}.admin-module-navigation .admin-module-link{min-height:82px;padding:15px 16px;border-radius:18px}}
+/* Admin 2026: interfaz responsive con identidad corporativa oficial */
+.admin-modern-summary{display:grid;gap:16px;margin:18px 0 25px}
+.admin-modern-hero{display:flex;justify-content:space-between;align-items:center;gap:14px;flex-wrap:wrap;background:#fff;border:1px solid #e9e1ef;border-radius:22px;padding:20px;box-shadow:0 12px 38px #34255f0a}
+.admin-modern-hero h3{font-size:clamp(19px,3vw,26px);color:#34255f;margin:0 0 5px}
+.admin-modern-hero p{color:#665f6b;margin:0;line-height:1.5}
+.admin-modern-new{border-radius:13px;background:#5b3f98;color:#fff;border:0;padding:13px 18px;font-weight:700;cursor:pointer}
+.admin-modern-events{display:flex;gap:12px;overflow-x:auto;scroll-snap-type:x mandatory;padding:4px 3px 15px}
+.admin-modern-event{flex:0 0 clamp(230px,37%,340px);min-width:0;scroll-snap-align:start;border-radius:18px;border:1px solid #e8e0ed;background:white;overflow:hidden;box-shadow:0 6px 23px #34255f0c}
+.admin-modern-event img{width:100%;height:135px;object-fit:cover;display:block}
+.admin-modern-event .admin-modern-event-body{padding:14px;display:grid;gap:9px}
+.admin-modern-event strong{font-size:15px;line-height:1.35;color:#34255f}
+.admin-modern-event small{color:#665f6b}
+.admin-modern-event button{border:0;border-radius:10px;background:#f4f0f7;color:#34255f;padding:10px;text-align:left;font-weight:700;cursor:pointer}
+.admin-modern-tools{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px}
+.admin-modern-tool{display:flex;align-items:center;justify-content:center;gap:8px;min-height:74px;padding:13px 8px;text-align:center;text-decoration:none;border:1px solid #e7deec;border-radius:16px;background:#fff;color:#34255f;font-weight:700;font-size:14px;cursor:pointer}
+.admin-modern-tool:nth-child(2){background:#e8f3f5}.admin-modern-tool:nth-child(3){background:#f4f0f7}.admin-modern-tool:nth-child(4){background:#fff7ee}
+.admin-modern-active{display:grid;gap:10px;padding:18px;border-radius:18px;background:#fff;border:1px solid #e7deec}
+.admin-modern-active h4{margin:0;color:#34255f;font-size:18px}
+.admin-modern-active p{margin:0;color:#665f6b;line-height:1.5}
+.admin-modern-active-actions{display:flex;flex-wrap:wrap;gap:8px}
+.admin-modern-active-actions button,.admin-modern-active-actions a{border:1px solid #d6cce1;border-radius:11px;padding:10px 14px;background:#f4f0f7;color:#34255f;text-decoration:none;font-weight:700;font-size:13px}
+@media(max-width:700px){.admin-modern-summary{gap:12px}.admin-modern-hero{padding:16px}.admin-modern-new{width:100%}.admin-modern-event{flex-basis:82%;max-width:315px}.admin-modern-tools{grid-template-columns:repeat(2,minmax(0,1fr))}.admin-modern-tool{min-height:62px}}
+
+/* Ajuste visual Admin iPhone — la maqueta es orientativa, se conservan los datos reales */
+@media(max-width:700px){
+ body.experiences-page .admin-premium-shell{padding:14px 14px 90px!important}
+ body.experiences-page .admin-premium-topbar{display:flex!important;align-items:center!important;flex-direction:row!important;gap:10px!important;margin:0 0 14px!important;padding:0!important}
+ body.experiences-page .admin-premium-topbar>div{flex:1;min-width:0}
+ body.experiences-page .admin-premium-topbar h2{font-size:21px!important;line-height:1.15!important;margin:3px 0!important}
+ body.experiences-page .admin-premium-topbar p{font-size:12px!important;line-height:1.4!important;margin:0!important}
+ body.experiences-page .admin-premium-topbar .admin-logout{width:auto!important;min-width:0!important;flex:0 0 auto!important;margin:0!important;padding:9px 12px!important;border-radius:12px!important;font-size:12px!important;min-height:38px!important}
+ body.experiences-page .admin-modern-summary{margin:8px 0 20px!important;gap:12px!important}
+ body.experiences-page .admin-modern-hero{padding:14px!important;border-radius:16px!important;gap:9px!important}
+ body.experiences-page .admin-modern-hero h3{font-size:19px!important}
+ body.experiences-page .admin-modern-hero p{font-size:12px!important;line-height:1.45!important}
+ body.experiences-page .admin-modern-new{padding:10px 14px!important;border-radius:12px!important;font-size:13px!important;min-height:42px!important}
+ body.experiences-page .admin-modern-event{flex-basis:72%!important;max-width:270px!important;border-radius:16px!important}
+ body.experiences-page .admin-modern-event img{height:104px!important}
+ body.experiences-page .admin-modern-event .admin-modern-event-body{padding:11px!important;gap:6px!important}
+ body.experiences-page .admin-modern-event strong{font-size:14px!important}
+ body.experiences-page .admin-modern-event button{padding:8px 10px!important;font-size:12px!important}
+ body.experiences-page .admin-modern-active{padding:13px!important;gap:8px!important;border-radius:16px!important}
+ body.experiences-page .admin-modern-active h4{font-size:16px!important}
+ body.experiences-page .admin-modern-active p{font-size:12px!important;line-height:1.45!important}
+ body.experiences-page .admin-modern-tool{min-height:55px!important;font-size:12px!important;padding:9px!important}
+}
+
+/* Una pantalla de control; el editor solo se despliega al crear o editar */
+.admin-premium-shell.admin-editor-collapsed .admin-assistant-intro,
+.admin-premium-shell.admin-editor-collapsed .admin-premium-grid,
+.admin-premium-shell.admin-editor-collapsed .admin-image-section-full{display:none!important}
+.admin-premium-shell .admin-module-navigation{display:none!important}
+.admin-modern-editor-close{display:block;margin:0 0 14px auto;background:#eee8f5;border:1px solid #d8cae4;border-radius:12px;color:#4b327b;padding:10px 16px;font-weight:700}
+.admin-premium-shell.admin-editor-collapsed .admin-modern-editor-close{display:none!important}
+
+/* Admin premium v2: portada de app, edición separada y navegación móvil */
+.admin-premium-shell.admin-editor-collapsed .admin-premium-topbar{display:none!important}
+.admin-premium-shell.admin-editor-collapsed .admin-modern-hero{background:transparent;border:0;box-shadow:none;padding:0}
+.admin-premium-shell.admin-editor-collapsed .admin-modern-events{display:none}
+.admin-premium-shell.admin-editor-collapsed .admin-modern-active{display:none}
+.admin-app-home{display:grid;gap:15px}
+.admin-app-spotlight{overflow:hidden;border-radius:21px;background:#fff;border:1px solid #e6dfeb;box-shadow:0 8px 30px #34255f0b}
+.admin-app-spotlight img{width:100%;height:220px;object-fit:cover;display:block}
+.admin-app-spotlight-body{padding:15px}
+.admin-app-spotlight-title{display:flex;gap:9px;align-items:center;justify-content:space-between}
+.admin-app-spotlight h3{color:#302344;font-size:20px;margin:0 0 5px}
+.admin-app-spotlight p{margin:5px 0 12px;color:#6c6373;line-height:1.45;font-size:13px}
+.admin-app-status{background:#e5f5eb;color:#216b47;border-radius:9px;padding:7px 9px;font-size:11px;font-weight:700}
+.admin-app-stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:9px}
+.admin-app-stat{border-radius:15px;padding:15px 7px;text-align:center;background:#e9f6f2}
+.admin-app-stat:nth-child(2){background:#fff0f3}.admin-app-stat:nth-child(3){background:#efedfc}.admin-app-stat:nth-child(4){background:#eaf7ef}
+.admin-app-stat strong{display:block;font-size:24px;color:#282742}
+.admin-app-stat span{font-size:11px;color:#615968}
+.admin-app-block{background:white;border:1px solid #eee6ec;border-radius:18px;padding:14px}
+.admin-app-block h3{margin:0 0 12px;color:#302344;font-size:16px}
+.admin-app-line{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:10px 0;border-top:1px solid #f1edf3;color:#4c4458;font-size:13px}
+.admin-app-line small{color:#766e7b}
+.admin-app-line a{font-weight:700;color:#5b3f98}
+.admin-app-bottom{position:sticky;bottom:8px;z-index:30;display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:2px;border:1px solid #e9e2ed;background:#fffffff5;padding:7px 4px;border-radius:20px;box-shadow:0 6px 27px #39295524;backdrop-filter:blur(10px)}
+.admin-app-bottom a,.admin-app-bottom button{display:grid;justify-items:center;gap:3px;background:transparent;border:0;color:#6b6376;font:600 10px Montserrat,system-ui,sans-serif;text-decoration:none;padding:8px 2px}
+.admin-app-bottom .is-current{color:#326c55;background:#e8f5ed;border-radius:13px}
+.admin-app-bottom b{font-size:21px;line-height:1.1;font-weight:500}
+.admin-premium-shell:not(.admin-editor-collapsed) .admin-app-home{display:none!important}
+@media(max-width:700px){.admin-app-spotlight img{height:185px}.admin-app-stats{gap:6px}.admin-app-stat strong{font-size:21px}.admin-app-stat span{font-size:10px}.admin-premium-shell.admin-editor-collapsed .admin-modern-tools{grid-template-columns:repeat(4,minmax(0,1fr));gap:5px}.admin-premium-shell.admin-editor-collapsed .admin-modern-tool{min-height:63px;font-size:10px;flex-direction:column;padding:8px 3px}.admin-app-bottom{bottom:5px}}
+
+/* iPhone: navegación fija sin solapamientos ni módulos repetidos */
+.admin-premium-shell.admin-editor-collapsed .admin-modern-tools,
+.admin-premium-shell.admin-editor-collapsed .admin-list-section{display:none!important}
+.admin-premium-shell.admin-editor-collapsed{padding-bottom:calc(112px + env(safe-area-inset-bottom,0px))!important}
+.admin-premium-shell.admin-editor-collapsed .admin-app-bottom{position:fixed!important;left:50%!important;transform:translateX(-50%)!important;bottom:calc(10px + env(safe-area-inset-bottom,0px))!important;width:min(calc(100% - 24px),680px)!important;max-width:680px!important;box-sizing:border-box;z-index:50!important}
+.admin-app-bottom a,.admin-app-bottom button{min-width:0!important;width:100%!important;box-sizing:border-box!important;white-space:normal!important;overflow-wrap:break-word!important;text-align:center!important;font-size:10px!important;line-height:1.2!important}
+.admin-app-bottom b{font-size:20px!important}
+.admin-premium-shell.admin-editor-collapsed .admin-app-home{min-width:0;width:100%}
+.admin-app-line>span{min-width:0;overflow-wrap:anywhere}
+@media(max-width:420px){.admin-app-bottom a,.admin-app-bottom button{font-size:9px!important;padding:7px 1px!important}.admin-app-bottom b{font-size:18px!important}}
+
+/* Revisión de iPhone: menú legible por encima de widgets externos */
+.admin-premium-shell.admin-editor-collapsed .admin-app-bottom{z-index:10050!important;padding:8px!important;grid-template-columns:repeat(5,minmax(0,1fr))!important}
+.admin-premium-shell.admin-editor-collapsed .admin-app-bottom>a,
+.admin-premium-shell.admin-editor-collapsed .admin-app-bottom>button{font-size:10px!important;letter-spacing:-.2px;overflow:hidden!important;min-width:0}
+.admin-premium-shell.admin-editor-collapsed .admin-app-line{flex-wrap:wrap;align-items:flex-start}
+.admin-premium-shell.admin-editor-collapsed .admin-app-line a{display:block;max-width:100%}
+
+/* Iconos vectoriales y navegación accesible en iPhone */
+.admin-app-bottom svg{width:22px;height:22px;display:block;flex:0 0 22px}
+.admin-premium-shell.admin-editor-collapsed .admin-app-bottom>a,.admin-premium-shell.admin-editor-collapsed .admin-app-bottom>button{display:flex!important;flex-direction:column;align-items:center;justify-content:center;gap:5px!important;min-height:52px;padding:7px 1px!important;line-height:1.15!important;white-space:nowrap!important;letter-spacing:0!important}
+.admin-app-bottom span{font-size:clamp(8px,2.35vw,11px);font-weight:600}
+html{scroll-padding-bottom:110px}
+.admin-premium-shell.admin-editor-collapsed .admin-app-spotlight,.admin-premium-shell.admin-editor-collapsed .admin-app-block{scroll-margin-bottom:110px}
+</style>
 <link rel="stylesheet" href="/secondary.css">
 <link rel="stylesheet" href="/whatsapp-button.css">
 <link rel="stylesheet" href="/experience-detail.css">
@@ -472,12 +594,70 @@ window.guardarEvento=async()=>{
     window.scrollTo({top:0,behavior:'smooth'})
   }catch(err){ if(errorElement){errorElement.textContent='No se pudo guardar: '+err.message;errorElement.style.display='block'} } finally{ if(btn){ btn.textContent='Guardar experiencia'; btn.disabled=false } }
 }
-window.editarEvento=async(id)=>{ if(!(await hasValidAdmin())){view='admin-login';render();return} const ev=eventos.find(e=>e.id==id); if(!ev) return; editId=id;fileToUpload=null;selectedTemplateKey='';assistantDraft=null;assistantVariant=0;if(optimizedImage)releaseOptimizedImage(optimizedImage);if(sourceOptimizedImage&&sourceOptimizedImage!==optimizedImage)releaseOptimizedImage(sourceOptimizedImage);optimizedImage=null;sourceOptimizedImage=null;existingImageFocus=null; document.getElementById('f-titulo').value=ev.titulo||''; document.getElementById('f-fecha').value=ev.fecha||''; document.getElementById('f-hora').value=String(ev.hora||'').slice(0,5); document.getElementById('f-precio').value=ev.precio||''; document.getElementById('f-aforo-maximo').value=ev.aforo_maximo??''; document.getElementById('f-lugar').value=ev.lugar||'';document.getElementById('f-localidad').value='';document.getElementById('f-card-text').value=''; document.getElementById('f-desc').value=ev.descripcion||'';document.getElementById('f-additional').value=''; document.getElementById('f-imagen').value=ev.imagen_url||''; document.getElementById('f-publicado').value=String(ev.publicado===true);
+window.editarEvento=async(id)=>{ window.showAdminEditor(); if(!(await hasValidAdmin())){view='admin-login';render();return} const ev=eventos.find(e=>e.id==id); if(!ev) return; editId=id;fileToUpload=null;selectedTemplateKey='';assistantDraft=null;assistantVariant=0;if(optimizedImage)releaseOptimizedImage(optimizedImage);if(sourceOptimizedImage&&sourceOptimizedImage!==optimizedImage)releaseOptimizedImage(sourceOptimizedImage);optimizedImage=null;sourceOptimizedImage=null;existingImageFocus=null; document.getElementById('f-titulo').value=ev.titulo||''; document.getElementById('f-fecha').value=ev.fecha||''; document.getElementById('f-hora').value=String(ev.hora||'').slice(0,5); document.getElementById('f-precio').value=ev.precio||''; document.getElementById('f-aforo-maximo').value=ev.aforo_maximo??''; document.getElementById('f-lugar').value=ev.lugar||'';document.getElementById('f-localidad').value='';document.getElementById('f-card-text').value=''; document.getElementById('f-desc').value=ev.descripcion||'';document.getElementById('f-additional').value=''; document.getElementById('f-imagen').value=ev.imagen_url||''; document.getElementById('f-publicado').value=String(ev.publicado===true);
   const capacityNote=document.getElementById('admin-event-capacity');
   if(capacityNote){const {data:reservations}=await supabase.from('reservas_whatsapp').select('plazas,estado').eq('experiencia_id',id);const occupied=(reservations||[]).filter(r=>r.estado==='confirmada').reduce((n,r)=>n+r.plazas,0),waiting=(reservations||[]).filter(r=>r.estado==='pendiente').reduce((n,r)=>n+r.plazas,0);capacityNote.textContent='Confirmadas/cerradas: '+occupied+' · Pendientes: '+waiting+' · Disponibles: '+(ev.aforo_maximo==null?'Aforo sin configurar':Math.max(0,ev.aforo_maximo-occupied));}
   if(ev.imagen_url){setPreviewSources(ev.imagen_url);document.getElementById('image-details').textContent='Imagen actual. Puedes cambiar los datos o sustituir la imagen; el encuadre se adapta automáticamente.';document.getElementById('preview-img').style.display='grid'} imageDataUrl=ev.imagen_url||null;window.updateAssistantState(); window.scrollTo({top:0,behavior:'smooth'}) }
 window.borrarEvento=async(id)=>{ if(!(await hasValidAdmin())){view='admin-login';render();return} if(!confirm('¿Borrar?')) return; const {error}=await supabase.from('experiencias').delete().eq('id',id); if(error){alert('Error: '+error.message);return} renderAdminList() }
+async function loadAdminAppDetails(ev){
+ const set=(id,t)=>{const node=document.getElementById(id);if(node)node.textContent=String(t)};
+ set('admin-app-title',ev.titulo);set('admin-app-status',ev.publicado?'Publicada':'Borrador');
+ set('admin-app-description',String(ev.fecha||'').split('-').reverse().join('-')+' · '+String(ev.hora||'').slice(0,5)+' · '+(ev.lugar||'Lugar pendiente'));
+ const image=document.getElementById('admin-app-image'),url=safeImageURL(ev.imagen_url);
+ if(image){image.hidden=!url;if(url)image.src=url}
+ const edit=document.getElementById('admin-app-edit');if(edit)edit.onclick=()=>window.editarEvento(ev.id);
+ const data=[];let error=null;
+ for(let start=0;start<100000;start+=500){
+  const page=await supabase.from('reservas_whatsapp').select('id,nombre,plazas,estado,pago_estado,created_at').eq('experiencia_id',ev.id).order('created_at',{ascending:false}).order('id',{ascending:false}).range(start,start+499);
+  if(page.error){error=page.error;break}
+  data.push(...(page.data||[]));
+  if(!page.data||page.data.length<500)break;
+ }
+ const recent=document.getElementById('admin-app-recent'),comms=document.getElementById('admin-app-communications');
+ if(error){if(recent)recent.textContent='No se pudo consultar las reservas';if(comms)comms.textContent='No se pudo consultar las comunicaciones';return}
+ const rows=data||[],active=rows.filter(x=>!['cancelada','aplazada'].includes(x.estado));
+ const seats=list=>list.reduce((n,x)=>n+Number(x.plazas||0),0);
+ const confirmed=active.filter(x=>x.estado==='confirmada'&&x.pago_estado==='recibido');
+ set('admin-app-count',rows.length+' reservas registradas · '+seats(active)+' plazas activas · '+seats(confirmed)+' plazas confirmadas');
+ set('admin-app-confirmed',seats(confirmed));set('admin-app-pending',seats(active)-seats(confirmed));set('admin-app-capacity',ev.aforo_maximo??'—');set('admin-app-available',ev.aforo_maximo==null?'—':Math.max(0,Number(ev.aforo_maximo)-seats(active)));
+ if(recent){recent.replaceChildren();if(!rows.length)recent.textContent='Todavía no hay reservas';for(const r of rows){const line=document.createElement('div');line.className='admin-app-line';const name=document.createElement('span');name.textContent=r.nombre+' · '+r.plazas+' '+(Number(r.plazas)===1?'plaza':'plazas');const state=document.createElement('small');state.textContent=r.estado;line.append(name,state);recent.append(line)}}
+ if(comms){comms.replaceChildren();const link=document.createElement('a');link.href='/reservas-premium.html?experiencia='+encodeURIComponent(ev.id)+'#communications-panel';link.textContent='Abrir comunicaciones y recordatorios →';const p=document.createElement('div');p.className='admin-app-line';p.textContent='Reservas pendientes: '+rows.filter(x=>x.estado==='pendiente').length+' · Reservas confirmadas y pagadas: '+confirmed.length+'. ';p.append(link);comms.append(p)}
+}
+window.selectAdminExperience=(id)=>{
+ const ev=eventos.find(e=>String(e.id)===String(id));
+ if(!ev)return;
+ loadAdminAppDetails(ev).catch(console.error);
+ const target=document.getElementById('admin-modern-active');
+ if(!target)return;
+ target.replaceChildren();
+ const title=document.createElement('h4');title.textContent=ev.titulo;
+ const descr=document.createElement('p');descr.textContent='📅 '+String(ev.fecha||'Sin fecha').split('-').reverse().join('-')+' · '+String(ev.hora||'').slice(0,5)+(ev.lugar?' · '+ev.lugar:'')+' · '+(ev.publicado?'Publicada':'Borrador');
+ const actions=document.createElement('div');actions.className='admin-modern-active-actions';
+ const edit=document.createElement('button');edit.textContent='Editar experiencia';edit.onclick=()=>window.editarEvento(ev.id);
+ const reservations=document.createElement('a');reservations.href='/reservas-premium.html?experiencia='+encodeURIComponent(ev.id);reservations.textContent='Reservas y mensajes';
+ const share=document.createElement('button');share.textContent='Copiar enlace';share.disabled=!ev.publicado;share.onclick=()=>window.copyReservationPage(ev.id);
+ actions.append(edit,reservations,share);target.append(title,descr,actions);
+ document.querySelectorAll('.admin-modern-event').forEach(card=>card.style.borderColor=card.dataset.eventid===String(ev.id)?'#5b3f98':'#e8e0ed');
+};
+function renderAdminModernEvents(data){
+ const node=document.getElementById('admin-modern-events');if(!node)return;
+ node.replaceChildren();
+ if(!data.length){node.textContent='Todavía no hay experiencias. Utiliza Nueva experiencia para crear la primera.';return}
+ const sorted=[...data].sort((a,b)=>String(b.fecha||'').localeCompare(String(a.fecha||'')));
+ for(const ev of sorted){
+  const card=document.createElement('article');card.className='admin-modern-event';card.dataset.eventid=String(ev.id);
+  const url=safeImageURL(ev.imagen_url);
+  if(url){const img=document.createElement('img');img.src=url;img.alt='Imagen de '+ev.titulo;img.loading='lazy';card.append(img)}
+  const body=document.createElement('div');body.className='admin-modern-event-body';
+  const name=document.createElement('strong');name.textContent=ev.titulo;
+  const date=document.createElement('small');date.textContent=String(ev.fecha||'').split('-').reverse().join('-')+' · '+(ev.publicado?'Publicada':'Borrador');
+  const btn=document.createElement('button');btn.type='button';btn.textContent='Gestionar experiencia →';btn.onclick=()=>window.selectAdminExperience(ev.id);
+  body.append(name,date,btn);card.append(body);node.append(card);
+ }
+ window.selectAdminExperience(sorted[0].id);
+}
 window.renderAdminList=async()=>{ if(!(await hasValidAdmin())){view='admin-login';render();return} const r=await supabase.from('experiencias').select('*').order('fecha',{ascending:false}).order('hora',{ascending:false,nullsFirst:false});if(r.error)throw r.error;const data=r.data||[]; eventos=data;
+ renderAdminModernEvents(data);
  const manualSelect=document.getElementById('manual-booking-event');
  if(manualSelect){const current=manualSelect.value;manualSelect.replaceChildren(...data.map(ev=>{const opt=document.createElement('option');opt.value=String(ev.id);opt.textContent=ev.titulo+' · '+(ev.fecha||'');return opt}));if(data.some(ev=>String(ev.id)===current))manualSelect.value=current}
  const c=document.getElementById('lista-admin'); if(!c) return; c.innerHTML=data.map(ev=>{const id=safeEventId(ev.id);const image=safeImageURL(ev.imagen_url);return `<div class="admin-experience-row" style="background:white;border-radius:16px;padding:14px;display:flex;gap:12px;border:1px solid #EDE8F3">${image?`<img class="admin-experience-thumb" src="${escapeHTML(image)}" alt="" style="width:64px;height:64px;object-fit:cover;border-radius:10px"/>`:''}<div class="admin-experience-info" style="flex:1"><strong style="color:#412A6B">${escapeHTML(ev.titulo)}</strong> <span style="display:inline-block;padding:2px 7px;border-radius:999px;background:${ev.publicado?'#DCFCE7':'#F5F0E8'};color:${ev.publicado?'#166534':'#6B5A78'};font-size:10px;font-weight:700">${ev.publicado?'Publicada':'Borrador'}</span><br/><small style="color:#8A7AA8">${escapeHTML(eventMeta(ev))}</small></div><div class="admin-experience-actions"><button type="button" onclick="window.openReservationPage('${id}')" ${ev.publicado?"":"disabled"}>Ver reserva</button><button type="button" onclick="window.copyReservationPage('${id}')" ${ev.publicado?"":"disabled"}>Copiar enlace</button><button type="button" onclick="window.shareReservationPage('${id}')" ${ev.publicado?"":"disabled"}>Compartir</button><button type="button" onclick="window.openSocialCopy('${id}')" style="background:#EDE5F5;color:#5B3F98;font-weight:700">Texto para redes</button><button onclick="window.openStoryModule('${id}')" style="background:#F0E8F7;border:none;padding:6px 10px;border-radius:8px;cursor:pointer;color:#5B3F98">Historia</button><button onclick="window.editarEvento('${id}')" style="background:#F5F0E8;border:none;padding:6px 10px;border-radius:8px;cursor:pointer">Editar</button><button onclick="window.borrarEvento('${id}')" style="background:#FEE2E2;border:none;padding:6px 10px;border-radius:8px;cursor:pointer;color:#B42318">Borrar</button></div></div>`}).join('') }
@@ -773,7 +953,9 @@ function renderManualBookingManager(){
 function renderBookingsModule(){return `${headerHTML()}<main class="admin-premium-shell"><div class="admin-premium-topbar"><div><span class="admin-premium-kicker">ADMIN · RESERVAS</span><h2>Gestión de reservas</h2><p>Reservas existentes, participantes, aforo y aportaciones.</p></div><button type="button" onclick="window.backToExperiencesAdmin()" class="admin-logout">← Volver a experiencias</button></div>${renderManualBookingManager()}</main>`}
 window.openBookingsModule=async()=>{if(!(await hasValidAdmin())){view='admin-login';render();return}view='admin-bookings';render()}
 window.backToExperiencesAdmin=async()=>{if(!(await hasValidAdmin())){view='admin-login';render();return}view='admin-panel';render()}
-function renderAdminPanel(){ return `${headerHTML()}<main class="admin-premium-shell">
+window.showAdminEditor=()=>{const shell=document.querySelector('.admin-premium-shell');shell?.classList.remove('admin-editor-collapsed');requestAnimationFrame(()=>{document.querySelector('.admin-assistant-intro')?.scrollIntoView({behavior:'smooth',block:'start'})})};
+window.hideAdminEditor=()=>{const shell=document.querySelector('.admin-premium-shell');shell?.classList.add('admin-editor-collapsed');requestAnimationFrame(()=>shell?.scrollIntoView({behavior:'smooth',block:'start'}))};
+function renderAdminPanel(){ return `${headerHTML()}<main class="admin-premium-shell admin-editor-collapsed">
   <div class="admin-premium-topbar">
     <div>
       <span class="admin-premium-kicker">ADMIN · EXPERIENCIAS</span>
@@ -783,7 +965,28 @@ function renderAdminPanel(){ return `${headerHTML()}<main class="admin-premium-s
     <button onclick="window.logout()" class="admin-logout">Cerrar sesión</button>
   </div>
 
-  <nav class="admin-module-navigation" aria-label="Módulos del administrador"><button type="button" onclick="window.openBookingsModule()">Reservas y participantes →</button></nav>
+  <section class="admin-modern-summary" aria-label="Panel de control de experiencias">
+    <div class="admin-modern-hero"><div><h3>Panel de experiencias</h3><p>Selecciona una experiencia y gestiona sus reservas, comunicaciones y promoción desde un solo lugar.</p></div><button class="admin-modern-new" type="button" onclick="window.showAdminEditor()">＋ Nueva experiencia</button></div>
+    <section class="admin-app-home" aria-label="Resumen de la experiencia activa">
+      <article class="admin-app-spotlight"><img id="admin-app-image" alt="Imagen de la experiencia seleccionada" hidden><div class="admin-app-spotlight-body"><div class="admin-app-spotlight-title"><h3 id="admin-app-title">Experiencia</h3><span class="admin-app-status" id="admin-app-status"></span></div><p id="admin-app-description"></p><button type="button" class="admin-modern-new" id="admin-app-edit">Editar experiencia</button></div></article>
+      <div class="admin-app-stats" aria-label="Plazas y disponibilidad"><div class="admin-app-stat"><strong id="admin-app-confirmed">—</strong><span>Plazas confirmadas</span></div><div class="admin-app-stat"><strong id="admin-app-pending">—</strong><span>Plazas pendientes</span></div><div class="admin-app-stat"><strong id="admin-app-capacity">—</strong><span>Aforo total</span></div><div class="admin-app-stat"><strong id="admin-app-available">—</strong><span>Disponibles</span></div></div>
+      <div class="admin-app-block"><h3>Comunicaciones pendientes</h3><div id="admin-app-communications">Consultando reservas…</div></div>
+      <div class="admin-app-block"><h3 id="admin-app-list-title">Todas las reservas</h3><p id="admin-app-count" class="hint"></p><div id="admin-app-recent">Consultando reservas…</div></div>
+      <nav class="admin-app-bottom" aria-label="Navegación inferior"><button type="button" class="is-current" onclick="document.querySelector('.admin-modern-summary')?.scrollIntoView({behavior:'smooth'})"><svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="m3 10 9-7 9 7v10h-6v-7H9v7H3z"/></svg><span>Experiencias</span></button><a href="/reservas-premium.html"><svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M7 3v4M17 3v4M3 10h18"/></svg><span>Reservas</span></a><a href="/reservas-premium.html#communications-panel"><svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.5 8.5 0 0 1-8.5 8.5 9 9 0 0 1-4-.9L3 21l1.9-5.5a9 9 0 0 1-.9-4A8.5 8.5 0 0 1 12.5 3a8.5 8.5 0 0 1 8.5 8.5z"/></svg><span>Mensajes</span></a><a href="/reservas-premium.html#attendance-report"><svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20V10M10 20V4M16 20v-8M22 20v-5"/></svg><span>Informes</span></a><button type="button" onclick="window.showAdminEditor()"><svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L8 18l-4 1 1-4Z"/></svg><span>Editar</span></button></nav>
+    </section>
+    <div id="admin-modern-events" class="admin-modern-events" aria-label="Experiencias disponibles"><p>Cargando experiencias…</p></div>
+    <div id="admin-modern-active" class="admin-modern-active" aria-live="polite"><p>Selecciona una experiencia para acceder a sus acciones.</p></div>
+    <div class="admin-modern-tools" aria-label="Accesos rápidos">
+      <button type="button" class="admin-modern-tool" onclick="window.openBookingsModule()">♧ Reservas</button>
+      <a class="admin-modern-tool" href="/reservas-premium.html#communications-panel">◉ Comunicaciones</a>
+      <button type="button" class="admin-modern-tool" onclick="window.showAdminEditor()">✧ Promoción</button>
+      <a class="admin-modern-tool" href="/reservas-premium.html#attendance-report">☑ Asistencia</a>
+    </div>
+  </section>
+  <nav class="admin-module-navigation" aria-label="Módulos del administrador">
+<button type="button" class="admin-module-link admin-module-primary" onclick="window.openBookingsModule()"><span class="admin-module-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M7 3v4M17 3v4M3 10h18M8 15l2 2 5-5"/></svg></span><span class="admin-module-copy"><span class="admin-module-name">Reservas y participantes</span><span class="admin-module-description">Confirmaciones, estados y asistencia</span></span></button>
+<a href="/reservas-premium.html" class="admin-module-link admin-module-premium"><span class="admin-module-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l2.5 5.5L20 10l-5.5 2.5L12 18l-2.5-5.5L4 10l5.5-2.5L12 2Z"/><path d="M19 17l.9 2.1L22 20l-2.1.9L19 23l-.9-2.1L16 20l2.1-.9L19 17Z"/></svg></span><span class="admin-module-copy"><span class="admin-module-name">Reservas Premium y WhatsApp</span><span class="admin-module-description">Comunicaciones pendientes, asistentes y totales</span></span></a></nav>
+  <button class="admin-modern-editor-close" type="button" onclick="window.hideAdminEditor()">← Volver al panel</button>
   <section class="admin-assistant-intro" aria-labelledby="assistant-title">
     <span>Asistente de creación</span>
     <h3 id="assistant-title">Crea el borrador completo desde datos reales</h3>
