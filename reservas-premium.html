@@ -32,10 +32,13 @@ async function load(){
  const future=events.filter(e=>String(e.fecha||'')>=today).sort((a,b)=>String(a.fecha).localeCompare(String(b.fecha)));
  const preferred=future[0]||events[0];
  $('event').replaceChildren(new Option('Todas las experiencias','all'),...events.map(e=>new Option(e.titulo+' · '+e.fecha,String(e.id))));
- $('event').value=events.some(e=>String(e.id)===old)?old:preferred?String(preferred.id):'all';
+ const requested=new URLSearchParams(location.search).get('experiencia');
+ $('event').value=events.some(e=>String(e.id)===requested)?requested:events.some(e=>String(e.id)===old)?old:preferred?String(preferred.id):'all';
  $('auth-form').hidden=true;$('private-content').hidden=false;
  setText('notice','Gestiona las reservas, los mensajes y los asistentes. Los aplazamientos se registrarán manualmente cuando estén habilitados los campos correspondientes.');
  render();
+ const focus=location.hash;
+ if(focus==='#communications-panel'||focus==='#attendance-report')requestAnimationFrame(()=>{if(focus==='#attendance-report')$('attendance-pdf')?.click();else $('communications-panel')?.scrollIntoView({block:'start'})});
 }
 const bookingMessage=(row,ev,confirmed)=>{
  const match=String(ev?.fecha||'').match(/^(\d{4})-(\d{2})-(\d{2})/);
