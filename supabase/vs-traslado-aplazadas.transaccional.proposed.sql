@@ -18,12 +18,8 @@ create table if not exists public.vs_traslados_reservas (
 alter table public.vs_traslados_reservas enable row level security;
 revoke all on table public.vs_traslados_reservas from public, anon, authenticated;
 -- Lectura reservada al admin; escritura solo mediante RPC controlada.
-create policy vs_traslados_admin_select on public.vs_traslados_reservas
- for select to authenticated using (
-   (select auth.uid()) in
-   (select id from auth.users where lower(email) = 'info@viajessonoros.es')
- );
-grant select on public.vs_traslados_reservas to authenticated;
+-- Sin acceso directo desde el cliente a los movimientos: lectura auditada pendiente.
+-- La función administrativa validará el actor; las tablas siguen cerradas por RLS.
 
 create or replace function public.vs_trasladar_reserva_aplazada(
  p_origen uuid, p_destino bigint
