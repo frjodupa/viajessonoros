@@ -1202,27 +1202,30 @@ app.innerHTML = `
       </div>
     </section>
     <section class="partners-section" id="espacios-colaboradores" aria-labelledby="partners-title">
-      <div class="container partners-inner reveal">
-        <div class="partners-heading">
+      <div class="container partners-layout reveal">
+        <div class="partners-intro">
           <p class="eyebrow">Espacios culturales</p>
-          <h2 id="partners-title">Espacios que nos inspiran</h2>
-          <p>Compartimos el valor de los espacios que impulsan la cultura, el arte y el encuentro en Cáceres.</p>
+          <h2 id="partners-title">Espacios que<br>nos inspiran</h2>
+          <p>En Viajes Sonoros creemos en el poder transformador del arte y la cultura. Queremos dar visibilidad a espacios que, a través de la creación, la formación y el encuentro, enriquecen la vida cultural de Cáceres.</p>
+          <div class="partners-identity">
+            <img class="partner-logo" src="/logo-maltravieso-oficial.png" alt="Maltravieso Border Scene · Escuela de Artes Escénicas" width="585" height="145" loading="lazy" decoding="async" onerror="this.hidden=true">
+            <h3>Maltravieso Teatro</h3>
+            <p class="eyebrow">Teatro · Formación · Creación · Cáceres</p>
+            <p>Un espacio dedicado al teatro, la formación artística y la creación cultural en el corazón de Cáceres.</p>
+            <p class="partner-address"><span aria-hidden="true">⌖</span> Calle San José, 18 · Cáceres</p>
+            <div class="partner-actions">
+              <a class="button button-primary" href="https://www.maltraviesoteatro.com/" target="_blank" rel="noopener noreferrer" aria-label="Visitar la web de Maltravieso Teatro, abre una pestaña nueva">Visitar Maltravieso Teatro ${renderIcon('arrow','icon-arrow')}</a>
+              <a class="outline-link" href="https://www.google.com/maps/search/?api=1&amp;query=Calle+San+Jos%C3%A9+18+C%C3%A1ceres" target="_blank" rel="noopener noreferrer">Ver ubicación</a>
+            </div>
+          </div>
         </div>
-        <article class="partner-card">
-          <div class="partner-gallery">
-            <img class="partner-photo" src="/maltravieso-fachada-viajes-sonoros.webp" alt="Propuesta visual de la fachada de Maltravieso con cartel de Viajes Sonoros en el escaparate" loading="lazy" decoding="async" width="1200" height="1200" onerror="this.closest('.partner-gallery').hidden=true">
-          </div>
-          <div class="partner-copy">
-            <img class="partner-logo" src="/logo-maltravieso-oficial.png" alt="Maltravieso Border Scene · Escuela de Artes Escénicas" loading="lazy" width="585" height="145" onerror="this.hidden=true">
-            <p class="eyebrow">Cáceres · Artes escénicas</p>
-            <h3>Maltravieso Border Scene</h3>
-            <p class="partner-address">Calle San José, 18 · Cáceres</p>
-            <p>Un espacio dedicado al teatro, la formación artística y la creación cultural en Cáceres.</p>
-            <a class="outline-link" href="https://www.maltraviesoteatro.com/" target="_blank" rel="noopener noreferrer" aria-label="Visitar la web de Maltravieso Teatro, se abre en una pestaña nueva">
-              Visitar Maltravieso Teatro ${renderIcon('arrow', 'icon-arrow')}
-            </a>
-          </div>
-        </article>
+        <div class="partners-photos">
+          <figure class="partner-main-photo">
+            <img src="/maltravieso-fachada-viajes-sonoros.webp" alt="Visualización artística de la fachada de Maltravieso y cartel de Viajes Sonoros en el escaparate" width="1200" height="1200" loading="lazy" decoding="async" onerror="this.closest('figure').hidden=true">
+            <figcaption>Fachada propuesta · Calle San José, 18</figcaption>
+          </figure>
+          <div class="partner-photo-note">La cultura también es un viaje</div>
+        </div>
       </div>
     </section>
 
