@@ -441,7 +441,7 @@ async function createClosingPdf(){
    const eventTitle=pdf.splitTextToSize(ev.titulo||'Experiencia',125)[0];
    pdf.text(eventTitle,21,y+1);
    const rawDate=String(ev.fecha||'');
-   const date=rawDate.replace(/^(\\d{4})-(\\d{2})-(\\d{2})$/,'$3-$2-$1');
+   const date=rawDate.replace(/^(\d{4})-(\d{2})-(\d{2})$/,'$3-$2-$1');
    pdf.setFont('helvetica','normal');pdf.setFontSize(9);pdf.text(date,189,y+1,{align:'right'});
    y+=24;
    pdf.setTextColor(...violet);pdf.setFont('helvetica','bold');pdf.setFontSize(10);
