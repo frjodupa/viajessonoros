@@ -352,7 +352,7 @@ $('add-waiting').onclick=async()=>{
  const telefono=prompt('Teléfono de contacto:');if(telefono===null)return;
  const raw=prompt('Plazas solicitadas (1 a 10):');if(raw===null)return;
  const plazas=Number(raw);
- if(nombre.trim().length<2||!/^\\+?[0-9]{9,15}$/.test(telefono.trim())||!Number.isInteger(plazas)||plazas<1||plazas>10){alert('Revisa nombre, teléfono y plazas.');return}
+ if(nombre.trim().length<2||!/^\+?[0-9]{9,15}$/.test(telefono.trim())||!Number.isInteger(plazas)||plazas<1||plazas>10){alert('Revisa nombre, teléfono y plazas.');return}
  try{await adminPanelWrite('espera',{experiencia_id:Number(id),nombre:nombre.trim(),telefono:telefono.trim(),plazas})}catch(e){alert('No se ha guardado: '+e.message)}
 };
 $('closing-pdf').onclick=()=>window.print();
