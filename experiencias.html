@@ -163,7 +163,7 @@ body.operational-page {
 .admin-app-line{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:10px 0;border-top:1px solid #f1edf3;color:#4c4458;font-size:13px}
 .admin-app-line small{color:#766e7b}
 .admin-app-line a{font-weight:700;color:#5b3f98}
-.admin-app-bottom{position:sticky;bottom:8px;z-index:30;display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:2px;border:1px solid #e9e2ed;background:#fffffff5;padding:7px 4px;border-radius:20px;box-shadow:0 6px 27px #39295524;backdrop-filter:blur(10px)}
+.admin-app-bottom{position:sticky;bottom:8px;z-index:30;display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:2px;border:1px solid #e9e2ed;background:#fffffff5;padding:7px 4px;border-radius:20px;box-shadow:0 6px 27px #39295524;backdrop-filter:blur(10px)}
 .admin-app-bottom a,.admin-app-bottom button{display:grid;justify-items:center;gap:3px;background:transparent;border:0;color:#6b6376;font:600 10px Montserrat,system-ui,sans-serif;text-decoration:none;padding:8px 2px}
 .admin-app-bottom .is-current{color:#326c55;background:#e8f5ed;border-radius:13px}
 .admin-app-bottom b{font-size:21px;line-height:1.1;font-weight:500}
@@ -196,6 +196,11 @@ html{scroll-padding-bottom:110px}
 .admin-premium-shell.admin-editor-collapsed .admin-app-spotlight,.admin-premium-shell.admin-editor-collapsed .admin-app-block{scroll-margin-bottom:110px}
 
 .admin-top-actions{display:flex;align-items:center;gap:12px;flex-wrap:wrap}.admin-banners-entry{display:inline-flex;align-items:center;gap:9px;min-height:44px;padding:10px 17px;border-radius:14px;background:#5b3f98;color:#fff!important;text-decoration:none;font-weight:700;box-shadow:0 6px 18px #34255f20}.admin-banners-entry span{padding:3px 7px;border-radius:7px;background:#ffffff24;font-size:.72em}.admin-banners-entry:focus-visible{outline:3px solid #1598b7;outline-offset:3px}@media(max-width:700px){.admin-top-actions{width:100%}.admin-banners-entry{flex:1;justify-content:center}}
+
+/* Seis accesos alineados sin saltos de fila */
+.admin-app-bottom{grid-template-columns:repeat(6,minmax(0,1fr))!important;grid-auto-flow:row;width:100%}
+.admin-app-bottom>a,.admin-app-bottom>button{min-width:0;white-space:nowrap;font-size:clamp(9px,.78vw,11px)!important}
+@media(max-width:700px){.admin-app-bottom{gap:0;padding:6px 2px}.admin-app-bottom svg{width:19px;height:19px}.admin-app-bottom>a,.admin-app-bottom>button{font-size:9px!important;letter-spacing:-.3px}}
 </style>
 <link rel="stylesheet" href="/secondary.css">
 <link rel="stylesheet" href="/whatsapp-button.css">
