@@ -10,3 +10,8 @@
 #vs-banner-test .vs-test-x:hover{background:#fffffff0}
 #vs-banner-test .vs-test-x:focus-visible{outline:3px solid #2f96a8;outline-offset:2px}
 @media(max-width:520px){#vs-banner-test .vs-test-dialog{padding:0 0 24px!important}#vs-banner-test .vs-test-image{height:clamp(180px,27vh,240px)}}
+
+
+/* Mostrar íntegra la fotografía aprobada, sin recortar contenido ni rótulos. */
+#vs-banner-test .vs-test-image{width:100%!important;height:auto!important;max-height:none!important;aspect-ratio:auto!important;object-fit:contain!important;object-position:center!important;margin:0 0 25px!important}
+@media(max-width:520px){#vs-banner-test .vs-test-image{height:auto!important;max-height:none!important}}
