@@ -212,13 +212,30 @@ function openBookingEditor(row,ev,card){
  buttons.append(save,close);editor.append(heading,details,field,reasonLabel,resolutionLabel,warning,note,buttons);card.append(editor);
 }
 let pdfPreviewUrl=null;
+async function addOfficialLogoToPdf(pdf){
+ const response=await fetch('/logo-oficial.png',{cache:'no-cache'});
+ if(!response.ok)throw new Error('No se ha podido cargar el logotipo oficial.');
+ const file=await response.blob();
+ const image=await createImageBitmap(file);
+ try{
+  const canvas=document.createElement('canvas');
+  canvas.width=image.width;canvas.height=image.height;
+  const context=canvas.getContext('2d');
+  if(!context)throw new Error('No se pudo preparar el logo oficial.');
+  context.drawImage(image,0,0);
+  const maxWidth=42,maxHeight=23,scale=Math.min(maxWidth/image.width,maxHeight/image.height);
+  const width=image.width*scale,height=image.height*scale;
+  pdf.addImage(canvas.toDataURL('image/png'),'PNG',16,12,width,height);
+  return Math.max(39,12+height+5);
+ }finally{image.close()}
+}
 async function createAttendancePdf(){
  const id=$('event').value;
  const relevant=reservations.filter(r=>id==='all'||String(r.experiencia_id)===id);
  if(!relevant.length){alert('No hay reservas para este listado.');return}
  const {jsPDF}=await import('jspdf');
  const pdf=new jsPDF({unit:'mm',format:'a4'});
- let y=17;
+ let y=await addOfficialLogoToPdf(pdf);
  const newPage=()=>{pdf.addPage();y=17};
  const text=(s,size=10,bold=false)=>{pdf.setFont('helvetica',bold?'bold':'normal');pdf.setFontSize(size);for(const line of pdf.splitTextToSize(String(s||''),178)){if(y>272)newPage();pdf.text(line,16,y);y+=size*.49+1.5}};
  const grouped=[...new Set(relevant.map(r=>String(r.experiencia_id)))];
@@ -365,7 +382,7 @@ async function createClosingPdf(){
  const id=$('event').value,selected=id==='all'?events:events.filter(e=>String(e.id)===id);
  if(!selected.length){alert('No hay experiencias para el informe.');return}
  const {jsPDF}=await import('jspdf');
- const pdf=new jsPDF({unit:'mm',format:'a4'});let y=17;
+ const pdf=new jsPDF({unit:'mm',format:'a4'});let y=await addOfficialLogoToPdf(pdf);
  const write=(value,size=10,bold=false)=>{
   pdf.setFont('helvetica',bold?'bold':'normal');pdf.setFontSize(size);
   for(const textLine of pdf.splitTextToSize(String(value??''),177)){if(y>275){pdf.addPage();y=17}pdf.text(textLine,16,y);y+=size*0.5+2}
