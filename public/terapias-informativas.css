@@ -2,6 +2,6 @@
 /* Imagen aprobada de cada experiencia, a todo el ancho y sin superponer textos. */
 .hero{padding:0!important}
 .hero::before{display:none}
-.therapy-hero-image{display:block;width:100%;aspect-ratio:16/7;object-fit:cover;object-position:center}
+.therapy-hero-image{display:block;width:100%;height:auto;max-height:none;object-fit:contain;object-position:center}
 .therapy-hero-content{position:relative;padding:clamp(28px,5vw,64px)}
-@media(max-width:700px){.therapy-hero-image{aspect-ratio:4/3}.therapy-hero-content{padding:26px 22px}}
+@media(max-width:700px){.therapy-hero-image{width:100%;height:auto;max-height:none;object-fit:contain}.therapy-hero-content{padding:26px 22px}}
