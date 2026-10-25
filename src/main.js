@@ -1201,6 +1201,26 @@ app.innerHTML = `
         </a>
       </div>
     </section>
+    <section class="partners-section" id="espacios-colaboradores" aria-labelledby="partners-title">
+      <div class="container partners-inner reveal">
+        <div class="partners-heading">
+          <p class="eyebrow">Espacios culturales</p>
+          <h2 id="partners-title">Espacios que nos inspiran</h2>
+          <p>Compartimos el valor de los espacios que impulsan la cultura, el arte y el encuentro en Cáceres.</p>
+        </div>
+        <article class="partner-card">
+          <div class="partner-copy">
+            <p class="eyebrow">Cáceres · Artes escénicas</p>
+            <h3>Maltravieso Border Scene</h3>
+            <p>Un espacio dedicado al teatro, la formación artística y la creación cultural en Cáceres.</p>
+            <a class="outline-link" href="https://www.maltraviesoteatro.com/" target="_blank" rel="noopener noreferrer" aria-label="Visitar la web de Maltravieso Teatro, se abre en una pestaña nueva">
+              Visitar Maltravieso Teatro ${renderIcon('arrow', 'icon-arrow')}
+            </a>
+          </div>
+        </article>
+      </div>
+    </section>
+
   </main>
 
   <footer class="site-footer" id="contacto">
