@@ -10,6 +10,10 @@ document.querySelectorAll('[data-banner-preset]').forEach(button=>button.addEven
  const draft=localStorage.getItem('vs-banner-draft-'+key);
  if(draft){try{const data=JSON.parse(draft);ids.forEach(id=>{if(id in data){if(q(id).type==='checkbox')q(id).checked=data[id];else q(id).value=data[id]}})}catch{}}
  else{q('title').value=p.title;q('description').value=p.description;q('button-label').value='Más información';q('button-url').value=new URL(p.url,location.origin).href;q('from').value='';q('until').value='';q('trigger').value='entry';q('once').checked=true;}
+ const img=q('preview-image');
+ img.onload=()=>{img.hidden=false};
+ img.onerror=()=>{img.hidden=true;console.warn('No se pudo cargar la imagen:',p.image)};
+ img.src=p.image;img.alt=p.title;img.hidden=false;
  update();
  document.querySelectorAll('[data-banner-preset]').forEach(b=>b.setAttribute('aria-pressed',String(b===button)));
  document.querySelector('#banner-form').scrollIntoView({behavior:'smooth',block:'start'});
