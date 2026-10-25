@@ -6,6 +6,7 @@ export default defineConfig({
     rollupOptions: {
       input: {
         main: resolve('index.html'),
+        bannersAdmin: resolve('banners-admin.html'),
         experiencias: resolve('experiencias.html'),
         reserva: resolve('reserva.html'),
         reservasPremium: resolve('reservas-premium.html'),
