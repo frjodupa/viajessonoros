@@ -1201,6 +1201,34 @@ app.innerHTML = `
         </a>
       </div>
     </section>
+    <section class="partners-section" id="espacios-colaboradores" aria-labelledby="partners-title">
+      <div class="container partners-layout reveal">
+        <div class="partners-intro">
+          <p class="eyebrow">Espacios culturales</p>
+          <h2 id="partners-title">Espacios que<br>nos inspiran</h2>
+          <p>En Viajes Sonoros creemos en el poder transformador del arte y la cultura. Queremos dar visibilidad a espacios que, a través de la creación, la formación y el encuentro, enriquecen la vida cultural de Cáceres.</p>
+          <div class="partners-identity">
+            <img class="partner-logo" src="/logo-maltravieso-oficial.png" alt="Maltravieso Border Scene · Escuela de Artes Escénicas" width="585" height="145" loading="lazy" decoding="async" onerror="this.hidden=true">
+            <h3>Maltravieso Teatro</h3>
+            <p class="eyebrow">Teatro · Formación · Creación · Cáceres</p>
+            <p>Un espacio dedicado al teatro, la formación artística y la creación cultural en el corazón de Cáceres.</p>
+            <p class="partner-address"><span aria-hidden="true">⌖</span> Calle San José, 18 · Cáceres</p>
+            <div class="partner-actions">
+              <a class="button button-primary" href="https://www.maltraviesoteatro.com/" target="_blank" rel="noopener noreferrer" aria-label="Visitar la web de Maltravieso Teatro, abre una pestaña nueva">Visitar Maltravieso Teatro ${renderIcon('arrow','icon-arrow')}</a>
+              <a class="outline-link" href="https://www.google.com/maps/search/?api=1&amp;query=Calle+San+Jos%C3%A9+18+C%C3%A1ceres" target="_blank" rel="noopener noreferrer">Ver ubicación</a>
+            </div>
+          </div>
+        </div>
+        <div class="partners-photos">
+          <figure class="partner-main-photo">
+            <img src="/Fachada%20de%20escuela%20de%20artes%20Maltravieso.png" alt="Visualización artística de la fachada de Maltravieso y cartel de Viajes Sonoros en el escaparate" width="1200" height="1200" loading="lazy" decoding="async" onerror="this.closest('figure').hidden=true">
+            <figcaption>Fachada propuesta · Calle San José, 18</figcaption>
+          </figure>
+          <div class="partner-photo-note">La cultura también es un viaje</div>
+        </div>
+      </div>
+    </section>
+
   </main>
 
   <footer class="site-footer" id="contacto">
