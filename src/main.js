@@ -1221,7 +1221,7 @@ app.innerHTML = `
         </div>
         <div class="partners-photos">
           <figure class="partner-main-photo">
-            <img src="/maltravieso-fachada-viajes-sonoros.webp" alt="Visualización artística de la fachada de Maltravieso y cartel de Viajes Sonoros en el escaparate" width="1200" height="1200" loading="lazy" decoding="async" onerror="this.closest('figure').hidden=true">
+            <img src="/Fachada%20de%20escuela%20de%20artes%20Maltravieso.png" alt="Visualización artística de la fachada de Maltravieso y cartel de Viajes Sonoros en el escaparate" width="1200" height="1200" loading="lazy" decoding="async" onerror="this.closest('figure').hidden=true">
             <figcaption>Fachada propuesta · Calle San José, 18</figcaption>
           </figure>
           <div class="partner-photo-note">La cultura también es un viaje</div>
