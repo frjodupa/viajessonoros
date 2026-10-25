@@ -4,3 +4,8 @@
 #preview-image{display:block;width:100%;max-height:265px;object-fit:cover;border-radius:0;margin:0}#preview-image[hidden]{display:none!important}.banner{padding:0;overflow:hidden}.banner .content{padding:26px}.banner .close{position:absolute;z-index:4;top:12px;right:12px;background:#ffffffbf;color:#342344;border:1px solid #ffffff80;backdrop-filter:blur(9px);-webkit-backdrop-filter:blur(9px)}
 
 .remote-controls{border-top:1px solid #eadfeb;margin-top:24px;padding-top:18px}.remote-controls h3{font:normal 24px Georgia,serif;color:#452653}.remote-controls p{color:#6c5c72;line-height:1.5}.remote-controls button:disabled{opacity:.48;cursor:not-allowed}
+
+
+/* Misma presentación de imagen completa que en las páginas informativas. */
+#preview-image{display:block;width:100%!important;height:auto!important;max-height:none!important;aspect-ratio:auto!important;object-fit:contain!important;object-position:center!important;margin:0!important}
+#preview-image[hidden]{display:none!important}
