@@ -5,7 +5,7 @@
 #operations-panel{background:linear-gradient(150deg,#fffdfb,#f9f4fc);border-color:#e1d5e9}#operations-panel h3{font-size:1rem;margin:18px 0 7px}#closing-metrics{margin:15px 0}#closing-metrics .metric{background:#fff;min-width:0}#closing-metrics strong{font-variant-numeric:tabular-nums}#expense-list,#waiting-list{line-height:1.7;overflow-wrap:anywhere}details.more-actions{grid-column:1/-1;border:1px solid #e4d8e9;border-radius:12px;padding:7px;background:#fbf8fd}details.more-actions summary{padding:8px;font-weight:700;color:#5b3f98;cursor:pointer;list-style:none}details.more-actions summary:after{content:'⌄';float:right}details.more-actions[open] summary:after{content:'⌃'}details.more-actions .booking-actions{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}details.more-actions button{min-width:0;overflow-wrap:anywhere}@media(max-width:700px){#operations-panel{padding:16px}#closing-metrics .metric{padding:13px}#closing-metrics .metric strong{font-size:1.4rem}}@media print{body>*:not(main){display:none!important}main>*:not(#private-content){display:none!important}#private-content>*:not(#operations-panel){display:none!important}#operations-panel{display:block!important;border:0!important;box-shadow:none!important;padding:8px!important}#operations-panel .toolbar{display:none!important}#closing-metrics{grid-template-columns:repeat(3,1fr)}.premium-bottom{display:none!important}}
 </style></head><body><header><img src="/logo-oficial.png" alt="Viajes Sonoros"><a href="/experiencias.html">← Volver a experiencias</a></header><main><div class="hint">ADMINISTRACIÓN · MÓDULO INDEPENDIENTE</div><h1>Reservas Premium</h1><p class="hint">Flujo único: solicitud → ingreso comprobado → reserva confirmada → WhatsApp → asistencia.</p><div class="notice" id="notice">Comprobando sesión segura…</div><form id="auth-form" class="auth-panel" hidden><h2>Acceso de administración</h2><p class="hint">Inicia sesión con las credenciales del administrador de Viajes Sonoros para ver las reservas en este dominio de pruebas.</p><label>Correo electrónico<input id="auth-email" type="email" autocomplete="username" required></label><label>Contraseña<input id="auth-password" type="password" autocomplete="current-password" required></label><button type="submit" id="auth-submit">Entrar en Reservas Premium</button><p id="auth-error" role="alert"></p></form><div id="private-content" hidden><section class="panel" id="event-quick-summary" aria-label="Control de asistentes"><h2>Control del evento</h2><div id="event-totals" class="metrics"></div><p class="hint">Las plazas confirmadas solo cuentan cuando el pago consta como recibido. El aforo disponible descuenta también las solicitudes pendientes.</p></section><section class="panel" id="operations-panel" style="margin-top:16px">
 <h2>Asistencia y cierre de experiencia</h2><p class="hint">Los asistentes reales se registran desde «Ver informe de asistencia». Las plazas sin registro se muestran como pendientes de control.</p>
-<div id="closing-metrics" class="metrics"></div>
+<div id="closing-metrics" class="metrics"></div><div id="rental-payment" class="panel" style="padding:15px;background:#f7f1fa;margin:12px 0"><h3>Alquiler de sala · Pago realizado</h3><p class="hint">El 20 % es orientativo. Registra la cantidad realmente entregada, aunque sea mayor.</p><div id="rental-payment-info" class="hint"></div><div class="toolbar"><label>Importe entregado (€) <input id="rental-paid-amount" type="number" min="0" step="0.01" inputmode="decimal" style="max-width:150px"></label><label style="display:flex;align-items:center;gap:8px"><input id="rental-paid-check" type="checkbox"> Pagado</label><button id="save-rental-payment" type="button">Guardar pago</button></div></div>
 <div class="toolbar"><button type="button" id="closing-pdf" class="secondary">Guardar cierre en PDF</button><button type="button" id="add-expense">Añadir gasto</button><button type="button" id="add-waiting" class="secondary">Añadir a lista de espera</button></div>
 <h3>Gastos registrados</h3><div id="expense-list" class="hint"></div>
 <h3>Lista de espera</h3><div id="waiting-list" class="hint"></div>
@@ -310,12 +310,13 @@ async function createAttendancePdf(){
  box.append(label,intro,actions,preview);overlay.append(box);document.body.append(overlay);
 
 }
-let panelAttendance=new Map(),panelExpenses=[],panelWaiting=[],panelHistory=[];
+let panelAttendance=new Map(),panelExpenses=[],panelWaiting=[],panelHistory=[],panelRental=new Map();
 async function refreshAdminExtras(){
  const {data,error}=await supabase.rpc('vs_admin_panel_datos',{p_experiencia_id:null});
  if(error)throw error;
  panelAttendance=new Map((data.asistencia||[]).map(r=>[String(r.reserva_id),Number(r.plazas_presentes)]));
  panelExpenses=data.gastos||[];panelWaiting=data.espera||[];
+ const rentalData=await supabase.rpc('vs_admin_alquiler_consultar');if(rentalData.error)throw rentalData.error;panelRental=new Map((rentalData.data||[]).map(r=>[String(r.experiencia_id),r]));
  const history=await supabase.rpc('vs_admin_historial',{p_experiencia_id:null});if(history.error)throw history.error;panelHistory=history.data||[];
 }
 async function adminPanelWrite(operacion,datos){
@@ -333,10 +334,15 @@ function closingSummary(){
  const incoming=eligible.reduce((n,r)=>n+Number(r.importe_total||0),0);
  const rental=eligible.reduce((n,r)=>n+Number(r.importe_total||0)*0.2,0);
  const expense=panelExpenses.filter(g=>id==='all'||String(g.experiencia_id)===id).reduce((n,g)=>n+Number(g.importe||0),0);
+ const actualRent=[...panelRental.entries()].filter(([key])=>id==='all'||key===id).reduce((n,[,r])=>n+(r.pagado?Number(r.importe_pagado):0),0);
  const target=$('closing-metrics');target.replaceChildren();
- for(const [title,value] of [['Asistentes registrados',actual],['Plazas por comprobar',missing],['Aportaciones confirmadas',money(incoming)],['Alquiler 20 % (confirmadas)',money(rental)],['Otros gastos',money(expense)],['Resultado estimado',money(incoming-rental-expense)]]){
+ for(const [title,value] of [['Asistentes registrados',actual],['Plazas por comprobar',missing],['Aportaciones confirmadas',money(incoming)],['Alquiler orientativo · 20 %',money(rental)],['Alquiler realmente pagado',money(actualRent)],['Otros gastos',money(expense)],['Resultado neto tras pagos',money(incoming-actualRent-expense)]]){
   const card=document.createElement('div');card.className='metric';const num=document.createElement('strong');num.textContent=String(value);const lbl=document.createElement('span');lbl.textContent=title;card.append(num,lbl);target.append(card);
  }
+ const rentPanel=$('rental-payment'),rentRecord=panelRental.get(id);
+ rentPanel.hidden=id==='all';
+ if(id!=='all'&&$('rental-paid-amount').dataset.event!==id){$('rental-paid-amount').dataset.event=id;$('rental-paid-amount').value=rentRecord?String(rentRecord.importe_pagado):'';$('rental-paid-check').checked=Boolean(rentRecord?.pagado)}
+ $('rental-payment-info').textContent=id==='all'?'Selecciona una experiencia':rentRecord?(rentRecord.pagado?'Pagado: ':'Pendiente de pago: ')+money(Number(rentRecord.importe_pagado))+' · Referencia 20 %: '+money(rental):'Sin pago registrado · Referencia 20 %: '+money(rental);
  const expenses=panelExpenses.filter(g=>id==='all'||String(g.experiencia_id)===id);
  $('expense-list').textContent=expenses.length?expenses.map(g=>g.concepto+' · '+money(Number(g.importe))).join(' | '):'Sin gastos adicionales registrados.';
  const wait=panelWaiting.filter(w=>id==='all'||String(w.experiencia_id)===id);
@@ -353,6 +359,16 @@ function closingSummary(){
   line.append(name,contact);waiting.append(line);
  }
 }
+$('save-rental-payment').onclick=async()=>{
+ const id=$('event').value,input=$('rental-paid-amount'),checked=$('rental-paid-check').checked,raw=input.value.trim().replace(',','.');
+ const amount=Number(raw);
+ if(id==='all'||raw===''||!Number.isFinite(amount)||amount<0){alert('Selecciona una experiencia e introduce un importe válido.');return}
+ if(!confirm('¿Guardar alquiler de sala por '+money(amount)+' como '+(checked?'PAGADO':'PENDIENTE')+'?'))return;
+ const btn=$('save-rental-payment');btn.disabled=true;
+ try{const {error}=await supabase.rpc('vs_admin_alquiler_guardar',{p_experiencia_id:Number(id),p_importe:amount,p_pagado:checked});
+ if(error)throw error;await refreshAdminExtras();render();alert('Alquiler actualizado.')}
+ catch(e){alert('No se ha guardado: '+e.message)}finally{btn.disabled=false}
+};
 $('add-expense').onclick=async()=>{
  const id=$('event').value;if(id==='all'){alert('Selecciona una experiencia.');return}
  const concepto=prompt('Concepto del gasto:');if(concepto===null)return;
@@ -390,15 +406,17 @@ async function createClosingPdf(){
   const present=confirmed.filter(r=>panelAttendance.has(String(r.id))).reduce((n,r)=>n+Number(panelAttendance.get(String(r.id))||0),0);
   const unverified=confirmed.filter(r=>!panelAttendance.has(String(r.id))).reduce((n,r)=>n+Number(r.plazas||0),0);
   const rent=Math.round(gross*0.2*100)/100;
+  const rentalRecord=panelRental.get(String(ev.id));const paidRental=rentalRecord?.pagado?Number(rentalRecord.importe_pagado):0;
   const expenses=panelExpenses.filter(g=>String(g.experiencia_id)===String(ev.id));
   const other=expenses.reduce((n,g)=>n+Number(g.importe||0),0);
   y+=5;write((ev.titulo||'Experiencia')+' | '+String(ev.fecha||''),12,true);
   write('Asistencia registrada: '+present+' | Plazas sin verificar: '+unverified);
   write('Aportaciones confirmadas: '+money(gross));
-  write('Alquiler de sala (20%): '+money(rent));
+  write('Alquiler orientativo (20%): '+money(rent));
+  write('Alquiler registrado: '+(rentalRecord?money(Number(rentalRecord.importe_pagado)):'No registrado')+' | '+(rentalRecord?.pagado?'PAGADO':'PENDIENTE'));
   for(const g of expenses)write('Gasto - '+g.concepto+': '+money(Number(g.importe)),9);
   write('Otros gastos: '+money(other));
-  write('Resultado estimado: '+money(gross-rent-other),12,true);
+  write('Resultado neto tras pagos: '+money(gross-paidRental-other),12,true);
   write('Aplazadas: '+rows.filter(r=>r.estado==='aplazada').length+' | Canceladas: '+rows.filter(r=>r.estado==='cancelada').length,9);
  }
  const pages=pdf.getNumberOfPages();
