@@ -397,36 +397,80 @@ async function createClosingPdf(){
  const id=$('event').value,selected=id==='all'?events:events.filter(e=>String(e.id)===id);
  if(!selected.length){alert('No hay experiencias para el informe.');return}
  const {jsPDF}=await import('jspdf');
- const pdf=new jsPDF({unit:'mm',format:'a4'});let y=await addOfficialLogoToPdf(pdf);
- const write=(value,size=10,bold=false)=>{
-  pdf.setFont('helvetica',bold?'bold':'normal');pdf.setFontSize(size);
-  for(const textLine of pdf.splitTextToSize(String(value??''),177)){if(y>275){pdf.addPage();y=17}pdf.text(textLine,16,y);y+=size*0.5+2}
+ const pdf=new jsPDF({unit:'mm',format:'a4'});
+ const violet=[91,63,152],ink=[53,38,72],muted=[108,97,117],light=[246,242,249];
+ let y=15;
+ const rect=(x,top,w,h,fill)=>{pdf.setFillColor(...fill);pdf.roundedRect(x,top,w,h,2.7,2.7,'F')};
+ const divider=(top)=>{pdf.setDrawColor(225,215,233);pdf.setLineWidth(.3);pdf.line(16,top,194,top)};
+ const ensure=(height)=>{if(y+height>272){pdf.addPage();y=19}};
+ const row=(label,value,emphasis=false)=>{
+   const lines=pdf.splitTextToSize(String(label),120);
+   const height=Math.max(9,lines.length*5.2+4);
+   ensure(height);
+   if(emphasis)rect(16,y-5,178,height,[239,233,247]);
+   pdf.setFont('helvetica',emphasis?'bold':'normal');pdf.setFontSize(emphasis?11:10);
+   pdf.setTextColor(...(emphasis?ink:muted));pdf.text(lines,emphasis?20:17,y);
+   pdf.setTextColor(...(emphasis?violet:ink));pdf.setFont('helvetica','bold');
+   pdf.text(String(value),emphasis?190:193,y,{align:'right'});
+   y+=height;
  };
- write('VIAJES SONOROS · CIERRE ECONOMICO',16,true);
- write('Informe administrativo · '+new Date().toLocaleString('es-ES'),9);
- write('Los cobros corresponden a aportaciones registradas; no sustituyen la conciliacion bancaria.',9);
+ const headerLogoEnd=await addOfficialLogoToPdf(pdf);
+ // Cabecera independiente: el logo ocupa la zona superior; no se superpone al título.
+ y=Math.max(45,headerLogoEnd+6);
+ divider(y);y+=13;
+ pdf.setTextColor(...ink);pdf.setFont('helvetica','bold');pdf.setFontSize(17);
+ pdf.text('CIERRE ECONÓMICO',16,y);
+ y+=9;pdf.setFont('helvetica','normal');pdf.setFontSize(9);pdf.setTextColor(...muted);
+ pdf.text('VIAJES SONOROS  |  Informe administrativo privado',16,y);
+ pdf.text(new Date().toLocaleDateString('es-ES'),194,y,{align:'right'});
+ y+=10;divider(y);y+=12;
  for(const ev of selected){
-  const rows=reservations.filter(r=>String(r.experiencia_id)===String(ev.id));
-  const confirmed=rows.filter(r=>r.estado==='confirmada'&&r.pago_estado==='recibido');
-  const gross=confirmed.reduce((n,r)=>n+Number(r.importe_total||0),0);
-  const present=confirmed.filter(r=>panelAttendance.has(String(r.id))).reduce((n,r)=>n+Number(panelAttendance.get(String(r.id))||0),0);
-  const unverified=confirmed.filter(r=>!panelAttendance.has(String(r.id))).reduce((n,r)=>n+Number(r.plazas||0),0);
-  const rent=Math.round(gross*0.2*100)/100;
-  const rentalRecord=panelRental.get(String(ev.id));const paidRental=rentalRecord?.pagado?Number(rentalRecord.importe_pagado):0;
-  const expenses=panelExpenses.filter(g=>String(g.experiencia_id)===String(ev.id));
-  const other=expenses.reduce((n,g)=>n+Number(g.importe||0),0);
-  y+=5;write((ev.titulo||'Experiencia')+' | '+String(ev.fecha||''),12,true);
-  write('Asistencia registrada: '+present+' | Plazas sin verificar: '+unverified);
-  write('Aportaciones confirmadas: '+money(gross));
-  write('Alquiler orientativo (20%): '+money(rent));
-  write('Alquiler registrado: '+(rentalRecord?money(Number(rentalRecord.importe_pagado)):'No registrado')+' | '+(rentalRecord?.pagado?'PAGADO':'PENDIENTE'));
-  for(const g of expenses)write('Gasto - '+g.concepto+': '+money(Number(g.importe)),9);
-  write('Otros gastos: '+money(other));
-  write('Resultado neto tras pagos: '+money(gross-paidRental-other),12,true);
-  write('Aplazadas: '+rows.filter(r=>r.estado==='aplazada').length+' | Canceladas: '+rows.filter(r=>r.estado==='cancelada').length,9);
+   ensure(76);
+   const rows=reservations.filter(r=>String(r.experiencia_id)===String(ev.id));
+   const confirmed=rows.filter(r=>r.estado==='confirmada'&&r.pago_estado==='recibido');
+   const gross=confirmed.reduce((n,r)=>n+Number(r.importe_total||0),0);
+   const present=confirmed.filter(r=>panelAttendance.has(String(r.id))).reduce((n,r)=>n+Number(panelAttendance.get(String(r.id))||0),0);
+   const unverified=confirmed.filter(r=>!panelAttendance.has(String(r.id))).reduce((n,r)=>n+Number(r.plazas||0),0);
+   const rent=Math.round(gross*20)/100;
+   const rentalRecord=panelRental.get(String(ev.id));
+   const paidRental=rentalRecord?.pagado?Number(rentalRecord.importe_pagado):0;
+   const expenses=panelExpenses.filter(g=>String(g.experiencia_id)===String(ev.id));
+   const other=expenses.reduce((n,g)=>n+Number(g.importe||0),0);
+   rect(16,y-6,178,20,light);
+   pdf.setTextColor(...ink);pdf.setFont('helvetica','bold');pdf.setFontSize(12);
+   const eventTitle=pdf.splitTextToSize(ev.titulo||'Experiencia',125)[0];
+   pdf.text(eventTitle,21,y+1);
+   const rawDate=String(ev.fecha||'');
+   const date=rawDate.replace(/^(\\d{4})-(\\d{2})-(\\d{2})$/,'$3-$2-$1');
+   pdf.setFont('helvetica','normal');pdf.setFontSize(9);pdf.text(date,189,y+1,{align:'right'});
+   y+=24;
+   pdf.setTextColor(...violet);pdf.setFont('helvetica','bold');pdf.setFontSize(10);
+   pdf.text('ASISTENCIA',17,y);y+=8;
+   row('Plazas presentes registradas',String(present));
+   row('Plazas pendientes de comprobar',String(unverified));
+   y+=6;ensure(13);
+   pdf.setTextColor(...violet);pdf.setFont('helvetica','bold');pdf.setFontSize(10);
+   pdf.text('BALANCE ECONÓMICO',17,y);y+=8;
+   row('Aportaciones confirmadas',money(gross));
+   row('Alquiler orientativo (20 %)',money(rent));
+   row('Alquiler registrado',rentalRecord?money(Number(rentalRecord.importe_pagado)):'No registrado');
+   row('Estado del alquiler',rentalRecord?.pagado?'PAGADO':'PENDIENTE');
+   for(const expense of expenses)row('Gasto · '+expense.concepto,money(Number(expense.importe)));
+   row('Otros gastos',money(other));
+   y+=3;row('RESULTADO NETO TRAS PAGOS',money(gross-paidRental-other),true);
+   y+=6;ensure(16);pdf.setFont('helvetica','normal');pdf.setFontSize(9);pdf.setTextColor(...muted);
+   pdf.text('Reservas aplazadas: '+rows.filter(r=>r.estado==='aplazada').length+'    |    Canceladas: '+rows.filter(r=>r.estado==='cancelada').length,17,y);
+   y+=13;divider(y);y+=14;
  }
  const pages=pdf.getNumberOfPages();
- for(let p=1;p<=pages;p++){pdf.setPage(p);pdf.setFontSize(8);pdf.text('Viajes Sonoros · Documento privado · '+p+'/'+pages,16,288)}
+ for(let p=1;p<=pages;p++){
+   pdf.setPage(p);
+   divider(279);
+   pdf.setTextColor(...muted);pdf.setFont('helvetica','normal');pdf.setFontSize(8);
+   pdf.text('VIAJES SONOROS  ·  Documento interno y confidencial',16,286);
+   pdf.text('viajessonoros.es',105,286,{align:'center'});
+   pdf.text('Página '+p+' de '+pages,194,286,{align:'right'});
+ }
  pdf.save('viajes-sonoros-cierre-'+(id==='all'?'experiencias':id)+'.pdf');
 }
 $('closing-pdf').onclick=async()=>{const button=$('closing-pdf');button.disabled=true;try{await createClosingPdf()}catch(e){alert('No se ha podido generar el PDF: '+e.message)}finally{button.disabled=false}};
