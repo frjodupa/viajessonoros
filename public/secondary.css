@@ -1814,3 +1814,19 @@ body.experience-detail-open {
     grid-template-columns: minmax(0, 1fr) !important;
   }
 }
+
+
+/* Cuadrícula pública basada en el número real de experiencias cargadas.
+   Máximo tres tarjetas por fila; dos ocupan las dos mitades del ancho. */
+@media (min-width: 1001px) {
+  #grid-exp { grid-template-columns: repeat(3,minmax(0,1fr)) !important; }
+  #grid-exp[data-count="2"] { grid-template-columns: repeat(2,minmax(0,1fr)) !important; }
+  #grid-exp[data-count="1"] { grid-template-columns: minmax(0,1fr) !important; }
+}
+@media (min-width: 701px) and (max-width: 1000px) {
+  #grid-exp { grid-template-columns: repeat(2,minmax(0,1fr)) !important; }
+  #grid-exp[data-count="1"] { grid-template-columns: minmax(0,1fr) !important; }
+}
+@media (max-width: 700px) {
+  #grid-exp { grid-template-columns: minmax(0,1fr) !important; }
+}
