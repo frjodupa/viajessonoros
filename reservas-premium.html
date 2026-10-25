@@ -339,7 +339,18 @@ function closingSummary(){
  const expenses=panelExpenses.filter(g=>id==='all'||String(g.experiencia_id)===id);
  $('expense-list').textContent=expenses.length?expenses.map(g=>g.concepto+' · '+money(Number(g.importe))).join(' | '):'Sin gastos adicionales registrados.';
  const wait=panelWaiting.filter(w=>id==='all'||String(w.experiencia_id)===id);
- $('waiting-list').textContent=wait.length?wait.map(w=>w.nombre+' · '+w.plazas+' plazas · '+w.estado+' · '+w.telefono).join(' | '):'Sin personas en lista de espera.';
+ const waiting=$('waiting-list');waiting.replaceChildren();
+ if(!wait.length){waiting.textContent='Sin personas en lista de espera.'}
+ else for(const w of wait){
+  const line=document.createElement('div');line.style.cssText='display:flex;justify-content:space-between;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid #e9e0ed;flex-wrap:wrap';
+  const name=document.createElement('span');name.textContent=w.nombre+' · '+w.plazas+' '+(Number(w.plazas)===1?'plaza':'plazas')+' · '+w.estado;
+  const contact=document.createElement('a');contact.textContent='Contactar por WhatsApp';contact.style.cssText='display:inline-flex;padding:10px 12px;border-radius:10px;background:#eee7f3;color:#49335a;text-decoration:none;font-weight:700';
+  const event=events.find(e=>String(e.id)===String(w.experiencia_id));
+  const msg='Hola, '+String(w.nombre).trim().split(/\\s+/)[0]+'. 🌿 Te escribimos desde Viajes Sonoros sobre tu solicitud para '+(event?.titulo||'la experiencia')+'. Si queda disponibilidad, podemos revisar contigo las plazas. Un abrazo, María y José.';
+  contact.href='https://wa.me/'+String(w.telefono).replace(/\\D/g,'')+'?text='+encodeURIComponent(msg);
+  contact.target='_blank';contact.rel='noopener noreferrer';
+  line.append(name,contact);waiting.append(line);
+ }
 }
 $('add-expense').onclick=async()=>{
  const id=$('event').value;if(id==='all'){alert('Selecciona una experiencia.');return}
