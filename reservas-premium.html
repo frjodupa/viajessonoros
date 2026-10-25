@@ -6,7 +6,7 @@
 </style></head><body><header><img src="/logo-oficial.png" alt="Viajes Sonoros"><a href="/experiencias.html">← Volver a experiencias</a></header><main><div class="hint">ADMINISTRACIÓN · MÓDULO INDEPENDIENTE</div><h1>Reservas Premium</h1><p class="hint">Flujo único: solicitud → ingreso comprobado → reserva confirmada → WhatsApp → asistencia.</p><div class="notice" id="notice">Comprobando sesión segura…</div><form id="auth-form" class="auth-panel" hidden><h2>Acceso de administración</h2><p class="hint">Inicia sesión con las credenciales del administrador de Viajes Sonoros para ver las reservas en este dominio de pruebas.</p><label>Correo electrónico<input id="auth-email" type="email" autocomplete="username" required></label><label>Contraseña<input id="auth-password" type="password" autocomplete="current-password" required></label><button type="submit" id="auth-submit">Entrar en Reservas Premium</button><p id="auth-error" role="alert"></p></form><div id="private-content" hidden><section class="panel" id="event-quick-summary" aria-label="Control de asistentes"><h2>Control del evento</h2><div id="event-totals" class="metrics"></div><p class="hint">Las plazas confirmadas solo cuentan cuando el pago consta como recibido. El aforo disponible descuenta también las solicitudes pendientes.</p></section><section class="panel" id="operations-panel" style="margin-top:16px">
 <h2>Asistencia y cierre de experiencia</h2><p class="hint">Los asistentes reales se registran desde «Ver informe de asistencia». Las plazas sin registro se muestran como pendientes de control.</p>
 <div id="closing-metrics" class="metrics"></div>
-<div class="toolbar"><button type="button" id="closing-pdf" class="secondary">Imprimir cierre</button><button type="button" id="add-expense">Añadir gasto</button><button type="button" id="add-waiting" class="secondary">Añadir a lista de espera</button></div>
+<div class="toolbar"><button type="button" id="closing-pdf" class="secondary">Guardar cierre en PDF</button><button type="button" id="add-expense">Añadir gasto</button><button type="button" id="add-waiting" class="secondary">Añadir a lista de espera</button></div>
 <h3>Gastos registrados</h3><div id="expense-list" class="hint"></div>
 <h3>Lista de espera</h3><div id="waiting-list" class="hint"></div>
 </section><section id="dashboard-anchor" class="metrics" hidden aria-label="Resumen"><div class="metric"><strong id="m-confirmed">—</strong><span>Asistentes confirmados</span></div><div class="metric"><strong id="m-pending">—</strong><span>Plazas pendientes</span></div><div class="metric"><strong id="m-reservations">—</strong><span>Reservas activas</span></div><div class="metric"><strong id="m-amount">—</strong><span>Aportación prevista</span></div></section><section class="panel" id="communications-panel"><h2>Comunicaciones pendientes</h2><p class="hint">Mensajes preparados para WhatsApp. Abrir el chat no confirma su envío: marca «Enviado» únicamente después de mandarlo.</p><div id="communications-list" class="bookings" aria-live="polite"></div></section><section class="panel" id="reservas-listado"><h2>Reservas y participantes</h2><p class="hint">1. Revisa solicitudes pendientes. 2. Comprueba el ingreso. 3. Confirma reserva y pago a la vez. 4. Envía WhatsApp de confirmación. 5. Utiliza el listado de asistencia el día del evento.</p><div class="booking-tabs" role="tablist" aria-label="Filtrar reservas por estado"><button type="button" role="tab" data-state="all" aria-selected="true">Todas</button><button type="button" role="tab" data-state="pendiente" aria-selected="false">Pendientes</button><button type="button" role="tab" data-state="confirmada" aria-selected="false">Confirmadas</button><button type="button" role="tab" data-state="cancelada" aria-selected="false">Canceladas</button><button type="button" role="tab" data-state="aplazada" aria-selected="false">Aplazadas</button></div><div class="toolbar"><input id="search" class="search" placeholder="Buscar por nombre o teléfono" aria-label="Buscar reservas"><select id="event" aria-label="Experiencia"><option value="all">Todas las experiencias</option></select><select id="status" aria-label="Estado"><option value="all">Todos los estados</option><option value="pendiente">Pendientes</option><option value="confirmada">Confirmadas</option><option value="cancelada">Canceladas</option><option value="aplazada">Aplazadas</option></select><button type="button" id="reload" class="secondary">Actualizar</button><button type="button" id="attendance-pdf" class="pdf-button">Ver informe de asistencia</button></div><div id="bookings" class="bookings" aria-live="polite"></div></section><section class="panel" id="finance-panel" hidden style="margin-top:16px"><h2>Control de aportaciones</h2><p class="hint">Importes según el registro administrativo, sin sustituir la conciliación bancaria.</p><div id="finance-summary" class="metrics"></div></section><nav class="premium-bottom" aria-label="Navegación de reservas"><button type="button" id="nav-bookings" aria-current="page"><svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M7 3v4M17 3v4M3 10h18"/></svg>Reservas</button><button type="button" id="nav-summary"><svg viewBox="0 0 24 24"><path d="M3 21v-8h5v8M10 21V4h5v17M17 21v-12h4v12"/></svg>Resumen</button><button type="button" id="nav-attendance"><svg viewBox="0 0 24 24"><path d="M7 3h8l4 4v14H5V3h2M14 3v5h5M8 14l3 3 5-6"/></svg>Asistencia</button><button type="button" id="nav-admin"><svg viewBox="0 0 24 24"><path d="M3 12h18M3 12l7-7M3 12l7 7"/></svg>Volver</button></nav></div></main><script type="module">
@@ -371,7 +371,42 @@ $('add-waiting').onclick=async()=>{
  if(nombre.trim().length<2||!/^\+?[0-9]{9,15}$/.test(telefono.trim())||!Number.isInteger(plazas)||plazas<1||plazas>10){alert('Revisa nombre, teléfono y plazas.');return}
  try{await adminPanelWrite('espera',{experiencia_id:Number(id),nombre:nombre.trim(),telefono:telefono.trim(),plazas})}catch(e){alert('No se ha guardado: '+e.message)}
 };
-$('closing-pdf').onclick=()=>window.print();
+async function createClosingPdf(){
+ const id=$('event').value,selected=id==='all'?events:events.filter(e=>String(e.id)===id);
+ if(!selected.length){alert('No hay experiencias para el informe.');return}
+ const {jsPDF}=await import('jspdf');
+ const pdf=new jsPDF({unit:'mm',format:'a4'});let y=17;
+ const write=(value,size=10,bold=false)=>{
+  pdf.setFont('helvetica',bold?'bold':'normal');pdf.setFontSize(size);
+  for(const textLine of pdf.splitTextToSize(String(value??''),177)){if(y>275){pdf.addPage();y=17}pdf.text(textLine,16,y);y+=size*0.5+2}
+ };
+ write('VIAJES SONOROS · CIERRE ECONOMICO',16,true);
+ write('Informe administrativo · '+new Date().toLocaleString('es-ES'),9);
+ write('Los cobros corresponden a aportaciones registradas; no sustituyen la conciliacion bancaria.',9);
+ for(const ev of selected){
+  const rows=reservations.filter(r=>String(r.experiencia_id)===String(ev.id));
+  const confirmed=rows.filter(r=>r.estado==='confirmada'&&r.pago_estado==='recibido');
+  const gross=confirmed.reduce((n,r)=>n+Number(r.importe_total||0),0);
+  const present=confirmed.filter(r=>panelAttendance.has(String(r.id))).reduce((n,r)=>n+Number(panelAttendance.get(String(r.id))||0),0);
+  const unverified=confirmed.filter(r=>!panelAttendance.has(String(r.id))).reduce((n,r)=>n+Number(r.plazas||0),0);
+  const rent=Math.round(gross*0.2*100)/100;
+  const expenses=panelExpenses.filter(g=>String(g.experiencia_id)===String(ev.id));
+  const other=expenses.reduce((n,g)=>n+Number(g.importe||0),0);
+  y+=5;write((ev.titulo||'Experiencia')+' | '+String(ev.fecha||''),12,true);
+  write('Asistencia registrada: '+present+' | Plazas sin verificar: '+unverified);
+  write('Aportaciones confirmadas: '+money(gross));
+  write('Alquiler de sala (20%): '+money(rent));
+  for(const g of expenses)write('Gasto - '+g.concepto+': '+money(Number(g.importe)),9);
+  write('Otros gastos: '+money(other));
+  write('Resultado estimado: '+money(gross-rent-other),12,true);
+  write('Aplazadas: '+rows.filter(r=>r.estado==='aplazada').length+' | Canceladas: '+rows.filter(r=>r.estado==='cancelada').length,9);
+ }
+ const pages=pdf.getNumberOfPages();
+ for(let p=1;p<=pages;p++){pdf.setPage(p);pdf.setFontSize(8);pdf.text('Viajes Sonoros · Documento privado · '+p+'/'+pages,16,288)}
+ pdf.save('viajes-sonoros-cierre-'+(id==='all'?'experiencias':id)+'.pdf');
+}
+$('closing-pdf').onclick=async()=>{const button=$('closing-pdf');button.disabled=true;try{await createClosingPdf()}catch(e){alert('No se ha podido generar el PDF: '+e.message)}finally{button.disabled=false}};
+
 function showAttendanceReport(){
  const chosen=$('event').value;
  const rows=reservations.filter(r=>chosen==='all'||String(r.experiencia_id)===chosen);
