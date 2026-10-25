@@ -536,8 +536,7 @@ const buckets=[
    if(h.importe_antes!==h.importe_despues)changes.push('Aportación modificada');
    line.textContent=new Date(h.creado_en).toLocaleString('es-ES')+' · '+changes.join(' · ');historyList.append(line);
   }
-  activity.append(historyList);
-  activity.append(activityTitle,activityInfo);
+  activity.append(activityTitle,activityInfo,historyList);
   const buttons=document.createElement('div');buttons.className='booking-actions';
   const phone=document.createElement('a');phone.href='tel:'+row.telefono;phone.textContent='Llamar';
   const manage=document.createElement('button');manage.type='button';manage.className='manage';manage.textContent=row.estado==='confirmada'&&row.pago_estado!=='recibido'?'Revisar y confirmar pago':row.estado==='pendiente'?'Comprobar pago y confirmar':'Gestionar reserva';
