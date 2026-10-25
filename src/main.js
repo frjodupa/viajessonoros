@@ -1,5 +1,6 @@
 import './banner-test.css'
 import './banner-test.js'
+import './banner-public.js'
 import './style.css'
 import { supabase } from './supabase.js'
 import { getOptimizedExperienceImage } from './admin-image-optimizer.js'
