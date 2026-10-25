@@ -194,6 +194,8 @@ body.operational-page {
 .admin-app-bottom span{font-size:clamp(8px,2.35vw,11px);font-weight:600}
 html{scroll-padding-bottom:110px}
 .admin-premium-shell.admin-editor-collapsed .admin-app-spotlight,.admin-premium-shell.admin-editor-collapsed .admin-app-block{scroll-margin-bottom:110px}
+
+.admin-top-actions{display:flex;align-items:center;gap:12px;flex-wrap:wrap}.admin-banners-entry{display:inline-flex;align-items:center;gap:9px;min-height:44px;padding:10px 17px;border-radius:14px;background:#5b3f98;color:#fff!important;text-decoration:none;font-weight:700;box-shadow:0 6px 18px #34255f20}.admin-banners-entry span{padding:3px 7px;border-radius:7px;background:#ffffff24;font-size:.72em}.admin-banners-entry:focus-visible{outline:3px solid #1598b7;outline-offset:3px}@media(max-width:700px){.admin-top-actions{width:100%}.admin-banners-entry{flex:1;justify-content:center}}
 </style>
 <link rel="stylesheet" href="/secondary.css">
 <link rel="stylesheet" href="/whatsapp-button.css">
@@ -976,7 +978,7 @@ function renderAdminPanel(){ return `${headerHTML()}<main class="admin-premium-s
       <h2>Crear y gestionar experiencias</h2>
       <p>Completa los datos, selecciona la imagen y revisa el resultado antes de guardar o publicar.</p>
     </div>
-    <button onclick="window.logout()" class="admin-logout">Cerrar sesión</button>
+    <div class="admin-top-actions"><a class="admin-banners-entry" href="/banners-admin.html">Banners informativos <span>Prueba</span></a><button onclick="window.logout()" class="admin-logout">Cerrar sesión</button></div>
   </div>
 
   <section class="admin-modern-summary" aria-label="Panel de control de experiencias">
