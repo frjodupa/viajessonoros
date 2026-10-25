@@ -3491,3 +3491,22 @@ body.experience-detail-open .back-to-top {
 .partner-copy{padding:clamp(26px,4vw,44px)}
 .partner-logo{display:block;width:min(100%,320px);height:auto;object-fit:contain;margin-bottom:22px}
 .partner-address{color:#64257d;font-weight:600;font-size:.94rem;margin:0 0 12px}
+
+/* Maltravieso · diseño editorial de la landing */
+.partners-layout{display:grid;grid-template-columns:minmax(0,.95fr) minmax(0,1.12fr);gap:clamp(28px,5vw,70px);align-items:center}
+.partners-intro h2{font-family:Georgia,serif;font-size:clamp(2.8rem,5vw,5.2rem);line-height:1.05;letter-spacing:-.035em;margin:14px 0 28px}
+.partners-intro>p:not(.eyebrow){max-width:48ch;line-height:1.75}
+.partners-identity{background:#fff;padding:clamp(20px,3vw,34px);border-radius:20px;box-shadow:0 18px 56px rgba(40,19,47,.07);margin-top:30px}
+.partners-identity h3{font-family:Georgia,serif;font-size:clamp(1.8rem,2.5vw,2.6rem);margin:8px 0}
+.partners-identity>p{line-height:1.65}
+.partners-identity .partner-logo{width:min(100%,340px)}
+.partners-identity .partner-address{margin:16px 0;font-weight:650}
+.partner-actions{display:flex;align-items:center;flex-wrap:wrap;gap:16px;margin-top:20px}
+.partner-actions .button{min-height:46px;text-align:center}
+.partners-photos{min-width:0}
+.partner-main-photo{margin:0;overflow:hidden;border-radius:20px;background:#f0e9eb;box-shadow:0 18px 56px rgba(40,19,47,.1)}
+.partner-main-photo[hidden]{display:none}
+.partner-main-photo img{display:block;width:100%;height:auto;max-height:720px;object-fit:cover}
+.partner-main-photo figcaption{font-size:.76rem;padding:9px 18px;color:#665765;background:#fff}
+.partner-photo-note{font-family:Georgia,serif;text-align:center;font-size:clamp(1.4rem,2.2vw,2rem);padding:28px 8px;color:#64257d}
+@media(max-width:800px){.partners-layout{grid-template-columns:1fr}.partners-intro h2{font-size:clamp(2.7rem,9vw,4.5rem)}}
