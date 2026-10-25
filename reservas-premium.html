@@ -310,12 +310,13 @@ async function createAttendancePdf(){
  box.append(label,intro,actions,preview);overlay.append(box);document.body.append(overlay);
 
 }
-let panelAttendance=new Map(),panelExpenses=[],panelWaiting=[];
+let panelAttendance=new Map(),panelExpenses=[],panelWaiting=[],panelHistory=[];
 async function refreshAdminExtras(){
  const {data,error}=await supabase.rpc('vs_admin_panel_datos',{p_experiencia_id:null});
  if(error)throw error;
  panelAttendance=new Map((data.asistencia||[]).map(r=>[String(r.reserva_id),Number(r.plazas_presentes)]));
  panelExpenses=data.gastos||[];panelWaiting=data.espera||[];
+ const history=await supabase.rpc('vs_admin_historial',{p_experiencia_id:null});if(history.error)throw history.error;panelHistory=history.data||[];
 }
 async function adminPanelWrite(operacion,datos){
  const {data,error}=await supabase.rpc('vs_admin_panel_operar',{p_operacion:operacion,p_datos:datos});
@@ -522,7 +523,20 @@ const buckets=[
   const activityTitle=document.createElement('summary');activityTitle.textContent='Actividad registrada';
   const activityInfo=document.createElement('p');const eventsSent=['solicitud','confirmacion','recordatorio','resena_google'].filter(tipo=>communicationSent.has(row.id+':'+tipo));
   const arrival=panelAttendance.has(String(row.id))?'Asistencia real: '+panelAttendance.get(String(row.id))+' de '+row.plazas+' plazas.':'Asistencia pendiente de registrar.';
-  activityInfo.textContent='Reserva creada: '+(row.created_at?new Date(row.created_at).toLocaleString('es-ES'):'fecha no disponible')+' · Estado actual: '+row.estado+' · WhatsApp registrados como enviados: '+(eventsSent.length?eventsSent.join(', '):'ninguno')+' · '+arrival+'. Los cambios anteriores de estado no constan en un historial de movimientos.';
+  const transitions=panelHistory.filter(item=>String(item.reserva_id)===String(row.id)).sort((a,b)=>String(b.creado_en).localeCompare(String(a.creado_en)));
+  activityInfo.textContent='Reserva creada: '+(row.created_at?new Date(row.created_at).toLocaleString('es-ES'):'fecha no disponible')+' · Estado actual: '+row.estado+' · WhatsApp registrados como enviados: '+(eventsSent.length?eventsSent.join(', '):'ninguno')+' · '+arrival+'.';
+  const historyList=document.createElement('div');historyList.style.cssText='display:grid;gap:6px;padding:8px 0;font-size:.84rem';
+  if(!transitions.length){historyList.textContent='No hay movimientos posteriores a la activación del historial.'}
+  for(const h of transitions){
+   const line=document.createElement('p');
+   const changes=[];
+   if(h.estado_antes!==h.estado_despues)changes.push('Estado: '+h.estado_antes+' → '+h.estado_despues);
+   if(h.pago_antes!==h.pago_despues)changes.push('Pago: '+h.pago_antes+' → '+h.pago_despues);
+   if(h.plazas_antes!==h.plazas_despues)changes.push('Plazas: '+h.plazas_antes+' → '+h.plazas_despues);
+   if(h.importe_antes!==h.importe_despues)changes.push('Aportación modificada');
+   line.textContent=new Date(h.creado_en).toLocaleString('es-ES')+' · '+changes.join(' · ');historyList.append(line);
+  }
+  activity.append(historyList);
   activity.append(activityTitle,activityInfo);
   const buttons=document.createElement('div');buttons.className='booking-actions';
   const phone=document.createElement('a');phone.href='tel:'+row.telefono;phone.textContent='Llamar';
