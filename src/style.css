@@ -3483,3 +3483,11 @@ body.experience-detail-open .back-to-top {
 .partner-copy>p:not(.eyebrow){line-height:1.7;margin-bottom:24px}
 .partner-copy .outline-link{display:inline-flex;align-items:center;gap:10px;max-width:100%;min-height:44px}
 @media(max-width:760px){.partners-inner{grid-template-columns:1fr}.partners-section{padding:56px 0}.partner-card{padding:26px}}
+
+.partner-card{overflow:hidden;padding:0}
+.partner-gallery{width:100%;background:#f3edf2}
+.partner-gallery[hidden]{display:none}
+.partner-photo{display:block;width:100%;height:auto;max-height:530px;object-fit:cover}
+.partner-copy{padding:clamp(26px,4vw,44px)}
+.partner-logo{display:block;width:min(100%,320px);height:auto;object-fit:contain;margin-bottom:22px}
+.partner-address{color:#64257d;font-weight:600;font-size:.94rem;margin:0 0 12px}
