@@ -3471,3 +3471,15 @@ body.experience-detail-open .back-to-top {
     border-radius: 16px;
   }
 }
+
+
+/* Espacios culturales: enlace editorial externo sin imágenes no autorizadas */
+.partners-section{padding:clamp(56px,8vw,110px) 0;background:#fffbf7}
+.partners-inner{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.12fr);align-items:center;gap:clamp(24px,5vw,72px)}
+.partners-heading h2{margin:12px 0 20px;font-size:clamp(2rem,4vw,3.3rem);line-height:1.12}
+.partners-heading>p:last-child{max-width:46ch;line-height:1.7}
+.partner-card{padding:clamp(26px,4vw,48px);border:1px solid rgba(100,37,125,.17);border-radius:20px;background:#fff;box-shadow:0 16px 48px rgba(39,20,47,.055)}
+.partner-copy h3{margin:12px 0 16px;font-size:clamp(1.5rem,2.6vw,2.2rem)}
+.partner-copy>p:not(.eyebrow){line-height:1.7;margin-bottom:24px}
+.partner-copy .outline-link{display:inline-flex;align-items:center;gap:10px;max-width:100%;min-height:44px}
+@media(max-width:760px){.partners-inner{grid-template-columns:1fr}.partners-section{padding:56px 0}.partner-card{padding:26px}}
