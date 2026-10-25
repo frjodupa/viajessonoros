@@ -1,5 +1,27 @@
-import { supabase } from './supabase.js';
-import { listBanners,saveBanner,setBannerActive,uploadBannerImage,BUCKET } from './banner-storage.js';
+let authorization='';
+const BUCKET='';
+async function request(path,options={}){
+ const response=await fetch(path,{...options,headers:{...(options.headers||{}),Authorization:authorization},cache:'no-store'});
+ const data=await response.json().catch(()=>({}));
+ if(!response.ok)throw Error(data.error||'Error de conexión con el servidor');
+ return data;
+}
+const api='/api/banners-admin';
+async function listBanners(){return (await request(api)).banners}
+async function saveBanner(banner){return (await request(api,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({operation:'save',banner})})).banner}
+async function setBannerActive(slug,active){
+ const rows=await listBanners(),banner=rows.find(b=>b.slug===slug);
+ if(!banner)throw Error('Campaña no guardada');
+ return saveBanner({...banner,active});
+}
+async function uploadBannerImage(slug,file){
+ if(file.size>2*1024*1024)throw Error('La imagen no debe superar 2 MB');
+ const base64=await new Promise((resolve,reject)=>{
+  const reader=new FileReader();reader.onload=()=>resolve(String(reader.result).split(',')[1]);reader.onerror=reject;reader.readAsDataURL(file);
+ });
+ const result=await request(api,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({operation:'image',slug,type:file.type,base64})});
+ return result.url;
+}
 
 const presets={
  individual:{slug:'terapias-individuales',title:'Terapias individuales',description:'Un espacio personal para detenerte, escucharte y reconectar contigo a través del sonido y la calma.',url:'/terapias-individuales.html',image:'/banner-terapia-individual.webp'},
@@ -14,8 +36,7 @@ function setButtons(enabled){remoteReady=enabled;buttons.forEach(b=>b.disabled=!
 function imageURL(path,key){
  if(!path)return presets[key].image;
  if(path.startsWith('/'))return path;
- const {data}=supabase.storage.from(BUCKET).getPublicUrl(path);
- return data.publicUrl;
+ return path;
 }
 function showImage(path=presets[selected].image){
  const image=el('preview-image');image.hidden=false;image.onerror=()=>{image.hidden=true;message('La imagen no se ha podido mostrar',true)};image.src=path;image.alt=presets[selected].title;
@@ -93,10 +114,17 @@ el('save').onclick=()=>{
  message('Borrador local guardado. Para sincronizar utiliza «Guardar cambios».');
 };
 setButtons(false);selectPreset('individual');
-(async()=>{
- if(!supabase){message('No hay configuración de Supabase',true);return}
- const {data,error}=await supabase.auth.getUser();
- if(error||!data?.user){message('Inicia sesión en el administrador de experiencias y vuelve aquí.');return}
- if(data.user.app_metadata?.banner_admin!==true){message('El administrador conectado todavía no tiene el permiso específico de banners. Sin activar hasta asignarlo.',true);return}
- try{await listBanners();setButtons(true);await load()}catch(e){message('Persistencia no preparada: '+e.message,true)}
-})();
+el('banner-login-button').onclick=async()=>{
+ const user=el('banner-user').value.trim(),pass=el('banner-password').value;
+ if(!user||!pass){message('Introduce usuario y contraseña',true);return}
+ authorization='Basic '+btoa(unescape(encodeURIComponent(user+':'+pass)));
+ setButtons(false);
+ try{
+  await listBanners();
+  setButtons(true);
+  el('banner-login').hidden=true;
+  el('banner-password').value='';
+  await load();
+ }catch(e){authorization='';message(e.message,true)}
+};
+message('Introduce las credenciales propias de banners para acceder.');
