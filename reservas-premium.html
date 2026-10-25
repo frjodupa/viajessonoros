@@ -241,9 +241,13 @@ async function createAttendancePdf(){
   text('Reservas totales: '+rows.length+' | Aforo maximo: '+(capacity??'No configurado'),9);
   text('Plazas confirmadas: '+seats(confirmed)+' | Pendientes: '+seats(pending)+' | Activas: '+seats(active)+' | Disponibles: '+(available??'Sin configurar'),9);
   text('Aportaciones previstas: '+money(amount(active))+' | Confirmadas: '+money(amount(confirmed))+' | Pendientes: '+money(amount(pending)),9);
+  const checked=rows.filter(r=>r.estado==='confirmada'&&panelAttendance.has(String(r.id)));
+  const arrived=checked.reduce((n,r)=>n+Number(panelAttendance.get(String(r.id))||0),0);
+  const unchecked=rows.filter(r=>r.estado==='confirmada'&&!panelAttendance.has(String(r.id))).reduce((n,r)=>n+Number(r.plazas||0),0);
+  text('ASISTENCIA REAL registrada: '+arrived+' | Plazas por comprobar: '+unchecked,9,true);
   for(const row of rows){
    if(y>247)newPage();
-   text('[   ] '+row.nombre+' | '+row.plazas+' plaza(s) | '+row.estado,10,true);
+   text((panelAttendance.has(String(row.id))?'['+panelAttendance.get(String(row.id))+'/'+row.plazas+']':'[   ]')+' '+row.nombre+' | '+row.plazas+' plaza(s) | '+row.estado,10,true);
    text('Telefono: '+row.telefono+' | Aportacion: '+(row.importe_total==null?'Por revisar':money(Number(row.importe_total)))+' | Pago: '+(row.pago_estado||'sin verificar'),8);
    text('Registro: '+(row.created_at?new Date(row.created_at).toLocaleString('es-ES'):'Sin fecha')+' | Referencia: '+row.id,8);
    pdf.setDrawColor(222);pdf.line(16,y,194,y);y+=3;
@@ -503,6 +507,12 @@ const buckets=[
   top.append(identity,badge);
   const detail=document.createElement('p');detail.textContent=(event?.titulo||'Experiencia '+row.experiencia_id)+' · '+String(event?.fecha||'').replace(/^(\d{4})-(\d{2})-(\d{2})$/,'$3-$2-$1');
   const info=document.createElement('p');info.textContent=row.plazas+(Number(row.plazas)===1?' plaza':' plazas')+' · Importe previsto: '+(row.importe_total==null?'Por revisar':money(Number(row.importe_total)));const paymentStatus=document.createElement('p');paymentStatus.textContent='Estado del pago: '+(row.pago_estado==='recibido'?'Recibido':row.pago_estado==='pendiente'?'Pendiente de verificar':row.pago_estado||'Sin verificar');
+  const activity=document.createElement('details');activity.className='more-actions';
+  const activityTitle=document.createElement('summary');activityTitle.textContent='Actividad registrada';
+  const activityInfo=document.createElement('p');const eventsSent=['solicitud','confirmacion','recordatorio','resena_google'].filter(tipo=>communicationSent.has(row.id+':'+tipo));
+  const arrival=panelAttendance.has(String(row.id))?'Asistencia real: '+panelAttendance.get(String(row.id))+' de '+row.plazas+' plazas.':'Asistencia pendiente de registrar.';
+  activityInfo.textContent='Reserva creada: '+(row.created_at?new Date(row.created_at).toLocaleString('es-ES'):'fecha no disponible')+' · Estado actual: '+row.estado+' · WhatsApp registrados como enviados: '+(eventsSent.length?eventsSent.join(', '):'ninguno')+' · '+arrival+'. Los cambios anteriores de estado no constan en un historial de movimientos.';
+  activity.append(activityTitle,activityInfo);
   const buttons=document.createElement('div');buttons.className='booking-actions';
   const phone=document.createElement('a');phone.href='tel:'+row.telefono;phone.textContent='Llamar';
   const manage=document.createElement('button');manage.type='button';manage.className='manage';manage.textContent=row.estado==='confirmada'&&row.pago_estado!=='recibido'?'Revisar y confirmar pago':row.estado==='pendiente'?'Comprobar pago y confirmar':'Gestionar reserva';
@@ -547,7 +557,7 @@ const buckets=[
  }
  const more=document.createElement('details');more.className='more-actions';const moreTitle=document.createElement('summary');moreTitle.textContent='Más opciones y comunicaciones';const inner=document.createElement('div');inner.className='booking-actions';
  inner.append(request,confirmation,reminder,review,sentBox);more.append(moreTitle,inner);
- buttons.append(manage,phone,more);if(row.estado==='confirmada'&&row.pago_estado!=='recibido'){const alert=document.createElement('p');alert.style.cssText='padding:9px;border-radius:10px;background:#fff2dc;color:#774818;font-weight:650';alert.textContent='Revisar: reserva confirmada sin pago registrado. Abre Gestionar para verificar la aportación.';article.append(top,detail,info,paymentStatus,alert,buttons)}else article.append(top,detail,info,paymentStatus,buttons);return article;
+ buttons.append(manage,phone,more);if(row.estado==='confirmada'&&row.pago_estado!=='recibido'){const alert=document.createElement('p');alert.style.cssText='padding:9px;border-radius:10px;background:#fff2dc;color:#774818;font-weight:650';alert.textContent='Revisar: reserva confirmada sin pago registrado. Abre Gestionar para verificar la aportación.';article.append(top,detail,info,paymentStatus,alert,activity,buttons)}else article.append(top,detail,info,paymentStatus,activity,buttons);return article;
  }));
  if(!filtered.length)setText('bookings','No hay reservas que coincidan con los filtros.');
 }
