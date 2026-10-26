@@ -1,7 +1,7 @@
 import { createHash, timingSafeEqual, scryptSync, randomBytes, createCipheriv, createDecipheriv } from 'node:crypto';
 import { get, put } from '@vercel/blob';
-const PATH='vs-informational-banners.enc.json';
-function secret(){const password=process.env.VS_BANNERS_ADMIN_PASSWORD;if(!password||password.length<16)throw Error('Credenciales de banners no configuradas o débiles');return scryptSync(password,'viajessonoros-banners-config-v1',32)}
+const PATH=process.env.VERCEL_ENV==='production'?'vs-informational-banners-production.enc.json':'vs-informational-banners.enc.json';
+function secret(){const password=process.env.VERCEL_ENV==='production'?process.env.VS_BANNERS_ENCRYPTION_KEY:process.env.VS_BANNERS_ADMIN_PASSWORD;if(!password||password.length<16)throw Error('Clave de cifrado de banners no configurada');return scryptSync(password,'viajessonoros-banners-config-v1',32)}
 function encrypt(value){const iv=randomBytes(12),cipher=createCipheriv('aes-256-gcm',secret(),iv);const output=Buffer.concat([cipher.update(JSON.stringify(value),'utf8'),cipher.final()]);return JSON.stringify({v:1,iv:iv.toString('base64'),tag:cipher.getAuthTag().toString('base64'),data:output.toString('base64')})}
 function decrypt(value){const v=JSON.parse(value);if(v.v!==1)throw Error('Versión cifrada desconocida');const d=createDecipheriv('aes-256-gcm',secret(),Buffer.from(v.iv,'base64'));d.setAuthTag(Buffer.from(v.tag,'base64'));return JSON.parse(Buffer.concat([d.update(Buffer.from(v.data,'base64')),d.final()]).toString('utf8'))}
 const KINDS=new Set(['image/jpeg','image/png','image/webp']);
