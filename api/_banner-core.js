@@ -41,7 +41,8 @@ export function validate(d){
  const title=str('title',120,true),description=str('description',1500),image_path=str('image_path',1024);
  const button_text=str('button_text',80),button_url=str('button_url',500,true),image_alt=str('image_alt',200);
  if(!(/^\/(?!\/)[^\s]*$/.test(button_url)||/^https:\/\/[^\s]+$/.test(button_url)))throw Error('Enlace no permitido');
- if(image_path&&!(/^\/(?!\/)[-\w/.]+$/.test(image_path)||/^https:\/\/[\w.-]+\.public\.blob\.vercel-storage\.com\/[\w./%-]+$/.test(image_path)))throw Error('Imagen no permitida');
+ const approvedPresetImage=['banner-terapia-individual.webp','banner-terapia-pareja.webp','banner-grupo-viaje.webp'].some(name=>image_path==='https://viajessonoros-g0wlq4wva-joseduqueparedes-7366s-projects.vercel.app/'+name);
+ if(image_path&&!approvedPresetImage&&!(/^\/(?!\/)[-\w/.]+$/.test(image_path)||/^https:\/\/[\w.-]+\.public\.blob\.vercel-storage\.com\/[\w./%-]+$/.test(image_path)))throw Error('Imagen no permitida');
  const parseTime=k=>{const val=d[k];if(val===null||val==='')return null;if(typeof val!=='string'||!Number.isFinite(Date.parse(val)))throw Error('Fecha inválida');return new Date(val).toISOString()};
  const start_at=parseTime('start_at'),end_at=parseTime('end_at');
  if(start_at&&end_at&&end_at<=start_at)throw Error('La fecha final debe ser posterior');
