@@ -5,3 +5,9 @@
 .therapy-hero-image{display:block;width:100%;height:auto;max-height:none;object-fit:contain;object-position:center}
 .therapy-hero-content{position:relative;padding:clamp(28px,5vw,64px)}
 @media(max-width:700px){.therapy-hero-image{width:100%;height:auto;max-height:none;object-fit:contain}.therapy-hero-content{padding:26px 22px}}
+
+/* Información práctica y precios de cada terapia */
+.therapy-practical{margin-top:22px}
+.therapy-practical .therapy-price{font-size:clamp(23px,3.6vw,32px);line-height:1.3;color:#5c2674;margin:12px 0}
+.therapy-practical h3{font-size:clamp(18px,2.5vw,23px);margin:22px 0 10px;color:#543366}
+.therapy-practical p{line-height:1.7}
