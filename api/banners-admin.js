@@ -1,10 +1,21 @@
-import { authorized,validOrigin,all,write,validate,uploadImage } from './_banner-core.js';
+import { validOrigin,all,write,validate,uploadImage } from './_banner-core.js';
+import { createClient } from '@supabase/supabase-js';
+async function authorizedSession(req){
+ const bearer=String(req.headers.authorization||'');
+ if(!bearer.startsWith('Bearer '))return false;
+ const url=process.env.VITE_SUPABASE_URL, key=process.env.VITE_SUPABASE_ANON_KEY;
+ const allowed=String(process.env.VS_BANNERS_ADMIN_USER||'').trim().toLowerCase();
+ if(!url||!key||!allowed)return false;
+ const client=createClient(url,key,{auth:{persistSession:false,autoRefreshToken:false}});
+ const {data,error}=await client.auth.getUser(bearer.slice(7));
+ return !error&&Boolean(data?.user?.email)&&data.user.email.toLowerCase()===allowed;
+}
 export default async function handler(req,res){
  res.setHeader('Cache-Control','no-store');
  res.setHeader('Vary','Authorization');
  if(!['GET','POST'].includes(req.method))return res.status(405).json({error:'Método no permitido'});
  if(!validOrigin(req))return res.status(403).json({error:'Origen no autorizado'});
- if(!authorized(req))return res.status(401).json({error:'Credenciales administrativas necesarias'});
+ if(!(await authorizedSession(req)))return res.status(401).json({error:'Inicia sesión con la cuenta autorizada de Viajes Sonoros'});
  if(!process.env.BLOB_READ_WRITE_TOKEN)return res.status(503).json({error:'Almacenamiento Blob pendiente de configurar'});
  try{
   if(req.method==='GET')return res.status(200).json({banners:await all()});
