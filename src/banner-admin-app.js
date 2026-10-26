@@ -1,6 +1,13 @@
+import { supabase } from './supabase.js';
 let authorization='';
+async function refreshAuthorization(){
+ const {data,error}=await supabase.auth.getSession();
+ if(error||!data.session?.access_token)throw Error('Inicia sesión en el administrador de experiencias');
+ authorization='Bearer '+data.session.access_token;
+}
 const BUCKET='';
 async function request(path,options={}){
+ await refreshAuthorization();
  const response=await fetch(path,{...options,headers:{...(options.headers||{}),Authorization:authorization},cache:'no-store'});
  const data=await response.json().catch(()=>({}));
  if(!response.ok)throw Error(data.error||'Error de conexión con el servidor');
@@ -114,17 +121,12 @@ el('save').onclick=()=>{
  message('Borrador local guardado. Para sincronizar utiliza «Guardar cambios».');
 };
 setButtons(false);selectPreset('individual');
-el('banner-login-button').onclick=async()=>{
- const user=el('banner-user').value.trim(),pass=el('banner-password').value;
- if(!user||!pass){message('Introduce usuario y contraseña',true);return}
- authorization='Basic '+btoa(unescape(encodeURIComponent(user+':'+pass)));
- setButtons(false);
+(async()=>{
  try{
+  await refreshAuthorization();
   await listBanners();
   setButtons(true);
   el('banner-login').hidden=true;
-  el('banner-password').value='';
   await load();
- }catch(e){authorization='';message(e.message,true)}
-};
-message('Introduce las credenciales propias de banners para acceder.');
+ }catch(e){setButtons(false);message(e.message,true);el('banner-login').hidden=false}
+})();
