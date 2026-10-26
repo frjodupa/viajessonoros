@@ -3510,3 +3510,22 @@ body.experience-detail-open .back-to-top {
 .partner-main-photo figcaption{font-size:.76rem;padding:9px 18px;color:#665765;background:#fff}
 .partner-photo-note{font-family:Georgia,serif;text-align:center;font-size:clamp(1.4rem,2.2vw,2rem);padding:28px 8px;color:#64257d}
 @media(max-width:800px){.partners-layout{grid-template-columns:1fr}.partners-intro h2{font-size:clamp(2.7rem,9vw,4.5rem)}}
+
+/* Landing · propuestas sonoras individuales, parejas y grupos */
+.vs-therapies{padding:clamp(58px,8vw,108px) 0;background:linear-gradient(180deg,#fffaf5 0%,#f5efe9 100%);color:#443444}
+.vs-therapies-heading{max-width:740px;margin:0 auto 38px;text-align:center}
+.vs-therapies-heading h2{font-size:clamp(29px,4vw,49px);font-weight:600;line-height:1.16;letter-spacing:-.025em;margin:12px 0 18px}
+.vs-therapies-heading>p:last-child{color:#6b5b65;line-height:1.7;font-size:clamp(15px,1.6vw,18px)}
+.vs-therapies-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:clamp(14px,2vw,28px)}
+.vs-therapy-card{background:#fff;overflow:hidden;border:1px solid #e9ded9;border-radius:19px;box-shadow:0 12px 35px #654c4c12;display:flex;flex-direction:column}
+.vs-therapy-card>a:first-child{display:block;line-height:0;background:#eee7e3}
+.vs-therapy-card img{width:100%;height:auto;display:block;object-fit:contain;transition:transform .3s ease}
+.vs-therapy-card>a:first-child:hover img{transform:scale(1.015)}
+.vs-therapy-card-content{padding:clamp(20px,2.3vw,29px);display:flex;flex-direction:column;gap:13px;flex:1}
+.vs-therapy-card-content h3{font-size:clamp(21px,2vw,27px);line-height:1.3;font-weight:650;margin:0}
+.vs-therapy-card-content p{margin:0;line-height:1.7;color:#766771;flex:1}
+.vs-therapy-card-content>a{color:#694c86;text-decoration:none;font-weight:700;margin-top:8px;display:inline-flex;gap:10px;align-items:center;min-height:44px}
+.vs-therapy-card-content>a:hover{text-decoration:underline}
+.vs-therapy-card-content>a:focus-visible,.vs-therapy-card>a:first-child:focus-visible{outline:3px solid #70539b;outline-offset:-3px}
+@media(max-width:900px){.vs-therapies-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:620px){.vs-therapies{padding:55px 0}.vs-therapies-grid{grid-template-columns:1fr;gap:18px}.vs-therapies-heading{margin-bottom:28px}.vs-therapy-card-content{padding:23px}}
