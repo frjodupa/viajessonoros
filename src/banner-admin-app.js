@@ -31,9 +31,9 @@ async function uploadBannerImage(slug,file){
 }
 
 const presets={
- individual:{slug:'terapias-individuales',title:'Terapias individuales',description:'Un espacio personal para detenerte, escucharte y reconectar contigo a través del sonido y la calma.',url:'/terapias-individuales.html',image:'https://viajessonoros-g0wlq4wva-joseduqueparedes-7366s-projects.vercel.app/banner-terapia-individual.webp'},
- pareja:{slug:'terapias-de-pareja',title:'Terapias de pareja',description:'Una experiencia sonora para compartir una pausa y conectar desde la escucha, la calma y la presencia.',url:'/terapias-de-pareja.html',image:'https://viajessonoros-g0wlq4wva-joseduqueparedes-7366s-projects.vercel.app/banner-terapia-pareja.webp'},
- grupo:{slug:'crea-tu-grupo-viaje-sonoro',title:'Crea tu grupo para tu viaje',description:'Reúne a tus amigos, familiares o compañeros de trabajo y disfrutad de un viaje sonoro pensado para vuestro grupo.',url:'/crea-tu-grupo-viaje-sonoro.html',image:'https://viajessonoros-g0wlq4wva-joseduqueparedes-7366s-projects.vercel.app/banner-grupo-viaje.webp'}
+ individual:{slug:'terapias-individuales',title:'Terapias individuales',description:'Un espacio personal para detenerte, escucharte y reconectar contigo a través del sonido y la calma.',url:'/terapias-individuales.html',image:'/banner-terapia-individual.webp'},
+ pareja:{slug:'terapias-de-pareja',title:'Terapias de pareja',description:'Una experiencia sonora para compartir una pausa y conectar desde la escucha, la calma y la presencia.',url:'/terapias-de-pareja.html',image:'/banner-terapia-pareja.webp'},
+ grupo:{slug:'crea-tu-grupo-viaje-sonoro',title:'Crea tu grupo para tu viaje',description:'Reúne a tus amigos, familiares o compañeros de trabajo y disfrutad de un viaje sonoro pensado para vuestro grupo.',url:'/crea-tu-grupo-viaje-sonoro.html',image:'/banner-grupo-viaje.webp'}
 };
 const el=id=>document.getElementById(id);
 const buttons=['remote-load','remote-save','remote-toggle'].map(el);
@@ -43,6 +43,8 @@ function setButtons(enabled){remoteReady=enabled;buttons.forEach(b=>b.disabled=!
 function imageURL(path,key){
  if(!path)return presets[key].image;
  if(path.startsWith('/'))return path;
+ const legacy='viajessonoros-g0wlq4wva-joseduqueparedes-7366s-projects.vercel.app';
+ try{const u=new URL(path);if(u.hostname===legacy&&['/banner-terapia-individual.webp','/banner-terapia-pareja.webp','/banner-grupo-viaje.webp'].includes(u.pathname))return u.pathname}catch{}
  return path;
 }
 function showImage(path=presets[selected].image){
@@ -85,7 +87,7 @@ function payload(){
  const start=asISO(el('from').value),end=asISO(el('until').value);
  if(start&&end&&Date.parse(end)<=Date.parse(start))throw Error('La fecha de fin debe ser posterior al inicio');
  return {slug:p.slug,title:el('title').value.trim(),description:el('description').value.trim(),
- image_path:saved?.image_path||p.image,image_alt:p.title,
+ image_path:imageURL(saved?.image_path||p.image,selected),image_alt:p.title,
  button_text:el('button-label').value.trim(),button_url,active:el('campaign-active').checked,
  start_at:start,end_at:end,display_mode:el('trigger').value,scroll_percent:Number(el('scroll').value),delay_seconds:Number(el('delay').value),show_once:el('once').checked};
 }
