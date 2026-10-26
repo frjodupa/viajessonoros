@@ -731,6 +731,48 @@ app.innerHTML = `
       </div>
     </section>
 
+    <section class="vs-therapies" id="terapias" aria-labelledby="vs-therapies-title">
+      <div class="container">
+        <div class="vs-therapies-heading">
+          <p class="eyebrow">Experiencias a tu medida</p>
+          <h2 id="vs-therapies-title">Un viaje sonoro para cada momento</h2>
+          <p>Descubre nuestras propuestas para disfrutar del sonido desde la calma, la conexión y el bienestar.</p>
+        </div>
+        <div class="vs-therapies-grid">
+          <article class="vs-therapy-card">
+            <a href="/terapias-individuales.html" aria-label="Conocer las terapias individuales">
+              <img src="/banner-terapia-individual.webp" alt="Sesión individual de relajación sonora con cuencos tibetanos" loading="lazy" decoding="async">
+            </a>
+            <div class="vs-therapy-card-content">
+              <h3>Terapias individuales</h3>
+              <p>Un espacio solo para ti, para descansar, escuchar y reconectar a través del sonido.</p>
+              <a href="/terapias-individuales.html">Descubrir la experiencia <span aria-hidden="true">→</span></a>
+            </div>
+          </article>
+          <article class="vs-therapy-card">
+            <a href="/terapias-de-pareja.html" aria-label="Conocer las terapias de pareja">
+              <img src="/banner-terapia-pareja.webp" alt="Experiencia sonora para dos personas con instrumentos de meditación" loading="lazy" decoding="async">
+            </a>
+            <div class="vs-therapy-card-content">
+              <h3>Terapias de pareja</h3>
+              <p>Compartid una pausa para conectar desde la presencia, la escucha y la serenidad.</p>
+              <a href="/terapias-de-pareja.html">Descubrir la experiencia <span aria-hidden="true">→</span></a>
+            </div>
+          </article>
+          <article class="vs-therapy-card">
+            <a href="/crea-tu-grupo-viaje-sonoro.html" aria-label="Conocer los viajes sonoros para grupos">
+              <img src="/banner-grupo-viaje.webp" alt="Grupo participando en un viaje sonoro con cuencos y otros instrumentos" loading="lazy" decoding="async">
+            </a>
+            <div class="vs-therapy-card-content">
+              <h3>Crea tu grupo para un viaje sonoro</h3>
+              <p>Una experiencia compartida con amigos, familiares o compañeros, diseñada para vuestro grupo.</p>
+              <a href="/crea-tu-grupo-viaje-sonoro.html">Descubrir la experiencia <span aria-hidden="true">→</span></a>
+            </div>
+          </article>
+        </div>
+      </div>
+    </section>
+
     <section class="experiences-section" id="experiencias" aria-labelledby="experiences-title">
       <div class="container editorial-layout">
         <aside class="section-intro reveal">
