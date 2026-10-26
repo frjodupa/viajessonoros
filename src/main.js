@@ -738,7 +738,7 @@ app.innerHTML = `
         <div class="vs-therapies-grid">
           <article class="vs-therapy-card">
             <a href="/terapias-individuales.html" aria-label="Conocer las terapias individuales">
-              <img src="https://viajessonoros-g0wlq4wva-joseduqueparedes-7366s-projects.vercel.app/banner-terapia-individual.webp" alt="Sesión individual de relajación sonora con cuencos tibetanos" loading="lazy" decoding="async" onerror="this.onerror=null;this.src='/logo-viajes-sonoros.png';this.style.objectFit='contain';this.style.maxHeight='260px';this.style.padding='45px';this.style.background='#faf3ef'">
+              <img src="/banner-terapia-individual.webp" alt="Sesión individual de relajación sonora con cuencos tibetanos" loading="lazy" decoding="async" onerror="this.onerror=null;this.src='/logo-viajes-sonoros.png';this.style.objectFit='contain';this.style.maxHeight='260px';this.style.padding='45px';this.style.background='#faf3ef'">
             </a>
             <div class="vs-therapy-card-content">
               <h3>Terapias individuales</h3>
@@ -748,7 +748,7 @@ app.innerHTML = `
           </article>
           <article class="vs-therapy-card">
             <a href="/terapias-de-pareja.html" aria-label="Conocer las terapias de pareja">
-              <img src="https://viajessonoros-g0wlq4wva-joseduqueparedes-7366s-projects.vercel.app/banner-terapia-pareja.webp" alt="Experiencia sonora para dos personas con instrumentos de meditación" loading="lazy" decoding="async" onerror="this.onerror=null;this.src='/logo-viajes-sonoros.png';this.style.objectFit='contain';this.style.maxHeight='260px';this.style.padding='45px';this.style.background='#faf3ef'">
+              <img src="/banner-terapia-pareja.webp" alt="Experiencia sonora para dos personas con instrumentos de meditación" loading="lazy" decoding="async" onerror="this.onerror=null;this.src='/logo-viajes-sonoros.png';this.style.objectFit='contain';this.style.maxHeight='260px';this.style.padding='45px';this.style.background='#faf3ef'">
             </a>
             <div class="vs-therapy-card-content">
               <h3>Terapias de pareja</h3>
@@ -758,7 +758,7 @@ app.innerHTML = `
           </article>
           <article class="vs-therapy-card">
             <a href="/crea-tu-grupo-viaje-sonoro.html" aria-label="Conocer los viajes sonoros para grupos">
-              <img src="https://viajessonoros-g0wlq4wva-joseduqueparedes-7366s-projects.vercel.app/banner-grupo-viaje.webp" alt="Grupo participando en un viaje sonoro con cuencos y otros instrumentos" loading="lazy" decoding="async" onerror="this.onerror=null;this.src='/logo-viajes-sonoros.png';this.style.objectFit='contain';this.style.maxHeight='260px';this.style.padding='45px';this.style.background='#faf3ef'">
+              <img src="/banner-grupo-viaje.webp" alt="Grupo participando en un viaje sonoro con cuencos y otros instrumentos" loading="lazy" decoding="async" onerror="this.onerror=null;this.src='/logo-viajes-sonoros.png';this.style.objectFit='contain';this.style.maxHeight='260px';this.style.padding='45px';this.style.background='#faf3ef'">
             </a>
             <div class="vs-therapy-card-content">
               <h3>Crea tu grupo para un viaje sonoro</h3>
