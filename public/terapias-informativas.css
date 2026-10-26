@@ -27,3 +27,10 @@
 .therapy-fact-price .therapy-price{font-size:clamp(25px,3.3vw,34px);font-weight:750;margin:0;color:var(--therapy-accent)}
 .therapy-page .action{background:#64257d}
 @media(max-width:660px){.therapy-facts{grid-template-columns:1fr;gap:12px}.therapy-fact{padding:18px}}
+
+/* Visual treatment: clearly differentiated information tiles on iPhone */
+body.therapy-page .therapy-practical .therapy-facts{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
+body.therapy-page .therapy-practical .therapy-fact{display:block;background:var(--therapy-tint,#f5effa);border:1px solid var(--therapy-border,#e5d9ed);border-left:5px solid var(--therapy-accent,#70488f);border-radius:16px;padding:20px;box-shadow:0 6px 20px rgba(55,35,63,.08)}
+body.therapy-page .therapy-practical .therapy-fact-label{display:block;font-size:12px;font-weight:800;line-height:1.5;letter-spacing:.09em;text-transform:uppercase;color:var(--therapy-accent,#70488f);margin:0 0 10px}
+body.therapy-page .therapy-practical .therapy-fact-price .therapy-price{display:block;font-size:clamp(25px,3.5vw,34px);font-weight:700;color:var(--therapy-accent,#70488f);margin:0}
+@media(max-width:700px){body.therapy-page .therapy-practical .therapy-facts{grid-template-columns:1fr;gap:14px}body.therapy-page .therapy-practical .therapy-fact{padding:22px 20px}}
