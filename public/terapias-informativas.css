@@ -12,25 +12,18 @@
 .therapy-practical h3{font-size:clamp(18px,2.5vw,23px);margin:22px 0 10px;color:#543366}
 .therapy-practical p{line-height:1.7}
 
-/* Identidad visual diferenciada para las tres terapias. */
-.therapy-page{--therapy-accent:#775099;--therapy-soft:#f2e9f8;--therapy-border:#e1d2eb;min-height:100vh;background:radial-gradient(ellipse at 5% 12%,var(--therapy-glow),transparent 42%),linear-gradient(155deg,var(--therapy-start),#fffdf9 68%,var(--therapy-end));background-attachment:fixed}
-.therapy-individual{--therapy-start:#f2eafd;--therapy-end:#faf4fb;--therapy-glow:#d9c5ee91;--therapy-accent:#70488f;--therapy-soft:#f3eafa;--therapy-border:#decbe9}
-.therapy-couple{--therapy-start:#fff0f3;--therapy-end:#fff7f0;--therapy-glow:#f0bfd28a;--therapy-accent:#9b4b73;--therapy-soft:#fff0f5;--therapy-border:#ebcede}
-.therapy-group{--therapy-start:#fbf1dc;--therapy-end:#fff8ec;--therapy-glow:#ecd5a88c;--therapy-accent:#836038;--therapy-soft:#fcf2df;--therapy-border:#eadbbd}
-.therapy-page header{background:#ffffffeb;backdrop-filter:blur(10px);border-color:var(--therapy-border)}
-.therapy-page main{position:relative;isolation:isolate}
-.therapy-page main>.intro{padding:12px 4px 4px;max-width:900px}
-.therapy-page .hero{background:linear-gradient(135deg,#fffdf9,var(--therapy-soft));border:1px solid var(--therapy-border);box-shadow:0 18px 42px #54355317}
-.therapy-page .therapy-hero-image{width:100%;height:auto;object-fit:contain}
-.therapy-page .hero .therapy-hero-content{background:linear-gradient(115deg,#fffdf7f5,var(--therapy-soft))}
-.therapy-page .panel{background:#fffffff0;border:1px solid var(--therapy-border);box-shadow:0 14px 36px #5435530f;position:relative}
-.therapy-page .columns .panel:nth-child(even){background:linear-gradient(145deg,#fffdfc,var(--therapy-soft))}
-.therapy-page .therapy-practical{background:linear-gradient(125deg,#ffffff,var(--therapy-soft));border-left:5px solid var(--therapy-accent);box-shadow:0 16px 42px #5435531b}
-.therapy-page .therapy-practical .therapy-price{display:inline-block;background:#fff;border:1px solid var(--therapy-border);border-radius:16px;padding:15px 20px;color:var(--therapy-accent);box-shadow:0 6px 20px #5435530e;font-size:clamp(24px,3.5vw,33px)}
-.therapy-page .eyebrow,.therapy-page .panel h3{color:var(--therapy-accent)}
-.therapy-page .action{background:var(--therapy-accent);box-shadow:0 9px 25px #54355325;transition:transform .2s ease,box-shadow .2s ease}
-.therapy-page .action:hover{transform:translateY(-2px);box-shadow:0 14px 28px #54355335}
-.therapy-page .action:focus-visible{outline:3px solid #222;outline-offset:4px}
-.therapy-page footer{background:#fffdfbca;border-color:var(--therapy-border)}
-@media(max-width:700px){.therapy-page{background-attachment:scroll}.therapy-page main{padding:26px 16px 48px}.therapy-page .hero,.therapy-page .panel{border-radius:22px}.therapy-page .panel{padding:24px 20px}.therapy-page .therapy-practical .therapy-price{padding:12px 16px}.therapy-page .action{max-width:100%;line-height:1.45;text-align:center}}
-@media(prefers-reduced-motion:reduce){.therapy-page .action{transition:none}.therapy-page .action:hover{transform:none}}
+
+/* Color solo en los datos importantes, no en el fondo general */
+.therapy-page{--therapy-accent:#70488f;--therapy-tint:#f5effa;--therapy-border:#e5d9ed;background:#fffbf7}
+.therapy-couple{--therapy-accent:#954b73;--therapy-tint:#fdf0f5;--therapy-border:#eddbe4}
+.therapy-group{--therapy-accent:#816039;--therapy-tint:#fbf3e5;--therapy-border:#ecdfcb}
+.therapy-page .hero{background:linear-gradient(115deg,#fff9ef,#f4eaf4)}
+.therapy-page .panel{background:#fff}
+.therapy-page .therapy-practical{border-color:var(--therapy-border);background:#fff}
+.therapy-facts{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;margin:22px 0}
+.therapy-fact{background:var(--therapy-tint);border:1px solid var(--therapy-border);border-left:4px solid var(--therapy-accent);border-radius:16px;padding:20px;min-width:0}
+.therapy-fact-label{display:block;font-size:12px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:var(--therapy-accent);margin-bottom:10px}
+.therapy-fact p{margin:0;color:#514557;line-height:1.6}
+.therapy-fact-price .therapy-price{font-size:clamp(25px,3.3vw,34px);font-weight:750;margin:0;color:var(--therapy-accent)}
+.therapy-page .action{background:#64257d}
+@media(max-width:660px){.therapy-facts{grid-template-columns:1fr;gap:12px}.therapy-fact{padding:18px}}
