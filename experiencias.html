@@ -195,6 +195,23 @@ body.operational-page {
 html{scroll-padding-bottom:110px}
 .admin-premium-shell.admin-editor-collapsed .admin-app-spotlight,.admin-premium-shell.admin-editor-collapsed .admin-app-block{scroll-margin-bottom:110px}
 @media(max-width:700px){.admin-app-bottom{grid-template-columns:repeat(6,minmax(0,1fr))!important;gap:2px!important}.admin-app-bottom a,.admin-app-bottom button{min-width:0!important;padding-inline:1px!important;font-size:9px!important}.admin-app-bottom span{font-size:clamp(8px,2vw,10px)!important;white-space:nowrap!important}}
+
+/* Respuestas por WhatsApp a consultas sobre terapias (solo panel administrador) */
+.admin-therapy-replies{background:#fffdfb;border:1px solid #e8dae9;border-radius:22px;padding:clamp(18px,3vw,30px);margin:22px 0 26px;color:#4d3a56}
+.admin-therapy-replies h3{font-size:clamp(21px,2.6vw,29px);margin:0 0 8px;color:#553a6d}
+.admin-therapy-replies-intro p{margin:0 0 22px;line-height:1.65;color:#6b6070}
+.admin-therapy-contact{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px;margin-bottom:19px}
+.admin-therapy-contact label{display:block;font-weight:650;font-size:14px}
+.admin-therapy-contact input{display:block;box-sizing:border-box;width:100%;margin-top:7px;min-height:47px;padding:11px 13px;border:1px solid #d9c9df;border-radius:12px;color:#34253b;background:#fff;font:inherit}
+.admin-therapy-reply-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:13px}
+.admin-therapy-reply-grid article{border:1px solid #e6dce8;border-radius:16px;padding:19px;background:#fdf9fb;display:flex;flex-direction:column;gap:9px}
+.admin-therapy-reply-grid h4{font-size:18px;margin:0;color:#4c3065}
+.admin-therapy-reply-grid p{margin:0;line-height:1.55;flex:1;color:#625a65}
+.admin-therapy-buttons{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px}
+.admin-therapy-buttons button{background:#603984;color:white;border:0;border-radius:11px;min-height:42px;padding:11px 13px;font:700 13px Montserrat,system-ui,sans-serif;cursor:pointer}
+.admin-therapy-buttons .admin-therapy-secondary{background:#f0e8f1;color:#54366c}
+.admin-therapy-reply-status{min-height:1.5em;margin:12px 0 0;color:#633c70}
+@media(max-width:760px){.admin-therapy-reply-grid{grid-template-columns:1fr}.admin-therapy-contact{grid-template-columns:1fr}}
 </style>
 <link rel="stylesheet" href="/secondary.css">
 <link rel="stylesheet" href="/whatsapp-button.css">
@@ -991,6 +1008,35 @@ function renderAdminPanel(){ return `${headerHTML()}<main class="admin-premium-s
     </section>
     <div id="admin-modern-events" class="admin-modern-events" aria-label="Experiencias disponibles"><p>Cargando experiencias…</p></div>
     <div id="admin-modern-active" class="admin-modern-active" aria-live="polite"><p>Selecciona una experiencia para acceder a sus acciones.</p></div>
+    <section class="admin-therapy-replies" aria-labelledby="admin-therapy-replies-title">
+      <div class="admin-therapy-replies-intro">
+        <h3 id="admin-therapy-replies-title">Responder consultas de terapias por WhatsApp</h3>
+        <p>Introduce el teléfono de la persona interesada y elige una respuesta. WhatsApp abrirá el mensaje preparado para revisarlo y enviarlo; no se envía automáticamente.</p>
+      </div>
+      <div class="admin-therapy-contact">
+        <label>Teléfono de WhatsApp del destinatario (España +34 por defecto)
+          <input type="tel" id="admin-therapy-phone" autocomplete="off" inputmode="tel" placeholder="612 345 678">
+        </label>
+        <label>Nombre de la persona (opcional)
+          <input type="text" id="admin-therapy-name" maxlength="70" autocomplete="off" placeholder="Nombre">
+        </label>
+      </div>
+      <div class="admin-therapy-reply-grid">
+        <article>
+          <h4>Terapia individual</h4><p><strong>60 € por persona.</strong> Para organizar la sesión deben participar al menos dos personas simultáneamente.</p>
+          <div class="admin-therapy-buttons"><button type="button" data-therapy-reply="individual">Responder por WhatsApp</button><button type="button" data-therapy-copy="individual" class="admin-therapy-secondary">Copiar mensaje</button></div>
+        </article>
+        <article>
+          <h4>Terapia de pareja</h4><p><strong>80 € por pareja.</strong> Se requiere un mínimo de dos parejas en la misma sesión.</p>
+          <div class="admin-therapy-buttons"><button type="button" data-therapy-reply="pareja">Responder por WhatsApp</button><button type="button" data-therapy-copy="pareja" class="admin-therapy-secondary">Copiar mensaje</button></div>
+        </article>
+        <article>
+          <h4>Viaje sonoro para grupos</h4><p><strong>Presupuesto personalizado</strong> según el número de participantes.</p>
+          <div class="admin-therapy-buttons"><button type="button" data-therapy-reply="grupo">Responder por WhatsApp</button><button type="button" data-therapy-copy="grupo" class="admin-therapy-secondary">Copiar mensaje</button></div>
+        </article>
+      </div>
+      <p class="admin-therapy-reply-status" id="admin-therapy-reply-status" role="status" aria-live="polite"></p>
+    </section>
     <div class="admin-modern-tools" aria-label="Accesos rápidos">
       <button type="button" class="admin-modern-tool" onclick="window.openBookingsModule()">♧ Reservas</button>
       <a class="admin-modern-tool" href="/reservas-premium.html#communications-panel">◉ Comunicaciones</a>
@@ -1159,5 +1205,32 @@ if(location.hash===ADMIN_HASH)view=user?'admin-panel':'admin-login'
 window.addEventListener('hashchange',()=>{if(location.hash===ADMIN_HASH){window.goAdmin()}else if(view!=='experiencias'){view='experiencias';render()}})
 render()
 </script>
-<script>(function(){var loc=location.href.replace(/#.*$/,"");var ATTR_NAMES=["data-product-id","data-productid","data-product_id","product-id","productid","product_id","data-source-entity-id","source-entity-id","source_entity_id","data-product","data-metadata","data-meta"];var DATASET_KEYS=["productId","productid","product_id","sourceEntityId","sourceentityid","source_entity_id","product","metadata","meta"];function readProductId(value){if(typeof value!=="string"||value.length===0)return null;if(/^[0-9]{6,}$/.test(value))return value;var match=value.match(/(?:product(?:_|-)?id|source(?:_|-)?entity(?:_|-)?id)["'=:\s]+([0-9]{6,})/i);return match?match[1]:null}function extractProductId(start){for(var node=start;node&&node!==document.body;node=node.parentElement){for(var i=0;i<ATTR_NAMES.length;i++){var attrValue=node.getAttribute&&node.getAttribute(ATTR_NAMES[i]);var attrProductId=readProductId(attrValue);if(attrProductId)return attrProductId}var dataset=node.dataset||null;if(dataset){for(var j=0;j<DATASET_KEYS.length;j++){var dataValue=dataset[DATASET_KEYS[j]];var dataProductId=readProductId(dataValue);if(dataProductId)return dataProductId}}}return null}document.addEventListener("click",function(e){var target=e.target instanceof Element?e.target:null;if(!target)return;var a=target.closest?target.closest("a[href]"):null;if(!a||!a.href||!/^https?:\/\//.test(a.href))return;if(a.href.replace(/#.*$/,"")===loc)return;if(parent===window)return;var productId=extractProductId(target)||extractProductId(a);if(productId){e.preventDefault();parent.postMessage({type:"ecto-artifact-link-click",productId:productId},"*");return}e.preventDefault();parent.postMessage({type:"ecto:usercontent-link-click",href:a.href},"*")},true)})();</script><script>(function(){var FOCUS_TYPE="ecto:artifact-focus-request";var CLOSE_TYPE="ecto:artifact-close-request";function focusArtifactDocument(){var body=document.body;if(!body)return;try{window.focus();}catch(e){}if(!body.hasAttribute("tabindex"))body.setAttribute("tabindex","-1");try{body.focus({preventScroll:true});}catch(e){try{body.focus();}catch(e2){}}}window.addEventListener("message",function(event){if(event.source!==window.parent)return;var data=event.data;if(!data||typeof data!=="object"||data.type!==FOCUS_TYPE)return;if(document.readyState==="loading"){document.addEventListener("DOMContentLoaded",focusArtifactDocument,{once:true});return;}focusArtifactDocument();});window.addEventListener("keydown",function(event){if(event.key!=="Escape")return;window.setTimeout(function(){if(event.defaultPrevented)return;window.parent.postMessage({type:CLOSE_TYPE},"*");},0);});})();</script></body>
+<script>(function(){var loc=location.href.replace(/#.*$/,"");var ATTR_NAMES=["data-product-id","data-productid","data-product_id","product-id","productid","product_id","data-source-entity-id","source-entity-id","source_entity_id","data-product","data-metadata","data-meta"];var DATASET_KEYS=["productId","productid","product_id","sourceEntityId","sourceentityid","source_entity_id","product","metadata","meta"];function readProductId(value){if(typeof value!=="string"||value.length===0)return null;if(/^[0-9]{6,}$/.test(value))return value;var match=value.match(/(?:product(?:_|-)?id|source(?:_|-)?entity(?:_|-)?id)["'=:\s]+([0-9]{6,})/i);return match?match[1]:null}function extractProductId(start){for(var node=start;node&&node!==document.body;node=node.parentElement){for(var i=0;i<ATTR_NAMES.length;i++){var attrValue=node.getAttribute&&node.getAttribute(ATTR_NAMES[i]);var attrProductId=readProductId(attrValue);if(attrProductId)return attrProductId}var dataset=node.dataset||null;if(dataset){for(var j=0;j<DATASET_KEYS.length;j++){var dataValue=dataset[DATASET_KEYS[j]];var dataProductId=readProductId(dataValue);if(dataProductId)return dataProductId}}}return null}document.addEventListener("click",function(e){var target=e.target instanceof Element?e.target:null;if(!target)return;var a=target.closest?target.closest("a[href]"):null;if(!a||!a.href||!/^https?:\/\//.test(a.href))return;if(a.href.replace(/#.*$/,"")===loc)return;if(parent===window)return;var productId=extractProductId(target)||extractProductId(a);if(productId){e.preventDefault();parent.postMessage({type:"ecto-artifact-link-click",productId:productId},"*");return}e.preventDefault();parent.postMessage({type:"ecto:usercontent-link-click",href:a.href},"*")},true)})();</script><script>(function(){var FOCUS_TYPE="ecto:artifact-focus-request";var CLOSE_TYPE="ecto:artifact-close-request";function focusArtifactDocument(){var body=document.body;if(!body)return;try{window.focus();}catch(e){}if(!body.hasAttribute("tabindex"))body.setAttribute("tabindex","-1");try{body.focus({preventScroll:true});}catch(e){try{body.focus();}catch(e2){}}}window.addEventListener("message",function(event){if(event.source!==window.parent)return;var data=event.data;if(!data||typeof data!=="object"||data.type!==FOCUS_TYPE)return;if(document.readyState==="loading"){document.addEventListener("DOMContentLoaded",focusArtifactDocument,{once:true});return;}focusArtifactDocument();});window.addEventListener("keydown",function(event){if(event.key!=="Escape")return;window.setTimeout(function(){if(event.defaultPrevented)return;window.parent.postMessage({type:CLOSE_TYPE},"*");},0);});})();</script><script>
+(function(){
+ const templates={
+  individual:(hello)=>hello+' Gracias por interesarte en nuestras terapias sonoras individuales de Viajes Sonoros FEEL. El precio es de 60 € por persona. Para realizar la sesión necesitamos un mínimo de dos participantes de manera simultánea en la sala. Si te interesa, indícanos qué fechas te vendrían bien y te informaremos de la disponibilidad. Más información: https://viajessonoros.es/terapias-individuales.html',
+  pareja:(hello)=>hello+' Gracias por interesarte en las terapias sonoras de pareja de Viajes Sonoros FEEL. El precio es de 80 € por pareja. Para organizar la sesión es necesario contar con un mínimo de dos parejas de manera simultánea. Puedes indicarnos las fechas que os interesan para consultar disponibilidad. Más información: https://viajessonoros.es/terapias-de-pareja.html',
+  grupo:(hello)=>hello+' Gracias por interesarte en crear un viaje sonoro para vuestro grupo con Viajes Sonoros FEEL. El precio depende del número de participantes, por lo que preparamos un presupuesto personalizado. ¿Cuántas personas formaríais el grupo y qué fecha aproximada tenéis en mente? Más información: https://viajessonoros.es/crea-tu-grupo-viaje-sonoro.html'
+ };
+ const status=()=>document.querySelector('#admin-therapy-reply-status');
+ function textFor(kind){const name=document.querySelector('#admin-therapy-name')?.value.trim();return templates[kind](name?'Hola, '+name+'.':'¡Hola!');}
+ function number(){const raw=document.querySelector('#admin-therapy-phone')?.value.trim()||'';if(!raw)return null;let phone=raw.replace(/[^\d+]/g,'');if(phone.startsWith('00'))phone=phone.slice(2);phone=phone.replace(/\D/g,'');if(phone.length===9)phone='34'+phone;return phone.length>=11&&phone.length<=15?phone:null;}
+ document.addEventListener('click',async function(event){
+  const send=event.target.closest('[data-therapy-reply]'),copy=event.target.closest('[data-therapy-copy]');
+  if(!send&&!copy)return;
+  const kind=(send||copy).dataset[send?'therapyReply':'therapyCopy'];
+  if(!templates[kind])return;
+  const msg=textFor(kind);
+  if(copy){
+   try{await navigator.clipboard.writeText(msg);status().textContent='Mensaje copiado. Pégalo en la conversación de WhatsApp.'}
+   catch{status().textContent='El navegador no permite copiar. Utiliza el botón de WhatsApp.'}
+   return;
+  }
+  const phone=number();if(!phone){status().textContent='Introduce un número de WhatsApp válido, incluyendo prefijo si no es español.';document.querySelector('#admin-therapy-phone')?.focus();return}
+  status().textContent='Se abrirá WhatsApp con el mensaje listo para enviar.';
+  window.open('https://wa.me/'+phone+'?text='+encodeURIComponent(msg),'_blank','noopener,noreferrer');
+ });
+})();
+</script>
+</body>
 </html>
