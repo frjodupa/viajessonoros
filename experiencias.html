@@ -163,7 +163,7 @@ body.operational-page {
 .admin-app-line{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:10px 0;border-top:1px solid #f1edf3;color:#4c4458;font-size:13px}
 .admin-app-line small{color:#766e7b}
 .admin-app-line a{font-weight:700;color:#5b3f98}
-.admin-app-bottom{position:sticky;bottom:8px;z-index:30;display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:2px;border:1px solid #e9e2ed;background:#fffffff5;padding:7px 4px;border-radius:20px;box-shadow:0 6px 27px #39295524;backdrop-filter:blur(10px)}
+.admin-app-bottom{position:sticky;bottom:8px;z-index:30;display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:2px;border:1px solid #e9e2ed;background:#fffffff5;padding:7px 4px;border-radius:20px;box-shadow:0 6px 27px #39295524;backdrop-filter:blur(10px)}
 .admin-app-bottom a,.admin-app-bottom button{display:grid;justify-items:center;gap:3px;background:transparent;border:0;color:#6b6376;font:600 10px Montserrat,system-ui,sans-serif;text-decoration:none;padding:8px 2px}
 .admin-app-bottom .is-current{color:#326c55;background:#e8f5ed;border-radius:13px}
 .admin-app-bottom b{font-size:21px;line-height:1.1;font-weight:500}
@@ -182,7 +182,7 @@ body.operational-page {
 @media(max-width:420px){.admin-app-bottom a,.admin-app-bottom button{font-size:9px!important;padding:7px 1px!important}.admin-app-bottom b{font-size:18px!important}}
 
 /* Revisión de iPhone: menú legible por encima de widgets externos */
-.admin-premium-shell.admin-editor-collapsed .admin-app-bottom{z-index:10050!important;padding:8px!important;grid-template-columns:repeat(5,minmax(0,1fr))!important}
+.admin-premium-shell.admin-editor-collapsed .admin-app-bottom{z-index:10050!important;padding:8px!important;grid-template-columns:repeat(6,minmax(0,1fr))!important}
 .admin-premium-shell.admin-editor-collapsed .admin-app-bottom>a,
 .admin-premium-shell.admin-editor-collapsed .admin-app-bottom>button{font-size:10px!important;letter-spacing:-.2px;overflow:hidden!important;min-width:0}
 .admin-premium-shell.admin-editor-collapsed .admin-app-line{flex-wrap:wrap;align-items:flex-start}
@@ -194,6 +194,13 @@ body.operational-page {
 .admin-app-bottom span{font-size:clamp(8px,2.35vw,11px);font-weight:600}
 html{scroll-padding-bottom:110px}
 .admin-premium-shell.admin-editor-collapsed .admin-app-spotlight,.admin-premium-shell.admin-editor-collapsed .admin-app-block{scroll-margin-bottom:110px}
+
+.admin-top-actions{display:flex;align-items:center;gap:12px;flex-wrap:wrap}.admin-banners-entry{display:inline-flex;align-items:center;gap:9px;min-height:44px;padding:10px 17px;border-radius:14px;background:#5b3f98;color:#fff!important;text-decoration:none;font-weight:700;box-shadow:0 6px 18px #34255f20}.admin-banners-entry span{padding:3px 7px;border-radius:7px;background:#ffffff24;font-size:.72em}.admin-banners-entry:focus-visible{outline:3px solid #1598b7;outline-offset:3px}@media(max-width:700px){.admin-top-actions{width:100%}.admin-banners-entry{flex:1;justify-content:center}}
+
+/* Seis accesos alineados sin saltos de fila */
+.admin-app-bottom{grid-template-columns:repeat(6,minmax(0,1fr))!important;grid-auto-flow:row;width:100%}
+.admin-app-bottom>a,.admin-app-bottom>button{min-width:0;white-space:nowrap;font-size:clamp(9px,.78vw,11px)!important}
+@media(max-width:700px){.admin-app-bottom{gap:0;padding:6px 2px}.admin-app-bottom svg{width:19px;height:19px}.admin-app-bottom>a,.admin-app-bottom>button{font-size:9px!important;letter-spacing:-.3px}}
 </style>
 <link rel="stylesheet" href="/secondary.css">
 <link rel="stylesheet" href="/whatsapp-button.css">
@@ -976,7 +983,7 @@ function renderAdminPanel(){ return `${headerHTML()}<main class="admin-premium-s
       <h2>Crear y gestionar experiencias</h2>
       <p>Completa los datos, selecciona la imagen y revisa el resultado antes de guardar o publicar.</p>
     </div>
-    <button onclick="window.logout()" class="admin-logout">Cerrar sesión</button>
+    <div class="admin-top-actions"><a class="admin-banners-entry" href="/banners-admin.html">Banners informativos <span>Prueba</span></a><button onclick="window.logout()" class="admin-logout">Cerrar sesión</button></div>
   </div>
 
   <section class="admin-modern-summary" aria-label="Panel de control de experiencias">
@@ -986,7 +993,7 @@ function renderAdminPanel(){ return `${headerHTML()}<main class="admin-premium-s
       <div class="admin-app-stats" aria-label="Plazas y disponibilidad"><div class="admin-app-stat"><strong id="admin-app-confirmed">—</strong><span>Plazas confirmadas</span></div><div class="admin-app-stat"><strong id="admin-app-pending">—</strong><span>Plazas pendientes</span></div><div class="admin-app-stat"><strong id="admin-app-capacity">—</strong><span>Aforo total</span></div><div class="admin-app-stat"><strong id="admin-app-available">—</strong><span>Disponibles</span></div></div>
       <div class="admin-app-block"><h3>Comunicaciones pendientes</h3><div id="admin-app-communications">Consultando reservas…</div></div>
       <div class="admin-app-block"><h3 id="admin-app-list-title">Todas las reservas</h3><p id="admin-app-count" class="hint"></p><div id="admin-app-recent">Consultando reservas…</div></div>
-      <nav class="admin-app-bottom" aria-label="Navegación inferior"><button type="button" class="is-current" onclick="document.querySelector('.admin-modern-summary')?.scrollIntoView({behavior:'smooth'})"><svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="m3 10 9-7 9 7v10h-6v-7H9v7H3z"/></svg><span>Experiencias</span></button><a href="/reservas-premium.html"><svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M7 3v4M17 3v4M3 10h18"/></svg><span>Reservas</span></a><a href="/reservas-premium.html#communications-panel"><svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.5 8.5 0 0 1-8.5 8.5 9 9 0 0 1-4-.9L3 21l1.9-5.5a9 9 0 0 1-.9-4A8.5 8.5 0 0 1 12.5 3a8.5 8.5 0 0 1 8.5 8.5z"/></svg><span>Mensajes</span></a><a href="/reservas-premium.html#attendance-report"><svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20V10M10 20V4M16 20v-8M22 20v-5"/></svg><span>Informes</span></a><button type="button" onclick="window.showAdminEditor()"><svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L8 18l-4 1 1-4Z"/></svg><span>Editar</span></button></nav>
+      <nav class="admin-app-bottom" aria-label="Navegación inferior"><button type="button" class="is-current" onclick="document.querySelector('.admin-modern-summary')?.scrollIntoView({behavior:'smooth'})"><svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="m3 10 9-7 9 7v10h-6v-7H9v7H3z"/></svg><span>Experiencias</span></button><a href="/reservas-premium.html"><svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M7 3v4M17 3v4M3 10h18"/></svg><span>Reservas</span></a><a href="/reservas-premium.html#communications-panel"><svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.5 8.5 0 0 1-8.5 8.5 9 9 0 0 1-4-.9L3 21l1.9-5.5a9 9 0 0 1-.9-4A8.5 8.5 0 0 1 12.5 3a8.5 8.5 0 0 1 8.5 8.5z"/></svg><span>Mensajes</span></a><a href="/reservas-premium.html#attendance-report"><svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20V10M10 20V4M16 20v-8M22 20v-5"/></svg><span>Informes</span></a><button type="button" onclick="window.showAdminEditor()"><svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L8 18l-4 1 1-4Z"/></svg><span>Editar</span></button><a href="/banners-admin.html" aria-label="Gestión de banners informativos"><svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="m6 15 4-4 3 3 3-5"/></svg><span>Banners</span></a></nav>
     </section>
     <div id="admin-modern-events" class="admin-modern-events" aria-label="Experiencias disponibles"><p>Cargando experiencias…</p></div>
     <div id="admin-modern-active" class="admin-modern-active" aria-live="polite"><p>Selecciona una experiencia para acceder a sus acciones.</p></div>
@@ -998,6 +1005,8 @@ function renderAdminPanel(){ return `${headerHTML()}<main class="admin-premium-s
     </div>
   </section>
   <nav class="admin-module-navigation" aria-label="Módulos del administrador">
+<a href="/banners-admin.html" class="admin-module-link admin-module-premium"><span class="admin-module-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="m6 15 4-4 3 3 3-5 3 4"/></svg></span><span class="admin-module-copy"><span class="admin-module-name">Banners informativos</span><span class="admin-module-description">Campañas, imágenes, fechas y vistas previas · módulo independiente</span></span></a>
+
 <button type="button" class="admin-module-link admin-module-primary" onclick="window.openBookingsModule()"><span class="admin-module-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M7 3v4M17 3v4M3 10h18M8 15l2 2 5-5"/></svg></span><span class="admin-module-copy"><span class="admin-module-name">Reservas y participantes</span><span class="admin-module-description">Confirmaciones, estados y asistencia</span></span></button>
 <a href="/reservas-premium.html" class="admin-module-link admin-module-premium"><span class="admin-module-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l2.5 5.5L20 10l-5.5 2.5L12 18l-2.5-5.5L4 10l5.5-2.5L12 2Z"/><path d="M19 17l.9 2.1L22 20l-2.1.9L19 23l-.9-2.1L16 20l2.1-.9L19 17Z"/></svg></span><span class="admin-module-copy"><span class="admin-module-name">Reservas Premium y WhatsApp</span><span class="admin-module-description">Comunicaciones pendientes, asistentes y totales</span></span></a></nav>
   <button class="admin-modern-editor-close" type="button" onclick="window.hideAdminEditor()">← Volver al panel</button>
