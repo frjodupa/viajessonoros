@@ -44,7 +44,7 @@ function imageURL(path,key){
  if(!path)return presets[key].image;
  if(path.startsWith('/'))return path;
  const legacy='viajessonoros-g0wlq4wva-joseduqueparedes-7366s-projects.vercel.app';
- try{const u=new URL(path);if(u.hostname===legacy&&/^\\/banner-(terapia-individual|terapia-pareja|grupo-viaje)\\.webp$/.test(u.pathname))return u.pathname}catch{}
+ try{const u=new URL(path);if(u.hostname===legacy&&['/banner-terapia-individual.webp','/banner-terapia-pareja.webp','/banner-grupo-viaje.webp'].includes(u.pathname))return u.pathname}catch{}
  return path;
 }
 function showImage(path=presets[selected].image){
