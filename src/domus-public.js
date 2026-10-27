@@ -3,7 +3,7 @@ import { calendarHTML, classifyAges, DOMUS_PHONE, escapeHTML, MODES, PACKAGE_PRI
 import './domus-calendar.css'
 
 const $ = id => document.getElementById(id)
-let cursor = monthDate(todayMadrid()), config = null, request = 0
+let cursor = monthDate(todayMadrid()), config = null, request = 0, publicClasses = []
 const form = $('booking'), button = $('domus-submit')
 
 /* Sólo se ofrecen fechas confirmadas publicadas; elegirlas no confirma la inscripción. */
@@ -24,7 +24,7 @@ function renderHorarioElegible(clases = []) {
  horarioElegible.replaceChildren(new Option('Prefiero proponer otro horario', ''))
  for (const c of clases) {
   const ini = new Date(c.inicio), fin = new Date(c.fin)
-  if (!Number.isFinite(ini.getTime()) || !Number.isFinite(fin.getTime()) || fin-ini !== 90*60000 || ini <= new Date()) continue
+  if (!Number.isFinite(ini.getTime()) || !Number.isFinite(fin.getTime()) || fin-ini !== 90*60000 || ini <= new Date() || !(c.libres > 0)) continue
   const label = new Intl.DateTimeFormat('es-ES', {timeZone:'Europe/Madrid',weekday:'long',day:'2-digit',month:'long',hour:'2-digit',minute:'2-digit'}).format(ini)
   const end = new Intl.DateTimeFormat('es-ES',{timeZone:'Europe/Madrid',hour:'2-digit',minute:'2-digit'}).format(fin)
   horarioElegible.add(new Option(label + '–' + end + ' · ' + (c.sala || 'Sala por confirmar'), c.id + '|' + label + '–' + end))
@@ -79,6 +79,7 @@ async function loadCalendar() {
     if (error) throw error
     if (!data?.config || !Array.isArray(data.clases)) throw new Error('No se ha podido consultar la agenda de talleres.')
     config = data.config
+    publicClasses = data.clases
     $('plazas').max = String(config.max_participantes)
     refreshPrice()
     button.disabled = false
@@ -89,12 +90,28 @@ async function loadCalendar() {
     if (current === request) $('domus-calendar-status').textContent = `No se ha podido consultar el calendario. ${friendlyError(error)}`
   }
 }
+document.addEventListener('click', event => {
+ const reserve = event.target.closest('[data-domus-reserve]')
+ if (!reserve) return
+ const cls = publicClasses.find(c => c.id === reserve.dataset.domusReserve && c.libres > 0)
+ if (!cls) return
+ const option = [...horarioElegible.options].find(o => o.value.startsWith(cls.id+'|'))
+ if (option) horarioElegible.value = option.value
+ const modality = $('modalidad')
+ if (modality && cls.tipo === 'ninos') modality.value = 'infantil'
+ if (modality && cls.tipo === 'adultos') modality.value = 'taller'
+ refreshGroup()
+ form.scrollIntoView({behavior:'smooth',block:'start'})
+ horarioElegible.focus({preventScroll:true})
+})
 form.addEventListener('submit', async event => {
   event.preventDefault()
   if (!config || button.disabled || !form.reportValidity()) return
   const v = id => $(id).value.trim(), fields = [...document.querySelectorAll('[data-age]')]
   const ages = fields.map(i => Number(i.value)), n = Number(v('plazas'))
   const names = [...document.querySelectorAll('[data-person-name]')].map(i => i.value.trim())
+  const elegido = publicClasses.find(c => horarioElegible.value.startsWith(c.id+'|'))
+  if (elegido && Number(v('plazas')) > elegido.libres) { $('domus-booking-status').textContent = 'No quedan plazas suficientes en esa clase. Actualiza el calendario o elige otra opción.'; return }
   const phone = v('telefono').replace(/[\s().-]/g, '').replace(/^00/, '+')
   if (n !== fields.length || ages.some((age, i) => fields[i].value === '' || !Number.isInteger(age) || age < 0 || age > 120)) { $('domus-booking-status').textContent = 'Indica una edad válida por participante.'; return }
   if (!/^\+?\d{9,15}$/.test(phone)) { $('domus-booking-status').textContent = 'Revisa el teléfono de contacto.'; return }
