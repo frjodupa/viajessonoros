@@ -8,7 +8,10 @@ create function domus_private.validar_aforo_miembro() returns trigger language p
 security definer set search_path='' as $
 declare capacidad integer; ocupacion integer;
 begin
- if not new.activo or (tg_op='UPDATE' and old.activo) then return new; end if;
+ if not new.activo then return new; end if;
+ if tg_op='UPDATE' then
+   if old.activo then return new; end if;
+ end if;
  select cupo_maximo into capacidad from public.domus_grupos where id=new.grupo_id for update;
  if capacidad is null then return new; end if;
  select count(*)::integer into ocupacion from public.domus_grupos_participantes m
@@ -138,8 +141,8 @@ commit; then raise exception 'Introduce edades enteras válidas' using errcode='
    select g.cupo_maximo,g.tipo into aforo,tipo_val
    from public.domus_grupos g where g.id=grupo_id_val for update;
    if aforo is null then raise exception 'El aforo de esta clase no está confirmado todavía.' using errcode='22023'; end if;
-   if (tipo_val='ninos' and exists(select 1 from jsonb_array_elements_text(edades) x where x::integer>=18))
-      or (tipo_val='adultos' and exists(select 1 from jsonb_array_elements_text(edades) x where x::integer<18))
+   if (tipo_val='ninos' and exists(select 1 from jsonb_array_elements_text(edades) AS item(v) where item.v::integer>=18))
+      or (tipo_val='adultos' and exists(select 1 from jsonb_array_elements_text(edades) AS item(v) where item.v::integer<18))
    then raise exception 'Elige un grupo adecuado a la edad de los participantes.' using errcode='22023'; end if;
    select count(*)::integer into ocupadas from public.domus_grupos_participantes m
     join public.domus_participantes p on p.id=m.participante_id
