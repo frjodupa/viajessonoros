@@ -27,7 +27,7 @@ function renderHorarioElegible(clases = []) {
   if (!Number.isFinite(ini.getTime()) || !Number.isFinite(fin.getTime()) || fin-ini !== 90*60000 || ini <= new Date() || !(c.libres > 0)) continue
   const label = new Intl.DateTimeFormat('es-ES', {timeZone:'Europe/Madrid',weekday:'long',day:'2-digit',month:'long',hour:'2-digit',minute:'2-digit'}).format(ini)
   const end = new Intl.DateTimeFormat('es-ES',{timeZone:'Europe/Madrid',hour:'2-digit',minute:'2-digit'}).format(fin)
-  horarioElegible.add(new Option(label + '–' + end + ' · ' + (c.sala || 'Sala por confirmar'), c.id + '|' + label + '–' + end))
+  horarioElegible.add(new Option(label + '–' + end + ' · ' + (c.grupo_tipo || 'Grupo') + ' · ' + (c.sala || 'Sala por confirmar'), c.id + '|' + label + '–' + end))
  }
  if ([...horarioElegible.options].some(o=>o.value===selected)) horarioElegible.value=selected
  horarioAviso.textContent=horarioElegible.options.length>1?'Selecciona una clase publicada. La plaza se confirmará después por la organización.':'Todavía no hay fechas publicadas de 90 minutos. Indica tu disponibilidad debajo.'
@@ -124,14 +124,15 @@ form.addEventListener('submit', async event => {
     key ||= form.dataset.requestKey || crypto.randomUUID()
     form.dataset.requestKey = key
     try { sessionStorage.setItem('domus.solicitud.clave', key) } catch {}
-    const requestData = { clave: key, nombre: v('nombre'), telefono: phone, edades: ages, nombres: names, modalidad: v('modalidad'), paquete: v('paquete'), ...reservationPrice(v('paquete'), n), preferencias: horarioElegible.value ? 'Clase solicitada: '+horarioElegible.value.split('|').slice(1).join('|')+' (referencia '+horarioElegible.value.split('|')[0]+'). '+v('horario') : v('horario'), observaciones: v('observaciones'), responsable_adulto: $('domus-responsible').checked }
+    const requestData = { clave: key, clase_id: elegido?.id || null, nombre: v('nombre'), telefono: phone, edades: ages, nombres: names, modalidad: v('modalidad'), paquete: v('paquete'), ...reservationPrice(v('paquete'), n), preferencias: horarioElegible.value ? 'Clase solicitada: '+horarioElegible.value.split('|').slice(1).join('|')+' (referencia '+horarioElegible.value.split('|')[0]+'). '+v('horario') : v('horario'), observaciones: v('observaciones'), responsable_adulto: $('domus-responsible').checked }
     const { data: reference, error } = await supabase.rpc('domus_registrar', { p_solicitud: requestData }).abortSignal(AbortSignal.timeout(15000))
     if (error) throw error
     if (!reference) throw new Error('No se ha recibido confirmación de registro. Reintenta sin cambiar los datos.')
-    const message = ['Hola, he registrado una solicitud para Talleres Domus.', `Referencia: ${reference}`, `Contacto: ${requestData.nombre} · ${phone}`, `Participantes: ${names.join(', ')}`, `Modalidad: ${MODES[requestData.modalidad]}`, `Paquete: ${MODES[requestData.paquete]}`, `Precio individual: ${money(requestData.precio_unitario)}`, `Importe total: ${money(requestData.importe_total)}`, `Preferencias: ${requestData.preferencias || 'Por confirmar'}`, 'La solicitud está pendiente. Fechas, horarios y sala se confirmarán con la organización.'].join('\n')
+    const message = ['Hola, he registrado una solicitud para Talleres Domus.', `Referencia: ${reference}`, `Contacto: ${requestData.nombre} · ${phone}`, `Participantes: ${names.join(', ')}`, `Modalidad: ${MODES[requestData.modalidad]}`, `Paquete: ${MODES[requestData.paquete]}`, `Precio individual: ${money(requestData.precio_unitario)}`, `Importe total: ${money(requestData.importe_total)}`, `Preferencias: ${requestData.preferencias || 'Por confirmar'}`, elegido ? 'Has elegido una clase publicada. La plaza queda provisionalmente asignada al grupo; la confirmación final llegará desde la organización.' : 'La solicitud está pendiente. Fechas, horarios y sala se confirmarán con la organización.'].join('\n')
     $('domus-whatsapp').href = whatsappURL(DOMUS_PHONE, message)
-    $('domus-reference').textContent = `Solicitud registrada: ${reference}. Pendiente de confirmación.`
+    $('domus-reference').textContent = `Solicitud registrada: ${reference}. ${elegido ? 'Asignación provisional a la clase seleccionada.' : 'Pendiente de asignación de grupo.'} Pendiente de confirmación.`
     $('domus-booking-success').hidden = false
+    loadCalendar()
     form.hidden = true
     try { sessionStorage.removeItem('domus.solicitud.clave') } catch {}
     // Open only after a real successful registration and an explicit click.
