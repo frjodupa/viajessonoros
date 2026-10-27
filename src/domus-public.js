@@ -125,12 +125,13 @@ form.addEventListener('submit', async event => {
     form.dataset.requestKey = key
     try { sessionStorage.setItem('domus.solicitud.clave', key) } catch {}
     const requestData = { clave: key, clase_id: elegido?.id || null, nombre: v('nombre'), telefono: phone, edades: ages, nombres: names, modalidad: v('modalidad'), paquete: v('paquete'), ...reservationPrice(v('paquete'), n), preferencias: horarioElegible.value ? 'Clase solicitada: '+horarioElegible.value.split('|').slice(1).join('|')+' (referencia '+horarioElegible.value.split('|')[0]+'). '+v('horario') : v('horario'), observaciones: v('observaciones'), responsable_adulto: $('domus-responsible').checked }
-    const { data: reference, error } = await supabase.rpc('domus_registrar', { p_solicitud: requestData }).abortSignal(AbortSignal.timeout(15000))
+    const { data: reference, error } = await supabase.rpc('domus_registrar_con_referencia', { p_solicitud: requestData }).abortSignal(AbortSignal.timeout(15000))
     if (error) throw error
-    if (!reference) throw new Error('No se ha recibido confirmación de registro. Reintenta sin cambiar los datos.')
-    const message = ['Hola, he registrado una solicitud para Talleres Domus.', `Referencia: ${reference}`, `Contacto: ${requestData.nombre} · ${phone}`, `Participantes: ${names.join(', ')}`, `Modalidad: ${MODES[requestData.modalidad]}`, `Paquete: ${MODES[requestData.paquete]}`, `Precio individual: ${money(requestData.precio_unitario)}`, `Importe total: ${money(requestData.importe_total)}`, `Preferencias: ${requestData.preferencias || 'Por confirmar'}`, elegido ? 'Has elegido una clase publicada. La plaza queda provisionalmente asignada al grupo; la confirmación final llegará desde la organización.' : 'La solicitud está pendiente. Fechas, horarios y sala se confirmarán con la organización.'].join('\n')
+    if (!reference?.id || !reference?.codigo) throw new Error('No se ha recibido la referencia de reserva. Reintenta sin cambiar los datos.')
+    const code = reference.codigo
+    const message = ['Hola, he registrado una solicitud para Talleres Domus.', `Referencia: ${code}`, `Contacto: ${requestData.nombre} · ${phone}`, `Participantes: ${names.join(', ')}`, `Modalidad: ${MODES[requestData.modalidad]}`, `Paquete: ${MODES[requestData.paquete]}`, `Precio individual: ${money(requestData.precio_unitario)}`, `Importe total: ${money(requestData.importe_total)}`, `Preferencias: ${requestData.preferencias || 'Por confirmar'}`, elegido ? 'Has elegido una clase publicada. La plaza queda provisionalmente asignada al grupo; la confirmación final llegará desde la organización.' : 'La solicitud está pendiente. Fechas, horarios y sala se confirmarán con la organización.'].join('\n')
     $('domus-whatsapp').href = whatsappURL(DOMUS_PHONE, message)
-    $('domus-reference').textContent = `Solicitud registrada: ${reference}. ${elegido ? 'Asignación provisional a la clase seleccionada.' : 'Pendiente de asignación de grupo.'} Pendiente de confirmación.`
+    $('domus-reference').textContent = `Solicitud registrada: ${code}. ${elegido ? 'Asignación provisional a la clase seleccionada.' : 'Pendiente de asignación de grupo.'} Pendiente de confirmación.`
     $('domus-booking-success').hidden = false
     loadCalendar()
     form.hidden = true
@@ -163,23 +164,11 @@ function installShareButton() {
     fontFamily: 'Montserrat, system-ui, sans-serif', fontWeight: '700',
     fontSize: '14px', maxWidth: 'calc(100vw - 36px)'
   })
-  share.addEventListener('click', async () => {
+  share.textContent = 'Compartir por WhatsApp'
+  share.addEventListener('click', () => {
     const url = new URL('/talleres-domus/', location.origin).href
-    const title = 'Talleres Domus Pan Drums · Viajes Sonoros'
     const text = 'Descubre los talleres de iniciación a los Drums de Domus Pan Drums en Cáceres. Información e inscripciones: ' + url
-    try {
-      if (navigator.share) { await navigator.share({ title, text, url }); return }
-      if (navigator.clipboard?.writeText) {
-        await navigator.clipboard.writeText(text)
-        const original = share.textContent
-        share.textContent = '¡Enlace copiado!'
-        share.addEventListener('blur', () => { share.textContent = original }, { once: true })
-        return
-      }
-      window.open('https://wa.me/?text=' + encodeURIComponent(text), '_blank', 'noopener,noreferrer')
-    } catch (error) {
-      if (error?.name !== 'AbortError') window.open('https://wa.me/?text=' + encodeURIComponent(text), '_blank', 'noopener,noreferrer')
-    }
+    window.open('https://wa.me/?text=' + encodeURIComponent(text), '_blank', 'noopener,noreferrer')
   })
   document.body.appendChild(share)
 }
