@@ -4,3 +4,9 @@
 @media print{.domus-calendar-controls button{display:none}.domus-calendar-grid{display:grid;grid-template-columns:repeat(7,minmax(0,1fr))}.domus-day{display:block;min-height:85px;break-inside:avoid}.domus-day-empty{display:block}.domus-slot{print-color-adjust:exact;-webkit-print-color-adjust:exact}.domus-mobile-date{display:none}}
 
 #domus-package-wrap[hidden]{display:none!important}.domus-age-fields input[data-person-name]{margin-bottom:10px}
+
+/* Acceso directo al formulario desde las clases con plazas confirmadas. */
+.domus-public-book{display:block;width:100%;min-height:36px;margin-top:7px;padding:7px 9px;border-radius:8px;border:1px solid #a7834f;background:#fff9e9;color:#3a245b;font:700 12px/1.4 Montserrat,system-ui,sans-serif;cursor:pointer}
+.domus-public-book:hover{background:#f3e6cb}
+.domus-public-book:focus-visible{outline:3px solid #a77b43;outline-offset:2px}
+.domus-slot span{font-weight:650}
