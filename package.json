@@ -7,9 +7,12 @@
     "dev": "vite",
     "prebuild": "node scripts/validate-project.mjs",
     "build": "vite build",
-    "preview": "vite preview"
+    "postbuild": "node scripts/validate-domus-build.mjs",
+    "preview": "vite preview",
+    "test:domus": "node --test tests/domus-core.test.mjs tests/domus-database.test.mjs"
   },
   "devDependencies": {
+    "@electric-sql/pglite": "0.5.12",
     "vite": "^8.1.1"
   },
   "dependencies": {
