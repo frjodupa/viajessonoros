@@ -35,7 +35,7 @@ export const whatsappURL = (phone, message) => `https://wa.me/${phoneDigits(phon
 export function confirmedClasses(classes, groupId) { return classes.filter(c => c.grupo_id === groupId && c.estado === 'confirmada').sort((a, b) => a.inicio.localeCompare(b.inicio)) }
 export function reservationDetails(reservation, participants = []) {
   const own = participants.filter(p => p.reserva_id === reservation.id).sort((a, b) => a.orden - b.orden)
-  return [`Código de reserva: ${reservation.id}`, `Contacto: ${reservation.nombre}`,
+  return [`Código de reserva: ${(reservation.referencia_corta || reservation.id)}`, `Contacto: ${reservation.nombre}`,
     `Participantes (${reservation.numero_participantes}): ${own.map(p => p.nombre).join(', ') || 'Nombres pendientes de registrar'}`,
     `Modalidad: ${MODES[reservation.modalidad] || reservation.modalidad}`,
     `Paquete: ${MODES[reservation.paquete] || 'Sin paquete registrado'}`,
