@@ -5,6 +5,34 @@ import './domus-calendar.css'
 const $ = id => document.getElementById(id)
 let cursor = monthDate(todayMadrid()), config = null, request = 0
 const form = $('booking'), button = $('domus-submit')
+
+/* Sólo se ofrecen fechas confirmadas publicadas; elegirlas no confirma la inscripción. */
+const horarioActual = $('horario')
+const horarioElegible = document.createElement('select')
+horarioElegible.id = 'domus-horario-confirmado'
+horarioElegible.setAttribute('aria-label', 'Elige una clase con día y hora confirmados')
+const horarioLabel = document.createElement('label')
+horarioLabel.textContent = 'Clases con fecha y horario confirmados (90 minutos)'
+horarioLabel.appendChild(horarioElegible)
+const horarioAviso = document.createElement('p')
+horarioAviso.style.fontSize = '13px'
+horarioAviso.textContent = 'Si todavía no hay una clase adecuada, puedes dejar tu preferencia de horario. Las plazas están pendientes de confirmación.'
+horarioLabel.appendChild(horarioAviso)
+horarioActual?.closest('label')?.before(horarioLabel)
+function renderHorarioElegible(clases = []) {
+ const selected = horarioElegible.value
+ horarioElegible.replaceChildren(new Option('Prefiero proponer otro horario', ''))
+ for (const c of clases) {
+  const ini = new Date(c.inicio), fin = new Date(c.fin)
+  if (!Number.isFinite(ini.getTime()) || !Number.isFinite(fin.getTime()) || fin-ini !== 90*60000 || ini <= new Date()) continue
+  const label = new Intl.DateTimeFormat('es-ES', {timeZone:'Europe/Madrid',weekday:'long',day:'2-digit',month:'long',hour:'2-digit',minute:'2-digit'}).format(ini)
+  const end = new Intl.DateTimeFormat('es-ES',{timeZone:'Europe/Madrid',hour:'2-digit',minute:'2-digit'}).format(fin)
+  horarioElegible.add(new Option(label + '–' + end + ' · ' + (c.sala || 'Sala por confirmar'), c.id + '|' + label + '–' + end))
+ }
+ if ([...horarioElegible.options].some(o=>o.value===selected)) horarioElegible.value=selected
+ horarioAviso.textContent=horarioElegible.options.length>1?'Selecciona una clase publicada. La plaza se confirmará después por la organización.':'Todavía no hay fechas publicadas de 90 minutos. Indica tu disponibilidad debajo.'
+}
+
 button.disabled = true
 function renderAges() {
   const n = Number($('plazas').value), previous = [...document.querySelectorAll('[data-age]')].map(i => i.value), names = [...document.querySelectorAll('[data-person-name]')].map(i => i.value)
@@ -55,6 +83,7 @@ async function loadCalendar() {
     refreshPrice()
     button.disabled = false
     $('domus-public-calendar').innerHTML = calendarHTML(data.clases, cursor)
+    renderHorarioElegible(data.clases)
     $('domus-calendar-status').textContent = data.clases.length ? 'Estas clases están confirmadas y publicadas por la organización. Las inscripciones requieren confirmación individual.' : 'Todavía no hay clases públicas confirmadas este mes. Puedes solicitar plaza y proponer tus horarios.'
   } catch (error) {
     if (current === request) $('domus-calendar-status').textContent = `No se ha podido consultar el calendario. ${friendlyError(error)}`
@@ -78,7 +107,7 @@ form.addEventListener('submit', async event => {
     key ||= form.dataset.requestKey || crypto.randomUUID()
     form.dataset.requestKey = key
     try { sessionStorage.setItem('domus.solicitud.clave', key) } catch {}
-    const requestData = { clave: key, nombre: v('nombre'), telefono: phone, edades: ages, nombres: names, modalidad: v('modalidad'), paquete: v('paquete'), ...reservationPrice(v('paquete'), n), preferencias: v('horario'), observaciones: v('observaciones'), responsable_adulto: $('domus-responsible').checked }
+    const requestData = { clave: key, nombre: v('nombre'), telefono: phone, edades: ages, nombres: names, modalidad: v('modalidad'), paquete: v('paquete'), ...reservationPrice(v('paquete'), n), preferencias: horarioElegible.value ? 'Clase solicitada: '+horarioElegible.value.split('|').slice(1).join('|')+' (referencia '+horarioElegible.value.split('|')[0]+'). '+v('horario') : v('horario'), observaciones: v('observaciones'), responsable_adulto: $('domus-responsible').checked }
     const { data: reference, error } = await supabase.rpc('domus_registrar', { p_solicitud: requestData }).abortSignal(AbortSignal.timeout(15000))
     if (error) throw error
     if (!reference) throw new Error('No se ha recibido confirmación de registro. Reintenta sin cambiar los datos.')
