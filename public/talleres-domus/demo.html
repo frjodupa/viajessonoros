@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex,nofollow"><title>Simulador de reservas · Talleres Domus</title>
+<style>
+:root{font-family:system-ui,-apple-system,Segoe UI,sans-serif;color:#332441;background:#faf6ee}*{box-sizing:border-box}body{margin:0}
+header{background:#392454;color:#fff;padding:22px max(18px,calc((100vw - 1150px)/2));display:flex;justify-content:space-between;gap:16px;align-items:center;flex-wrap:wrap}
+h1{margin:0;font-size:clamp(23px,3vw,34px)}h2{font-size:20px;margin:0 0 14px}p{line-height:1.5}
+main{max-width:1200px;margin:auto;padding:20px 15px 70px}.intro{padding:16px;border:1px solid #c9b6d9;background:#f4eafa;border-radius:15px;margin-bottom:16px}
+a{color:inherit}header a{color:white}.stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin:18px 0}
+.stat,.panel,.group{background:white;border:1px solid #e7dbc8;border-radius:17px;padding:18px;min-width:0}
+.stat strong{display:block;font-size:27px}.stat span{font-size:12px;color:#65596a}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:15px}.list{display:grid;gap:10px}.person{border:1px solid #e5ddcf;border-radius:12px;padding:12px;background:#fffcf8}
+.person.child{border-left:5px solid #af83b5}.person.adult{border-left:5px solid #638677}
+.row{display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap}.muted{color:#736878;font-size:13px}.tag{border-radius:50px;padding:4px 10px;font-size:12px;background:#eee5f4;font-weight:600}
+.tag.free{background:#e1f3e9;color:#245b41}.tag.full{background:#f9e4e5;color:#933e40}
+button,select,input{font:inherit;min-height:43px;border-radius:10px}button{background:#392454;color:white;border:0;padding:10px 14px;cursor:pointer;font-weight:650}
+button.ghost{background:#f0e9f6;color:#392454}button.danger{background:#fff0ed;color:#9c3934;border:1px solid #e4b7b2}
+button:disabled{opacity:.55;cursor:not-allowed}select,input{border:1px solid #cbb8cd;padding:8px;max-width:100%}
+.actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}.groups{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.group.infantil{border-top:6px solid #ae7eb4}.group.adultos{border-top:6px solid #558a78}.progress{background:#eee9e8;height:9px;border-radius:9px;overflow:hidden;margin:10px 0}.progress span{display:block;background:#689c78;height:100%}
+.group.infantil .progress span{background:#a67db2}.members{margin:9px 0 0;padding-left:19px}.members li{padding:4px 0}
+#notice{min-height:24px;color:#385b47;font-weight:650}.toolbar{display:flex;gap:9px;flex-wrap:wrap}
+fieldset{border:1px solid #ded2e3;border-radius:12px;padding:12px}label{display:flex;flex-direction:column;gap:5px;font-size:13px;margin:8px 0}
+dialog{border:1px solid #d5c0d8;border-radius:18px;max-width:min(550px,95vw);padding:24px;box-shadow:0 15px 80px #20132f55}dialog::backdrop{background:#1e15278c}
+@media(max-width:700px){.stats{grid-template-columns:1fr 1fr}.two,.groups{grid-template-columns:1fr}.stat{padding:12px}header{padding:15px}}
+</style></head>
+<body><header><div><small>VIAJES SONOROS · DEMOSTRACIÓN INDEPENDIENTE</small><h1>Simulador de reservas Domus</h1></div><a href="/talleres-domus/admin.html">Volver al administrador real</a></header>
+<main><div class="intro"><strong>ENTORNO DE PRUEBAS — DATOS TOTALMENTE FICTICIOS.</strong><p>Este panel funciona exclusivamente en tu navegador. No lee, modifica ni borra reservas de Supabase. Puedes asignar participantes, revisar horarios, simular la confirmación y eliminar las fichas sin afectar a clientes.</p><div class="toolbar"><button id="reset" class="ghost">Restablecer los ejemplos</button><button id="new">Añadir reserva ficticia</button></div></div>
+<div id="stats" class="stats" aria-label="Estadísticas de demostración"></div><div id="notice" role="status" aria-live="polite"></div>
+<div class="two"><section class="panel"><div class="row"><h2>Solicitudes por organizar</h2><span class="tag">Paso 1</span></div><div id="pending" class="list"></div></section>
+<section class="panel"><div class="row"><h2>Mis grupos y plazas</h2><span class="tag">Paso 2</span></div><div id="groups" class="groups"></div></section></div>
+<section class="panel" style="margin-top:15px"><div class="row"><h2>Agenda y mensajes</h2><span class="tag">Paso 3</span></div><p class="muted">Cada clase dura 90 minutos. Las fechas y horarios son solo ejemplos, pendientes de validación en tu proyecto real.</p><div id="agenda" class="list"></div></section>
+<dialog id="preview"><h2>Mensaje WhatsApp simulado</h2><p class="muted">Solo vista previa. No se enviará ningún mensaje.</p><textarea id="message" rows="10" style="width:100%;padding:12px;border-radius:10px;border:1px solid #ddd" readonly></textarea><div class="actions"><button id="copy-message" class="ghost">Copiar mensaje</button><button id="close" type="button">Cerrar</button></div></dialog>
+</main>
+<script>
+const seed=[
+{id:1,nombre:"Lucía Martín (ficticia)",edad:9,telefono:"600 000 001",paquete:"bono4",grupo:null,estado:"pendiente"},
+{id:2,nombre:"Mario Pérez (ficticio)",edad:10,telefono:"600 000 002",paquete:"clase_suelta",grupo:"infantil",estado:"pendiente"},
+{id:3,nombre:"Elena Gómez (ficticia)",edad:37,telefono:"600 000 003",paquete:"bono8",grupo:"adultos",estado:"confirmada"},
+{id:4,nombre:"Carlos Ruiz (ficticio)",edad:44,telefono:"600 000 004",paquete:"bono4",grupo:null,estado:"pendiente"},
+{id:5,nombre:"Sara López (ficticia)",edad:8,telefono:"600 000 005",paquete:"bono4",grupo:"infantil",estado:"confirmada"}
+];
+const grupos=[
+{id:"infantil",nombre:"Grupo Infantil A",tipo:"infantil",max:4,fecha:"07-11-2026",inicio:"11:00",fin:"12:30",dia:"Sábado"},
+{id:"adultos",nombre:"Grupo Adultos A",tipo:"adultos",max:3,fecha:"10-11-2026",inicio:"18:00",fin:"19:30",dia:"Martes"}
+];
+let reservations=structuredClone(seed),next=6;
+const $=id=>document.getElementById(id);
+const esc=v=>String(v).replace(/[&<>"']/g,x=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[x]));
+const members=id=>reservations.filter(p=>p.grupo===id&&p.estado!=="cancelada");
+const notice=t=>$("notice").textContent=t;
+function render(){
+const assigned=reservations.filter(p=>p.grupo);const waiting=reservations.filter(p=>!p.grupo);
+$("stats").innerHTML=[["Reservas ficticias",reservations.length],["Sin grupo",waiting.length],["En grupos",assigned.length],["Grupos",grupos.length]].map(([title,n])=>'<div class="stat"><strong>'+n+'</strong><span>'+title+'</span></div>').join("");
+$("pending").innerHTML=waiting.length?waiting.map(p=>person(p)).join(""):'<p class="muted">No quedan solicitudes pendientes de asignar.</p>';
+$("groups").innerHTML=grupos.map(g=>{let a=members(g.id),free=Math.max(0,g.max-a.length);return '<article class="group '+g.tipo+'"><div class="row"><strong>'+g.nombre+'</strong><span class="tag '+(free?'free':'full')+'">'+(free?free+' libres':'Completo')+'</span></div><p class="muted">'+g.dia+' · '+g.inicio+'–'+g.fin+' · '+a.length+'/'+g.max+' plazas</p><div class="progress"><span style="width:'+100*a.length/g.max+'%"></span></div><ul class="members">'+(a.length?a.map(p=>'<li>'+esc(p.nombre)+' · '+p.edad+' años <button class="ghost" style="min-height:27px;padding:2px 8px" data-unassign="'+p.id+'">Quitar del grupo</button></li>').join(""):'<li>Grupo sin participantes</li>')+'</ul></article>'}).join("");
+$("agenda").innerHTML=grupos.map(g=>{const a=members(g.id);return '<div class="person"><div class="row"><div><strong>'+g.nombre+'</strong><div class="muted">'+g.fecha+' · '+g.inicio+'–'+g.fin+' · 90 minutos</div></div><span class="tag '+(a.length>=g.max?'full':'free')+'">'+(a.length>=g.max?'Completo':g.max-a.length+' plazas libres')+'</span></div><div class="actions"><button data-calendar="'+g.id+'">Vista previa WhatsApp</button><button data-select="'+g.id+'" class="ghost">Ver participantes ('+a.length+')</button></div></div>'}).join("");
+}
+function person(p){
+const suitable=grupos.filter(g=>p.edad<18?g.tipo==="infantil":g.tipo==="adultos");
+return '<article class="person '+(p.edad<18?'child':'adult')+'"><div class="row"><div><strong>'+esc(p.nombre)+'</strong><div class="muted">'+p.edad+' años · '+(p.edad<18?'Infantil':'Adulto')+' · '+esc(p.paquete)+'</div></div><span class="tag">Ficticia</span></div><div class="actions"><select aria-label="Asignar grupo" id="sel-'+p.id+'"><option value="">Elegir grupo...</option>'+suitable.map(g=>'<option value="'+g.id+'" '+(members(g.id).length>=g.max?'disabled':'')+'>'+g.nombre+' ('+Math.max(0,g.max-members(g.id).length)+' libres)</option>').join("")+'</select><button data-assign="'+p.id+'">Asignar</button><button class="danger" data-delete="'+p.id+'">Eliminar prueba</button></div></article>';
+}
+document.addEventListener("click",e=>{
+let t=e.target;
+if(t.closest("[data-delete]")){let id=Number(t.closest("[data-delete]").dataset.delete);reservations=reservations.filter(p=>p.id!==id);render();notice("Ficha ficticia eliminada. Ninguna reserva real se ha modificado.")}
+if(t.closest("[data-assign]")){let id=Number(t.closest("[data-assign]").dataset.assign),p=reservations.find(x=>x.id===id),g=grupos.find(x=>x.id===$("sel-"+id).value);if(!p||!g){notice("Selecciona un grupo.");return}if(members(g.id).length>=g.max){notice("Grupo completo.");return}p.grupo=g.id;render();notice("Participante ficticio asignado a "+g.nombre+".")}
+if(t.closest("[data-unassign]")){let p=reservations.find(x=>x.id===Number(t.closest("[data-unassign]").dataset.unassign));if(p){p.grupo=null;render();notice("Participante devuelto a la bandeja de solicitudes.")}}
+if(t.closest("[data-calendar]")){let g=grupos.find(x=>x.id===t.closest("[data-calendar]").dataset.calendar),a=members(g.id);$("message").value="Hola. Talleres Domus Pan Drums (SIMULACIÓN).\nGrupo: "+g.nombre+"\nDía: "+g.fecha+"\nHorario: "+g.inicio+"–"+g.fin+" (90 minutos)\nParticipantes: "+a.map(p=>p.nombre).join(", ")+"\nPlazas libres: "+(g.max-a.length)+"\nEsta comunicación es una demostración y no confirma ninguna reserva real."; $("preview").showModal();}
+if(t.closest("[data-select]")){let g=grupos.find(x=>x.id===t.closest("[data-select]").dataset.select);notice(g.nombre+": "+(members(g.id).map(p=>p.nombre).join(", ")||"sin participantes"));}
+});
+$("reset").onclick=()=>{reservations=structuredClone(seed);next=6;render();notice("Datos de demostración restaurados.")};
+$("new").onclick=()=>{let edad=next%2?11:35;reservations.unshift({id:next,nombre:"Persona de prueba "+next+" (ficticia)",edad,telefono:"600 000 000",paquete:"bono4",grupo:null,estado:"pendiente"});next++;render();notice("Añadida una reserva ficticia.")};
+$("close").onclick=()=>$("preview").close();
+$("copy-message").onclick=async()=>{try{await navigator.clipboard.writeText($("message").value);notice("Vista previa copiada. No se ha enviado.");$("preview").close()}catch{notice("No ha sido posible copiar el mensaje.")}};
+render();
+</script></body></html>
