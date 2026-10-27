@@ -166,7 +166,7 @@ function openClass(id = '', busy = false, postpone = false) {
 function classPayload(row) { return { ...row, fecha: madridParts(row.inicio).date, hora_inicio: madridParts(row.inicio).time, hora_fin: madridParts(row.fin).time } }
 /* Todas las clases impartidas de Talleres Domus duran exactamente 90 minutos. */
 function domusEndTime(start) {
- if (!/^([01]\\d|2[0-3]):[0-5]\\d$/.test(start || '')) return ''
+ if (!/^([01]\d|2[0-3]):[0-5]\d$/.test(start || '')) return ''
  const [h,m] = start.split(':').map(Number), end = h*60+m+90
  return end < 1440 ? String(Math.floor(end/60)).padStart(2,'0')+':'+String(end%60).padStart(2,'0') : ''
 }
