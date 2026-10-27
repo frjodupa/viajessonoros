@@ -104,8 +104,11 @@ function renderReservations() {
   const rows = db.reservas.filter(r => (state === 'all' || state === r.estado) && `${r.nombre} ${r.telefono}`.toLocaleLowerCase('es').includes(search))
   $('domus-reservations').innerHTML = rows.length ? rows.map(r => {
     const people = db.participantes.filter(p => p.reserva_id === r.id).sort((a, b) => a.orden - b.orden)
+    const assignedIds = new Set(people.map(p => p.id))
+    const assignedGroups = [...new Set(db.miembros.filter(m => m.activo && assignedIds.has(m.participante_id)).map(m => m.grupo_id))]
+       .map(id => db.grupos.find(g => g.id === id)?.nombre).filter(Boolean)
     const messageURL = whatsappURL(r.telefono, reservationMessage({ reservation: r, ...db }))
-    return `<article class="domus-record" id="reserva-${e(r.id)}"><h3>${e(r.nombre)}</h3><p>Contacto: ${e(r.telefono)} · ${r.numero_participantes} participante(s) · ${e(MODES[r.modalidad])}</p><p>Participantes: ${people.map(p => e(p.nombre)).join(', ')}</p><p>Paquete: ${e(MODES[r.paquete] || 'Sin paquete registrado')} · Precio individual: ${e(money(r.precio_unitario))} · Importe total: <strong>${e(money(r.importe_total))}</strong></p><p>Estado de la inscripción: <strong>${e(r.estado)}</strong> · ${e(classifyAges(people.map(p => p.edad), db.config.edad_adultos))} (orientativo)</p><p>Preferencias: ${e(r.preferencias || 'Por confirmar')}</p>${r.observaciones ? `<p>Observaciones privadas: ${e(r.observaciones)}</p>` : ''}<small>Referencia: ${e(r.id)}</small><div class="domus-actions"><a class="domus-button" data-reservation-whatsapp="${e(r.id)}" href="${e(messageURL)}" target="_blank" rel="noopener noreferrer">Enviar WhatsApp</a></div><details><summary>Editar contacto y estado de la reserva</summary><form data-reservation-form="${e(r.id)}"><div class="domus-fields"><label>Nombre de contacto<input name="nombre" required minlength="2" maxlength="100" value="${e(r.nombre)}"></label><label>Teléfono<input name="telefono" type="tel" required value="${e(r.telefono)}"></label><label>Estado de la reserva<select name="estado">${['pendiente', 'confirmada', 'aplazada', 'cancelada'].map(s => `<option ${s === r.estado ? 'selected' : ''}>${s}</option>`).join('')}</select></label><label class="domus-check wide"><input name="responsable_adulto" type="checkbox" ${r.responsable_adulto ? 'checked' : ''}>La inscripción y las comunicaciones de menores están a cargo de un adulto responsable</label></div><button type="submit">Guardar reserva Domus</button></form></details><details><summary>Participantes, edades y asignación de grupos</summary>${people.map(p => {
+    return `<article class="domus-record" id="reserva-${e(r.id)}"><h3>${e(r.nombre)}</h3><p>Contacto: ${e(r.telefono)} · ${r.numero_participantes} participante(s) · ${e(MODES[r.modalidad])}</p><p>Participantes: ${people.map(p => e(p.nombre)).join(', ')}</p><p>Paquete: ${e(MODES[r.paquete] || 'Sin paquete registrado')} · Precio individual: ${e(money(r.precio_unitario))} · Importe total: <strong>${e(money(r.importe_total))}</strong></p><p>Estado de la inscripción: <strong>${e(r.estado)}</strong> · ${e(classifyAges(people.map(p => p.edad), db.config.edad_adultos))} (orientativo)</p><p><strong>Grupo asignado:</strong> ${e(assignedGroups.join(', ') || 'Pendiente de grupo')} · ${r.clase_elegida ? 'Clase elegida en formulario' : 'Horario por concretar'}</p><p>Preferencias: ${e(r.preferencias || 'Por confirmar')}</p>${r.observaciones ? `<p>Observaciones privadas: ${e(r.observaciones)}</p>` : ''}<small>Referencia: ${e(r.id)}</small><div class="domus-actions"><a class="domus-button" data-reservation-whatsapp="${e(r.id)}" href="${e(messageURL)}" target="_blank" rel="noopener noreferrer">Enviar WhatsApp</a></div><details><summary>Editar contacto y estado de la reserva</summary><form data-reservation-form="${e(r.id)}"><div class="domus-fields"><label>Nombre de contacto<input name="nombre" required minlength="2" maxlength="100" value="${e(r.nombre)}"></label><label>Teléfono<input name="telefono" type="tel" required value="${e(r.telefono)}"></label><label>Estado de la reserva<select name="estado">${['pendiente', 'confirmada', 'aplazada', 'cancelada'].map(s => `<option ${s === r.estado ? 'selected' : ''}>${s}</option>`).join('')}</select></label><label class="domus-check wide"><input name="responsable_adulto" type="checkbox" ${r.responsable_adulto ? 'checked' : ''}>La inscripción y las comunicaciones de menores están a cargo de un adulto responsable</label></div><button type="submit">Guardar reserva Domus</button></form></details><details><summary>Participantes, edades y asignación de grupos</summary>${people.map(p => {
       const memberships = db.miembros.filter(m => m.participante_id === p.id && m.activo)
       return `<div class="domus-person" data-person="${e(p.id)}"><form data-person-form="${e(p.id)}"><div class="domus-fields"><label>Nombre o referencia del participante<input name="nombre" required maxlength="100" value="${e(p.nombre)}"></label><label>Edad<input name="edad" required type="number" min="0" max="120" value="${p.edad}"></label></div><button type="submit" class="secondary">Guardar participante</button></form><p>Grupos: ${memberships.map(m => e(groupName(m.grupo_id))).join(', ') || 'Sin asignar'}</p><div class="domus-fields"><label>Grupo de destino<select data-destination>${options(activeGroups(), 'Selecciona un grupo')}</select></label><label>Asignación<select data-source><option value="">Añadir al grupo manteniendo las asignaciones actuales</option>${memberships.map(m => `<option value="${e(m.grupo_id)}">Mover desde ${e(groupName(m.grupo_id))}</option>`).join('')}</select></label></div><button type="button" data-assign="${e(p.id)}" ${['cancelada', 'aplazada'].includes(r.estado) ? 'disabled' : ''}>Asignar participante</button><p><small>Se conserva su inscripción original. Una persona puede pertenecer a varios grupos.</small></p></div>`
     }).join('')}</details></article>`
@@ -114,7 +117,7 @@ function renderReservations() {
 function renderGroups() {
   $('domus-groups').innerHTML = db.grupos.length ? db.grupos.map(g => {
     const members = activeMembers(g.id), classes = db.clases.filter(c => c.grupo_id === g.id)
-    return `<article class="domus-record"><h3>${e(g.nombre)}</h3><p>${e({ ninos: 'Niños', adultos: 'Adultos', mixto: 'Mixto' }[g.tipo])} · ${e(g.modalidad)} · <strong>${e(GROUP_STATES[g.estado])}</strong></p><p>${members.length} participante(s) asignado(s) · Profesor: ${e(g.profesor)}</p><p>Inicio: ${g.fecha_inicio ? e(formatDate(g.fecha_inicio)) : 'Por confirmar'} · Sala habitual: ${e(roomName(g.sala_id))}</p><p>Horario: ${e(g.horarios || 'Por confirmar')}</p><small>Identificador: ${e(g.id)}</small><div class="domus-actions"><button type="button" data-edit-group="${e(g.id)}">Editar grupo</button><button type="button" class="secondary" data-group-calendar="${e(g.id)}">Ver clases</button><button type="button" class="secondary" data-group-message="${e(g.id)}">Preparar WhatsApp</button></div><details><summary>Personas inscritas y clases (${classes.length})</summary>${members.length ? members.map(m => {
+    return `<article class="domus-record"><h3>${e(g.nombre)}</h3><p>${e({ ninos: 'Niños', adultos: 'Adultos', mixto: 'Mixto' }[g.tipo])} · ${e(g.modalidad)} · <strong>${e(GROUP_STATES[g.estado])}</strong></p><p>${members.length} participante(s) asignado(s) · ${g.cupo_maximo == null ? 'Aforo por confirmar' : members.length >= g.cupo_maximo ? 'Completo (' + g.cupo_maximo + ' plazas)' : (g.cupo_maximo - members.length) + ' plazas libres de ' + g.cupo_maximo} · Profesor: ${e(g.profesor)}</p><p>Inicio: ${g.fecha_inicio ? e(formatDate(g.fecha_inicio)) : 'Por confirmar'} · Sala habitual: ${e(roomName(g.sala_id))}</p><p>Horario: ${e(g.horarios || 'Por confirmar')}</p><small>Identificador: ${e(g.id)}</small><div class="domus-actions"><button type="button" data-edit-group="${e(g.id)}">Editar grupo</button><button type="button" class="secondary" data-group-calendar="${e(g.id)}">Ver clases</button><button type="button" class="secondary" data-group-message="${e(g.id)}">Preparar WhatsApp</button></div><details><summary>Personas inscritas y clases (${classes.length})</summary>${members.length ? members.map(m => {
       const p = db.participantes.find(p => p.id === m.participante_id), r = db.reservas.find(r => r.id === p.reserva_id)
       return `<div class="domus-person"><strong>${e(p.nombre)} · ${p.edad} años</strong><p>Contacto: ${e(r.nombre)} · ${e(r.telefono)} · Reserva ${e(r.estado)}</p><small>Reserva original: ${e(r.id)}</small><div class="domus-actions"><button type="button" class="secondary" data-open-reservation="${e(r.id)}">Ver inscripción original</button><button type="button" class="secondary" data-remove-member="${e(p.id)}" data-group="${e(g.id)}">Retirar de este grupo</button></div></div>`
     }).join('') : '<p>Todavía no hay participantes asignados.</p>'}${classes.map(c => `<p>${e(formatClass(c))} · ${e(CLASS_STATES[c.estado])}${c.primera ? ' · Primera clase' : ''}</p>`).join('')}</details></article>`
@@ -156,10 +159,21 @@ function openClass(id = '', busy = false, postpone = false) {
     form.append(actions)
   }
   form.hidden = false
+  if (!row) adjustDomusClassEnd(form)
   classFeedback()
   form.scrollIntoView({ block: 'start', behavior: 'smooth' })
 }
 function classPayload(row) { return { ...row, fecha: madridParts(row.inicio).date, hora_inicio: madridParts(row.inicio).time, hora_fin: madridParts(row.fin).time } }
+/* Todas las clases impartidas de Talleres Domus duran exactamente 90 minutos. */
+function domusEndTime(start) {
+ if (!/^([01]\d|2[0-3]):[0-5]\d$/.test(start || '')) return ''
+ const [h,m] = start.split(':').map(Number), end = h*60+m+90
+ return end < 1440 ? String(Math.floor(end/60)).padStart(2,'0')+':'+String(end%60).padStart(2,'0') : ''
+}
+function adjustDomusClassEnd(form) {
+ const end=domusEndTime(value(form,'hora_inicio'))
+ if(end) field(form,'hora_fin').value=end
+}
 function classFeedback() {
   if (!db) return
   const form = $('domus-class-form'), state = value(form, 'estado'), publish = field(form, 'publico')
@@ -170,8 +184,8 @@ function classFeedback() {
   const minutes = text => { const [h, m] = text.split(':').map(Number); return h * 60 + m }
   const duration = minutes(end) - minutes(start)
   const conflict = date && start && end && db.clases.some(c => c.id !== value(form, 'id') && state !== 'cancelada' && c.estado !== 'cancelada' && (c.sala_id === room || (group && c.grupo_id === group)) && `${date}T${start}` < `${madridParts(c.fin).date}T${madridParts(c.fin).time}` && `${madridParts(c.inicio).date}T${madridParts(c.inicio).time}` < `${date}T${end}`)
-  $('domus-class-feedback').textContent = conflict ? 'Posible solapamiento con otra clase u ocupación de la sala o del grupo. La base de datos rechazará el conflicto.' : duration > 0 ? `Duración: ${duration} minutos. El horario se validará al guardar.` : 'La finalización debe ser posterior al inicio en el mismo día.'
-  $('domus-class-feedback').classList.toggle('is-conflict', Boolean(conflict))
+  $('domus-class-feedback').textContent = duration !== 90 && state !== 'ocupada' ? 'Las clases Domus deben durar exactamente 90 minutos. Revisa la hora de inicio y fin.' : conflict ? 'Posible solapamiento con otra clase u ocupación de la sala o del grupo. La base de datos rechazará el conflicto.' : duration > 0 ? `Duración: ${duration} minutos. El horario se validará al guardar.` : 'La finalización debe ser posterior al inicio en el mismo día.'
+  $('domus-class-feedback').classList.toggle('is-conflict', Boolean(conflict || (duration !== 90 && state !== 'ocupada')))
 }
 function renderRooms() { $('domus-rooms').innerHTML = db.salas.map(r => `<article class="domus-record"><h3>${e(r.nombre)}</h3><p>${e(r.direccion)} · ${r.activa ? 'Activa' : 'Inactiva'}</p><button type="button" class="secondary" data-edit-room="${e(r.id)}">Editar sala</button></article>`).join('') }
 function clearMessage() { messageReady = false; $('domus-message-link').hidden = true; $('domus-message-link').removeAttribute('href'); $('domus-message-status').textContent = '' }
@@ -229,7 +243,7 @@ $('domus-reservation-filter').onchange = renderReservations
 $('domus-new-group').onclick = () => openGroup()
 $('domus-new-class').onclick = () => openClass()
 $('domus-new-busy').onclick = () => openClass('', true)
-$('domus-class-form').addEventListener('input', classFeedback)
+$('domus-class-form').addEventListener('input', event => { if(event.target.name === 'hora_inicio') adjustDomusClassEnd($('domus-class-form')); classFeedback() })
 field($('domus-class-form'), 'grupo_id').addEventListener('change', () => { const group = db.grupos.find(g => g.id === value($('domus-class-form'), 'grupo_id')); if (group?.sala_id) field($('domus-class-form'), 'sala_id').value = group.sala_id; classFeedback() })
 for (const id of ['domus-calendar-group', 'domus-calendar-room', 'domus-calendar-view']) $(id).onchange = renderCalendar
 for (const [id, direction] of [['domus-calendar-prev', -1], ['domus-calendar-next', 1]]) $(id).onclick = () => { cursor = $('domus-calendar-view').value === 'week' ? addDays(cursor, direction * 7) : monthDate(cursor, direction); renderCalendar() }
@@ -276,6 +290,7 @@ document.addEventListener('submit', event => {
   perform(button, async () => {
     if (formId === 'domus-group-form') {
       const payload = Object.fromEntries(['nombre', 'tipo', 'modalidad', 'estado', 'horarios', 'profesor', 'observaciones'].map(k => [k, value(form, k)]))
+      payload.cupo_maximo = value(form, 'cupo_maximo') === '' ? null : Number(value(form,'cupo_maximo'))
       payload.fecha_inicio = value(form, 'fecha_inicio') || null; payload.sala_id = value(form, 'sala_id') || null
       for (const k of ['edad_min', 'edad_max']) payload[k] = value(form, k) === '' ? null : Number(value(form, k))
       const id = value(form, 'id')
@@ -284,6 +299,7 @@ document.addEventListener('submit', event => {
       form.hidden = true
     } else if (formId === 'domus-class-form') {
       const payload = Object.fromEntries(['id', 'actualizado_en', 'grupo_id', 'sala_id', 'fecha', 'hora_inicio', 'hora_fin', 'estado', 'nota_publica', 'notas'].map(k => [k, value(form, k)]))
+      if (payload.estado !== 'ocupada' && (!domusEndTime(payload.hora_inicio) || payload.hora_fin !== domusEndTime(payload.hora_inicio))) throw new Error('Las clases deben durar exactamente 90 minutos.');
       payload.primera = field(form, 'primera').checked; payload.publico = field(form, 'publico').checked
       await check(supabase.rpc('domus_guardar_clase', { p_clase: payload })); form.hidden = true
     } else if (formId === 'domus-room-form') {

@@ -105,10 +105,10 @@ export function calendarHTML(classes, cursor, view = 'month', admin = false, gro
   const e = escapeHTML
   const item = c => {
     const state = admin ? c.estado : 'confirmada'
-    const group = admin ? groups.find(g => g.id === c.grupo_id)?.nombre : 'Taller Domus'
+    const group = admin ? groups.find(g => g.id === c.grupo_id)?.nombre : (c.grupo_tipo || 'Taller Domus')
     const room = admin ? rooms.find(r => r.id === c.sala_id)?.nombre : c.sala
     const inner = `<strong>${e(madridParts(c.inicio).time)}–${e(madridParts(c.fin).time)}</strong> ${e(group || 'Ocupación de sala')}<span>${e(CLASS_STATES[state])}${c.primera ? ' · Primera clase' : ''}${admin && c.publico ? ' · Publicación activada' : ''}</span><small>${e(room || '')}</small>`
-    return admin ? `<button type="button" class="domus-slot ${e(state)}" data-class="${e(c.id)}">${inner}</button>` : `<div class="domus-slot ${e(state)}">${inner}${c.nota_publica ? `<small>${e(c.nota_publica)}</small>` : ''}</div>`
+    return admin ? `<button type="button" class="domus-slot ${e(state)}" data-class="${e(c.id)}">${inner}</button>` : `<div class="domus-slot ${e(state)}">${inner}<span>${c.libres == null ? 'Aforo pendiente de confirmar' : c.libres > 0 ? e(c.libres) + ' plazas libres' : 'Completo'}</span>${c.nota_publica ? `<small>${e(c.nota_publica)}</small>` : ''}${c.libres > 0 ? `<button type="button" class="domus-public-book" data-domus-reserve="${e(c.id)}">Reservar esta clase</button>` : ''}</div>`
   }
   if (view === 'list') return filtered.length ? `<ol class="domus-calendar-list">${filtered.map(c => `<li><h3>${e(formatDate(madridParts(c.inicio).date))}</h3>${item(c)}</li>`).join('')}</ol>` : '<p class="domus-empty">No hay clases en este mes.</p>'
   const cells = []
