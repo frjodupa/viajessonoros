@@ -3,6 +3,12 @@ export const ZONE = 'Europe/Madrid'
 export const CLASS_STATES = { pendiente: 'Pendiente', confirmada: 'Confirmada', ocupada: 'Sala ocupada', cancelada: 'Cancelada' }
 export const GROUP_STATES = { en_formacion: 'En formación', confirmado: 'Confirmado', activo: 'Activo', finalizado: 'Finalizado', cancelado: 'Cancelado' }
 export const MODES = { clase_suelta: 'Clase suelta · 30 € / 90 min', bono4: 'Bono 4 clases · 100 €', bono8: 'Bono 8 clases · 180 €', infantil: 'Taller infantil', taller: 'Taller' }
+export const PACKAGE_PRICES = Object.freeze({ clase_suelta: 30, bono4: 100, bono8: 180 })
+export const money = amount => amount == null ? 'Sin importe registrado' : new Intl.NumberFormat('es-ES', { style: 'currency', currency: 'EUR' }).format(Number(amount))
+export function reservationPrice(pack, count) {
+  if (!Object.hasOwn(PACKAGE_PRICES, pack) || !Number.isInteger(count) || count < 1 || count > 100) throw new Error('Selecciona un paquete y un número válido de participantes.')
+  return { precio_unitario: PACKAGE_PRICES[pack], importe_total: PACKAGE_PRICES[pack] * count }
+}
 export const escapeHTML = value => String(value ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]))
 export function madridParts(instant = new Date()) {
   const parts = new Intl.DateTimeFormat('en-GB', { timeZone: ZONE, year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', hourCycle: 'h23' }).formatToParts(new Date(instant))
@@ -27,7 +33,39 @@ export function phoneDigits(raw) {
 }
 export const whatsappURL = (phone, message) => `https://wa.me/${phoneDigits(phone)}?text=${encodeURIComponent(message)}`
 export function confirmedClasses(classes, groupId) { return classes.filter(c => c.grupo_id === groupId && c.estado === 'confirmada').sort((a, b) => a.inicio.localeCompare(b.inicio)) }
-export function groupMessage({ kind, contact, group, classes, rooms, config, selectedClass }) {
+export function reservationDetails(reservation, participants = []) {
+  const own = participants.filter(p => p.reserva_id === reservation.id).sort((a, b) => a.orden - b.orden)
+  return [`Código de reserva: ${reservation.id}`, `Contacto: ${reservation.nombre}`,
+    `Participantes (${reservation.numero_participantes}): ${own.map(p => p.nombre).join(', ') || 'Nombres pendientes de registrar'}`,
+    `Modalidad: ${MODES[reservation.modalidad] || reservation.modalidad}`,
+    `Paquete: ${MODES[reservation.paquete] || 'Sin paquete registrado'}`,
+    `Precio individual: ${money(reservation.precio_unitario)}`, `Importe total: ${money(reservation.importe_total)}`,
+    `Estado de la reserva: ${reservation.estado}`]
+}
+export function reservationMessage({ reservation, participantes, miembros, grupos, clases, salas, config }) {
+  const own = participantes.filter(p => p.reserva_id === reservation.id)
+  const ownIds = new Set(own.map(p => p.id))
+  const assignedIds = new Set(miembros.filter(m => m.activo && ownIds.has(m.participante_id)).map(m => m.grupo_id))
+  const assigned = grupos.filter(g => assignedIds.has(g.id))
+  const lines = [`Hola, ${reservation.nombre}.`, 'Talleres Domus · Datos de tu reserva', ...reservationDetails(reservation, own)]
+  let scheduled = 0
+  for (const group of assigned) {
+    const names = own.filter(p => miembros.some(m => m.activo && m.grupo_id === group.id && m.participante_id === p.id)).map(p => p.nombre)
+    lines.push(`Grupo asignado: ${group.nombre} · ${GROUP_STATES[group.estado] || group.estado}`, `Participantes de esta reserva en el grupo: ${names.join(', ')}`)
+    if (!['confirmado', 'activo'].includes(group.estado)) continue
+    for (const c of confirmedClasses(clases, group.id)) {
+      const room = salas.find(r => r.id === c.sala_id)
+      lines.push(`${c.primera ? 'Primera clase · ' : ''}${formatClass(c)}`, `Sala: ${room?.nombre || 'Por confirmar'}`, `Lugar: ${room?.direccion || config.lugar}`, `Profesor: ${group.profesor || config.profesor}`)
+      if (c.nota_publica) lines.push(c.nota_publica)
+      scheduled++
+    }
+  }
+  if (!assigned.length) lines.push('Grupo pendiente de asignación.')
+  if (!scheduled) lines.push('Fechas y horarios pendientes de confirmación')
+  lines.push('Contacto de Viajes Sonoros: 610 056 859. Horarios en hora de Cáceres.')
+  return lines.join('\n')
+}
+export function groupMessage({ kind, contact, group, classes, rooms, config, selectedClass, participants = [] }) {
   if (!group && !['inscripcion', 'ubicacion'].includes(kind)) throw new Error('Selecciona un grupo para esta comunicación.')
   const confirmed = group ? confirmedClasses(classes, group.id) : []
   const titles = { inscripcion: 'Inscripción en Talleres Domus', formado: 'Grupo de Talleres Domus formado', calendario: 'Calendario de Talleres Domus', primera: 'Recordatorio de la primera clase', cambio: 'Cambio de horario', cancelacion: 'Cancelación de sesión', ubicacion: 'Ubicación del taller' }
@@ -37,6 +75,7 @@ export function groupMessage({ kind, contact, group, classes, rooms, config, sel
   if (kind === 'cancelacion' && selectedClass.estado !== 'cancelada') throw new Error('Cancela primero la sesión en la agenda.')
   if (kind === 'cambio' && selectedClass.estado !== 'confirmada') throw new Error('Guarda y confirma el nuevo horario antes de comunicarlo.')
   const lines = [`Hola, ${contact.nombre}.`, titles[kind], ...(group ? [`Grupo: ${group.nombre}`] : []), `Profesor: ${group?.profesor || config.profesor}`]
+  if (contact.id) lines.push(...reservationDetails(contact, participants))
   if (kind === 'inscripcion') lines.push(contact.estado === 'confirmada' ? 'Tu inscripción consta como confirmada.' : 'Hemos recibido tu solicitud. La inscripción sigue pendiente de confirmación.')
   if (kind === 'formado') lines.push('El grupo está formado. Estas son las clases confirmadas:')
   let list = confirmed

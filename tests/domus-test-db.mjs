@@ -4,7 +4,7 @@ import { readFile } from 'node:fs/promises'
 
 export const ADMIN = '11111111-1111-4111-8111-111111111111'
 export const OTHER = '22222222-2222-4222-8222-222222222222'
-export async function createTestDB() {
+export async function createTestDB({ corrections = true } = {}) {
   const db = await PGlite.create({ extensions: { btree_gist } })
   await db.exec(`
     create role anon; create role authenticated;
@@ -21,6 +21,7 @@ export async function createTestDB() {
   `)
   const migration = await readFile(new URL('../supabase/migrations/20261027152110_domus_independent_agenda.sql', import.meta.url), 'utf8')
   await db.exec(migration)
+  if (corrections) await db.exec(await readFile(new URL('../supabase/migrations/20261027161840_domus_names_prices_whatsapp.sql', import.meta.url), 'utf8'))
   const asRole = (role, sql, args = [], user = role === 'authenticated' ? ADMIN : '') => db.transaction(async tx => {
     await tx.exec(`set local role ${role === 'anon' ? 'anon' : 'authenticated'}`)
     await tx.query("select set_config('request.jwt.claim.sub',$1,true)", [user])

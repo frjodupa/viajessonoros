@@ -2,3 +2,5 @@
 @media(max-width:850px){.domus-calendar-grid{gap:3px}.domus-day{padding:5px;min-height:75px}.domus-slot{padding:6px;font-size:11px}.domus-public-calendar-shell{padding:16px}}
 @media(max-width:600px){.domus-weekdays{display:none}.domus-calendar-grid{grid-template-columns:1fr;gap:6px}.domus-day{display:grid;grid-template-columns:60px minmax(0,1fr);gap:6px;min-height:44px;align-items:start}.domus-day-empty{display:none}.domus-day .domus-slot{grid-column:2;margin:0}.domus-day>time{grid-row:1;padding:7px 0;font-size:14px}.domus-mobile-date{display:inline}.domus-slot{font-size:13px;padding:9px}.domus-age-fields{grid-template-columns:repeat(2,minmax(0,1fr))}.domus-calendar-controls h3{font-size:24px}}
 @media print{.domus-calendar-controls button{display:none}.domus-calendar-grid{display:grid;grid-template-columns:repeat(7,minmax(0,1fr))}.domus-day{display:block;min-height:85px;break-inside:avoid}.domus-day-empty{display:block}.domus-slot{print-color-adjust:exact;-webkit-print-color-adjust:exact}.domus-mobile-date{display:none}}
+
+#domus-package-wrap[hidden]{display:none!important}.domus-age-fields input[data-person-name]{margin-bottom:10px}

@@ -23,6 +23,7 @@ browser.stdio[4].on('data', chunk => {
 function call(method, params = {}, sessionId) { return new Promise((resolve, reject) => { const id = ++sequence; pending.set(id, { resolve, reject }); browser.stdio[3].write(JSON.stringify({ id, method, params, ...(sessionId ? { sessionId } : {}) }) + '\0') }) }
 const sleep = ms => new Promise(resolve => setTimeout(resolve, ms))
 const result = { checks: [], sizes: [], errors: [] }
+const correctionsOnly = process.env.DOMUS_CORRECTIONS_ONLY === '1'
 let session
 const command = (method, params) => call(method, params, session)
 async function evaluate(expression) {
@@ -57,23 +58,51 @@ async function main() {
   await command('Emulation.setDeviceMetricsOverride', { width: 1440, height: 1000, deviceScaleFactor: 1, mobile: false })
   await navigate('/talleres-domus/')
   await waitFor('!document.getElementById("domus-submit").disabled', 'public API ready')
-  const images = await evaluate('(async()=>{await Promise.all([...document.images].map(async i=>{i.loading="eager";try{await i.decode()}catch{}}));return [...document.images].map(i=>({ok:i.complete&&i.naturalWidth>0,alt:i.alt}))})()')
-  fs.writeFileSync(path.join(artifacts, 'image-results.json'), JSON.stringify(images, null, 2))
-  assert.equal(images.length, 10); assert(images.every(i => i.ok))
-  result.checks.push('10 imágenes decodificadas por Chrome')
-  await screenshot('public-desktop', 1440, 1000); await screenshot('public-mobile', 390, 844)
+  if (!correctionsOnly) {
+    const images = await evaluate('(async()=>{await Promise.all([...document.images].map(async i=>{i.loading="eager";try{await i.decode()}catch{}}));return [...document.images].map(i=>({ok:i.complete&&i.naturalWidth>0,alt:i.alt}))})()')
+    fs.writeFileSync(path.join(artifacts, 'image-results.json'), JSON.stringify(images, null, 2))
+    assert.equal(images.length, 10); assert(images.every(i => i.ok))
+    result.checks.push('10 imágenes decodificadas por Chrome')
+    await screenshot('public-desktop', 1440, 1000); await screenshot('public-mobile', 390, 844)
+  }
+  for (const [pack, unit] of [['clase_suelta', 30], ['bono4', 100], ['bono8', 180]]) {
+    await set('#modalidad', pack)
+    for (const n of [1, 2, 3]) {
+      await set('#plazas', n)
+      const text = await evaluate('document.getElementById("domus-unit-price").textContent+document.getElementById("domus-total-price").textContent')
+      const euros = x => new Intl.NumberFormat('es-ES', { style: 'currency', currency: 'EUR' }).format(x)
+      assert(text.includes(euros(unit))); assert(text.includes(euros(unit * n)))
+    }
+  }
+  result.checks.push('Los tres paquetes actualizan precio individual y total al cambiar selección y participantes')
   await set('#nombre', 'Contacto sintético navegador'); await set('#telefono', '600000009'); await set('#plazas', 3)
   assert.equal(await evaluate('document.querySelectorAll("[data-age]").length'), 3)
-  await evaluate(`[8,12,35].forEach((age,i)=>{const n=document.querySelectorAll('[data-age]')[i];n.value=age;n.dispatchEvent(new Event('input',{bubbles:true}))});true`)
+  assert.equal(await evaluate('document.querySelectorAll("[data-person-name]").length'), 3)
+  await set('#modalidad', 'infantil'); await set('#paquete', 'bono4')
+  await evaluate(`[8,12,15].forEach((age,i)=>{const n=document.querySelectorAll('[data-age]')[i];n.value=age;n.dispatchEvent(new Event('input',{bubbles:true}))});['Marta sintética','Hugo sintético','Noa sintética'].forEach((name,i)=>document.querySelectorAll('[data-person-name]')[i].value=name);true`)
   assert.equal(await evaluate('document.getElementById("domus-responsible").required'), true)
-  await set('#domus-responsible', true); await set('#modalidad', 'bono4'); await set('#horario', 'Sábados por la tarde')
+  assert((await evaluate('document.getElementById("domus-contact-label").textContent')).includes('padre'))
+  assert((await evaluate('document.getElementById("domus-phone-label").textContent')).includes('tutor'))
+  await set('#domus-responsible', true); await set('#horario', 'Sábados por la tarde')
+  if (correctionsOnly) {
+    await command('Emulation.setDeviceMetricsOverride', { width: 390, height: 844, deviceScaleFactor: 1, mobile: true })
+    await evaluate('document.getElementById("booking").scrollIntoView();true')
+    assert.equal(await evaluate('document.documentElement.scrollWidth>innerWidth'), false)
+    const clip = await evaluate('(()=>{const r=document.getElementById("booking").getBoundingClientRect();return {x:r.left+scrollX,y:r.top+scrollY,width:r.width,height:r.height,scale:1}})()')
+    const image = await command('Page.captureScreenshot', { format: 'png', clip, captureBeyondViewport: true })
+    fs.writeFileSync(path.join(artifacts, 'corrections-infant-form.png'), Buffer.from(image.data, 'base64'))
+  }
   await submit('#booking'); await waitFor('!document.getElementById("domus-booking-success").hidden', 'registration saved')
   let data = await state(); assert.equal(data.reservas.length, 1); assert.equal(data.participantes.length, 3)
+  assert.deepEqual(data.participantes.map(p => p.nombre), ['Marta sintética', 'Hugo sintético', 'Noa sintética'])
+  assert.equal(data.reservas[0].paquete, 'bono4'); assert.equal(Number(data.reservas[0].precio_unitario), 100); assert.equal(Number(data.reservas[0].importe_total), 300)
   assert.equal(new URL(await evaluate('document.getElementById("domus-whatsapp").href')).pathname, '/34610056859')
   result.checks.push('Formulario con tres edades, contacto adulto y reserva real en PostgreSQL sintético')
   await navigate('/talleres-domus/admin.html#grupos'); await waitFor('!document.getElementById("domus-login").hidden', 'private login')
   await set('#domus-password', 'solo-pruebas-domus'); await submit('#domus-login'); await waitFor('!document.getElementById("domus-private").hidden', 'authorized administration')
   await evaluate('window.confirm=()=>true;true')
+  const pendingDirect = new URL(await evaluate('document.querySelector("[data-reservation-whatsapp]").href'))
+  assert.equal(pendingDirect.pathname, '/34600000009'); assert(pendingDirect.searchParams.get('text').includes('Fechas y horarios pendientes de confirmación'))
   await click('[data-tab=mensajes]'); await set('#domus-message-contact', (await state()).reservas[0].id); await click('#domus-prepare-message')
   assert((await evaluate('document.getElementById("domus-message-preview").value')).includes('pendiente'))
   assert(!(await evaluate('document.getElementById("domus-message-preview").value')).includes('Grupo:'))
@@ -120,6 +149,25 @@ async function main() {
   assert.equal((await state()).clases.length, 1)
   await set('#domus-class-form [name=fecha]', '2026-11-08'); await submit('#domus-class-form'); await waitFor('document.getElementById("domus-class-form").hidden')
   result.checks.push('Primera clase pública; conflicto rechazado por PostgreSQL; clase pendiente separada')
+  if (correctionsOnly) {
+    await waitFor('document.getElementById("domus-notice").textContent.includes("actualizados")')
+    data = await state()
+    const url = new URL(await evaluate('document.querySelector("[data-reservation-whatsapp]").href')), text = url.searchParams.get('text')
+    assert.equal(url.pathname, '/34600000009')
+    for (const item of [rid, 'Contacto sintético navegador', 'Persona sintética editada', 'Hugo sintético', 'Noa sintética', '100,00', '300,00', 'confirmada', 'Grupo sintético A', '7 de noviembre', '18:00–19:30', room ? data.salas.find(r=>r.id===room).nombre : '']) assert(text.includes(item), item)
+    assert(!text.includes('8 de noviembre'))
+    assert.equal(await evaluate('document.querySelector("[data-reservation-whatsapp]").textContent'), 'Enviar WhatsApp')
+    assert((await evaluate('document.getElementById("domus-groups").textContent')).includes('Hugo sintético'))
+    await click('[data-tab=mensajes]'); await set('#domus-message-group', groupA); await set('#domus-message-contact', rid); await set('#domus-message-kind', 'calendario'); await click('#domus-prepare-message')
+    const groupText = await evaluate('document.getElementById("domus-message-preview").value')
+    assert(groupText.includes('Hugo sintético')); assert(groupText.includes('300,00')); assert(groupText.includes('18:00–19:30'))
+    await click('[data-tab=reservas]'); await screenshot('corrections-admin-mobile', 390, 844)
+    result.checks.push('Cada reserva tiene WhatsApp a su contacto con nombres guardados, paquete, importes, estado, grupos y solo clases confirmadas')
+    result.errors = events.filter(event => event.method === 'Runtime.exceptionThrown').map(event => event.params.exceptionDetails.text)
+    assert.deepEqual(result.errors, [])
+    fs.writeFileSync(path.join(artifacts, 'corrections-browser-results.json'), JSON.stringify(result, null, 2)); console.log(JSON.stringify(result, null, 2))
+    await call('Browser.close'); return
+  }
   const adminSession = session
   const publicContext = await call('Target.createBrowserContext')
   const publicTarget = await call('Target.createTarget', { url: 'about:blank', browserContextId: publicContext.browserContextId })

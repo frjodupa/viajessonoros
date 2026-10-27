@@ -8,7 +8,7 @@ test('Base de datos Domus: integridad, privacidad y aislamiento del sistema ofic
   const { db, asRole } = await createTestDB()
   t.after(() => db.close())
   const submit = payload => asRole('anon', 'select public.domus_registrar($1::jsonb) as id', [JSON.stringify(payload)])
-  const payload = { clave: randomUUID(), nombre: 'Contacto sintético', telefono: '600000001', edades: [8, 35], modalidad: 'bono4', preferencias: 'Sábados', observaciones: 'Solo prueba', responsable_adulto: true }
+  const payload = { clave: randomUUID(), nombre: 'Contacto sintético', telefono: '600000001', edades: [8, 35], nombres: ['Ana sintética', 'Luis sintético'], modalidad: 'bono4', paquete: 'bono4', preferencias: 'Sábados', observaciones: 'Solo prueba', responsable_adulto: true }
   let reservation, people, groupA, groupB, room, roomB, first
   const createClass = data => asRole('authenticated', 'select public.domus_guardar_clase($1::jsonb) as id', [JSON.stringify({ fecha: '2026-11-07', hora_inicio: '18:00', hora_fin: '19:30', grupo_id: groupA, sala_id: room, estado: 'confirmada', publico: false, ...data })])
   await t.test('Registro anónimo atómico; estado pendiente e idempotencia real', async () => {
@@ -19,10 +19,12 @@ test('Base de datos Domus: integridad, privacidad y aislamiento del sistema ofic
     assert.equal(rows.rows.length, 1); assert.equal(rows.rows[0].estado, 'pendiente')
     people = (await db.query('select * from domus_participantes order by orden')).rows
     assert.deepEqual(people.map(p => p.edad), [8, 35])
+    assert.deepEqual(people.map(p => p.nombre), payload.nombres)
+    assert.equal(Number(rows.rows[0].precio_unitario), 100); assert.equal(Number(rows.rows[0].importe_total), 200)
     await assert.rejects(submit({ ...payload, nombre: 'Otro contacto' }), /ya se registró/)
   })
   await t.test('No se puede inyectar estado confirmado desde el formulario', async () => {
-    const result = await submit({ ...payload, clave: randomUUID(), edades: [25], estado: 'confirmada', publico: true })
+    const result = await submit({ ...payload, clave: randomUUID(), edades: [25], nombres: ['Persona adulta'], estado: 'confirmada', publico: true })
     const r = await db.query('select estado from domus_reservas where id=$1', [result.rows[0].id])
     assert.equal(r.rows[0].estado, 'pendiente')
   })
@@ -107,7 +109,7 @@ test('Base de datos Domus: integridad, privacidad y aislamiento del sistema ofic
     await assert.rejects(asRole('authenticated', 'select domus_mover_participante($1,null,$2)', [people[1].id, groupA]), /grupo disponible/)
   })
   await t.test('Integridad del número de edades y acceso al panel privado', async () => {
-    await assert.rejects(asRole('authenticated', 'update domus_reservas set numero_participantes=3 where id=$1', [reservation]), /una edad por participante/)
+    await assert.rejects(asRole('authenticated', 'update domus_reservas set numero_participantes=3,importe_total=precio_unitario*3 where id=$1', [reservation]), /una edad por participante/)
     await assert.rejects(asRole('authenticated', 'update domus_reservas set responsable_adulto=false where id=$1', [reservation]), /adulto responsable/)
     const data = (await asRole('authenticated', 'select domus_admin_datos() as data')).rows[0].data
     assert(data.participantes.length > 0)
@@ -127,6 +129,37 @@ test('Base de datos Domus: integridad, privacidad y aislamiento del sistema ofic
     await db.exec('rollback')
     assert((await db.query('select count(*)::int as n from domus_reservas')).rows[0].n > 0)
   })
+  await t.test('Servidor: los tres paquetes por uno, dos y tres participantes guardan nombres e importes oficiales', async () => {
+    for (const [pack, unit] of [['clase_suelta', 30], ['bono4', 100], ['bono8', 180]]) {
+      for (const n of [1, 2, 3]) {
+        const result = await submit({ ...payload, clave: randomUUID(), modalidad: 'infantil', paquete: pack, edades: Array(n).fill(8), nombres: Array.from({ length: n }, (_, i) => `Niño real ${i + 1}`), precio_unitario: unit, importe_total: n * unit })
+        const row = (await db.query('select * from domus_reservas where id=$1', [result.rows[0].id])).rows[0]
+        assert.equal(row.paquete, pack); assert.equal(Number(row.precio_unitario), unit); assert.equal(Number(row.importe_total), n * unit)
+        assert.equal((await db.query("select count(*)::int as n from domus_participantes where reserva_id=$1 and nombre like 'Niño real%'", [row.id])).rows[0].n, n)
+      }
+    }
+  })
+  await t.test('Nombres obligatorios, precios manipulados y cambios incompatibles se rechazan sin crear reservas', async () => {
+    const count = (await db.query('select count(*)::int as n from domus_reservas')).rows[0].n
+    for (const changes of [{ nombres: null }, { nombres: ['Ana'] }, { nombres: ['', 'Luis'] }, { nombres: ['  ', 'Luis'] }, { nombres: [null, 'Luis'] }, { nombres: ['x'.repeat(101), 'Luis'] }, { paquete: null }, { paquete: 'inventado' }, { paquete: 'clase_suelta' }, { precio_unitario: 1 }, { importe_total: 1 }, { precio_unitario: null }, { importe_total: 300 }, { responsable_adulto: false }]) {
+      await assert.rejects(submit({ ...payload, clave: randomUUID(), ...changes }))
+    }
+    assert.equal((await db.query('select count(*)::int as n from domus_reservas')).rows[0].n, count)
+    await assert.rejects(asRole('authenticated', 'update domus_reservas set importe_total=1 where id=$1', [reservation]), /domus_importe_oficial/)
+    await assert.rejects(asRole('authenticated', 'update domus_reservas set paquete=null,precio_unitario=null,importe_total=null where id=$1', [reservation]), /eliminar el importe/)
+    await assert.rejects(submit({ ...payload, nombres: ['Nombre cambiado', 'Luis sintético'] }), /ya se registró/)
+  })
+})
+test('Migración adicional conserva las reservas previas sin inventar nombres ni cargos', async () => {
+  const { db, asRole } = await createTestDB({ corrections: false })
+  try {
+    const id = (await asRole('anon', 'select domus_registrar($1::jsonb) as id', [JSON.stringify({ clave: randomUUID(), nombre: 'Contacto previo', telefono: '600000088', edades: [8], modalidad: 'infantil', responsable_adulto: true })])).rows[0].id
+    await db.exec(await readFile(new URL('../supabase/migrations/20261027161840_domus_names_prices_whatsapp.sql', import.meta.url), 'utf8'))
+    const row = (await db.query('select * from domus_reservas where id=$1', [id])).rows[0]
+    assert.equal(row.nombre, 'Contacto previo'); assert.equal(row.paquete, null); assert.equal(row.importe_total, null)
+    assert.equal((await db.query('select nombre from domus_participantes where reserva_id=$1', [id])).rows[0].nombre, 'Participante 1')
+    assert.equal((await db.query('select count(*)::int as n from reservas_whatsapp')).rows[0].n, 1)
+  } finally { await db.close() }
 })
 test('Reversión de una instalación Domus vacía conserva el sistema A', async () => {
   const { db } = await createTestDB()

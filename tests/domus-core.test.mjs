@@ -1,7 +1,7 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
 import { readFile } from 'node:fs/promises'
-import { calendarHTML, classifyAges, groupMessage, madridParts, overlaps, whatsappURL } from '../src/domus-core.js'
+import { calendarHTML, classifyAges, groupMessage, madridParts, overlaps, whatsappURL, reservationPrice, reservationMessage, money } from '../src/domus-core.js'
 
 test('Edades orientativas configurables y grupos mixtos', () => {
   assert.equal(classifyAges([8, 12]), 'Niños'); assert.equal(classifyAges([8, 35]), 'Mixto')
@@ -12,6 +12,30 @@ const contact = { nombre: 'Contacto de prueba', telefono: '600000001', estado: '
 const config = { profesor: 'José Duque', lugar: 'Maltravieso, Calle San José, 18 — Cáceres' }
 const classes = [{ id: 'c1', grupo_id: 'g1', sala_id: 's1', estado: 'confirmada', inicio: '2026-11-07T17:00:00Z', fin: '2026-11-07T18:30:00Z', primera: true, nota_publica: 'Ropa cómoda', notas: 'EDAD Y DATOS PRIVADOS' }, { id: 'c2', grupo_id: 'g1', estado: 'pendiente', inicio: '2026-11-14T17:00:00Z', fin: '2026-11-14T18:30:00Z' }]
 const rooms = [{ id: 's1', nombre: 'Sala de prueba', direccion: config.lugar }]
+test('Paquetes oficiales: importe individual y total por persona sin multiplicar por clases', () => {
+  for (const [pack, price] of [['clase_suelta', 30], ['bono4', 100], ['bono8', 180]]) {
+    for (const count of [1, 2, 3]) assert.deepEqual(reservationPrice(pack, count), { precio_unitario: price, importe_total: price * count })
+  }
+  for (const count of [0, -1, 1.5, 101, NaN]) assert.throws(() => reservationPrice('bono4', count))
+  assert.throws(() => reservationPrice('infantil', 2)); assert.throws(() => reservationPrice('__proto__', 1))
+})
+const priced = { id: 'r1', nombre: 'Tutora de prueba', telefono: '600000001', numero_participantes: 2, modalidad: 'infantil', paquete: 'bono4', precio_unitario: 100, importe_total: 200, estado: 'pendiente' }
+const named = [{ id: 'p1', reserva_id: 'r1', orden: 1, nombre: 'Ana', edad: 8 }, { id: 'p2', reserva_id: 'r1', orden: 2, nombre: 'Luis', edad: 12 }, { id: 'p3', reserva_id: 'otra', orden: 1, nombre: 'Persona ajena', edad: 9, telefono: '600999999' }]
+const members = named.map(p => ({ participante_id: p.id, grupo_id: 'g1', activo: true }))
+test('WhatsApp directo usa la reserva real, sus participantes y solo los horarios confirmados', () => {
+  const text = reservationMessage({ reservation: priced, participantes: named, miembros: members, grupos: [group], clases: [...classes, { ...classes[0], id: 'cancelada', estado: 'cancelada', inicio: '2026-11-21T17:00:00Z' }], salas: rooms, config })
+  for (const value of ['r1', 'Tutora de prueba', 'Ana, Luis', 'Taller infantil', 'Bono 4', money(100), money(200), 'pendiente', group.nombre, '7 de noviembre', '18:00–19:30', rooms[0].nombre]) assert(text.includes(value), value)
+  for (const hidden of ['Persona ajena', '600999999', '8 años', '12 años', '14 de noviembre', '21 de noviembre', 'EDAD Y DATOS PRIVADOS']) assert(!text.includes(hidden), hidden)
+  assert.equal(new URL(whatsappURL(priced.telefono, text)).pathname, '/34600000001')
+  const generic = groupMessage({ kind: 'calendario', contact: priced, participants: named, group, classes, rooms, config })
+  assert(generic.includes('Ana, Luis')); assert(generic.includes(money(200))); assert(!generic.includes('Persona ajena'))
+})
+test('WhatsApp directo sin grupo o sin fechas confirmadas usa el aviso exacto y no inventa importes', () => {
+  for (const assigned of [[], members]) {
+    const text = reservationMessage({ reservation: { ...priced, paquete: null, precio_unitario: null, importe_total: null }, participantes: named, miembros: assigned, grupos: [group], clases: classes.filter(c => c.estado === 'pendiente'), salas: rooms, config })
+    assert(text.includes('Fechas y horarios pendientes de confirmación')); assert(text.includes('Sin importe registrado')); assert(!text.includes('14 de noviembre'))
+  }
+})
 test('Inscripción y ubicación pueden comunicarse antes de formar un grupo', () => {
   for (const kind of ['inscripcion', 'ubicacion']) {
     const text = groupMessage({ kind, contact, group: null, classes, rooms, config })

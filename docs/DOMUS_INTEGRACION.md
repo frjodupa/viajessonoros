@@ -64,7 +64,7 @@ La integración no hereda las políticas generales de experiencias. No se han co
 
 ## Validación
 
-- `npm run test:domus`: 22 pruebas correctas, cero fallos. Motor PostgreSQL PGlite aislado, con roles `anon`/`authenticated`, autenticación sintética, RLS, exclusiones, disparadores y migración reales. Datos exclusivamente sintéticos. Incluye idempotencia, validación de edades y adulto responsable, cuenta no administradora, asignaciones, conservación de reserva, publicación selectiva, cambios de hora, conflictos, cancelaciones y reversión.
+- `npm run test:domus`: 28 pruebas correctas, cero fallos. Motor PostgreSQL PGlite aislado, con roles `anon`/`authenticated`, autenticación sintética, RLS, exclusiones, disparadores y migración reales. Datos exclusivamente sintéticos. Incluye idempotencia, validación de edades y adulto responsable, cuenta no administradora, asignaciones, conservación de reserva, publicación selectiva, cambios de hora, conflictos, cancelaciones y reversión.
 - Chrome Headless aislado: formulario con tres edades → registro SQL → acceso privado → dos grupos → asignación, traslado y pertenencia múltiple → clase pública → rechazo de solapamiento → calendario anónimo → exportación/impresión → siete comunicaciones → aplazamiento, reconfirmación y cancelación → cierre de sesión. Sin mensajes enviados.
 - Vistas de 390, 820 y 1440 píxeles sin desbordamiento horizontal. Imágenes decodificadas por Chrome y capturas revisadas. Esto no sustituye una prueba física en Safari de iPhone/iPad.
 - CSV/ICS: contenido de los Blob reales validado; eventos de inicio de descarga comprobados. El sandbox de macOS cancela los temporales nativos de Chrome: se capturó el contenido por CDP para comprobar y conservar los archivos. No se declara probada la escritura nativa de descargas en Safari o fuera del sandbox.
@@ -97,3 +97,26 @@ No se ha escrito en Supabase de producción, no se ha fusionado en `main`, no se
 `supabase/domus-rollback.sql` revierte una instalación vacía y se ha probado en la base sintética. Se detiene si ya hay solicitudes, grupos o clases para evitar borrar datos. Tras recibir inscripciones reales, la reversión exige una exportación/copia y revisión específica; no debe ejecutarse de forma automática. Conserva `btree_gist` por si otros módulos lo reutilizan.
 
 El código puede volver al commit base sin tocar el sistema A. Las copias y ramas de trabajo se conservan; el árbol original del usuario permanece intacto.
+
+
+## Corrección final de PR #39 — conformidad sobre `2c05735`
+
+Estado: PROBADO en entorno aislado. Sin migraciones ni despliegues.
+
+| Punto solicitado | Resultado verificado |
+| --- | --- |
+| Nombre individual | El formulario genera un nombre y una edad por participante. En modalidad infantil identifica al padre/madre/tutor y su WhatsApp. Los nombres reales se guardan y aparecen en la ficha, grupos y comunicaciones propias. Se conserva la nota de edades. |
+| Importes automáticos | Clase suelta 30 €, bono 4 clases 100 €, bono 8 clases 180 €, siempre por participante. El formulario actualiza el precio y el total. PostgreSQL calcula y guarda paquete, precio individual y total, y rechaza importes alterados. Para tres personas: 90 €, 300 € o 540 €. |
+| WhatsApp directo | Cada ficha contiene «Enviar WhatsApp», dirigido al teléfono de contacto guardado. Incluye código, contacto, nombres propios de esa reserva, modalidad/paquete, importes, estado, grupos y horarios/salas de clases confirmadas. Si no hay fechas usa «Fechas y horarios pendientes de confirmación». No incluye otros participantes ni marca envíos. |
+
+Archivos corregidos: `public/talleres-domus/index.html`; `src/domus-public.js`, `src/domus-admin.js`, `src/domus-core.js`, `src/domus-calendar.css`; cuatro archivos de pruebas Domus, esta ficha y `.gitop/PROJECT_STATE.md`.
+
+Migración adicional pendiente: `supabase/migrations/20261027161840_domus_names_prices_whatsapp.sql`, después de la migración inicial. SHA-256: `fb5b7b915a7057fb2347272f19bfaeaa74fff6a2a7e24b8d478cb50813ec49e9`. Añade únicamente `paquete`, `precio_unitario` e `importe_total` a `domus_reservas`, restricciones de integridad y la recepción validada de nombres en el RPC propio. No crea tablas nuevas, relaciones con experiencias ni permisos públicos de lectura. Las políticas RLS existentes se conservan.
+
+Registros anteriores: si existieran solicitudes del prototipo, se mantienen intactas. No se inventan nombres ni cargos históricos; sus importes ausentes se muestran como «Sin importe registrado». La recepción nueva exige nombres reales y paquete. La reversión vacía del módulo continúa validada; con datos se detiene para protegerlos.
+
+Pruebas: `npm run test:domus` — 28 correctas, cero fallos. Incluye los tres paquetes con 1/2/3 personas, nombres obligatorios, idempotencia, importes manipulados, privacidad de mensajes, permisos y regresiones de reservas/grupos/calendario directamente relacionadas. Compilación local correcta y validación de ambas rutas. Navegador sobre artefactos compilados con `DOMUS_CORRECTIONS_ONLY=1`: tres menores con nombre/edad y tutor; total persistido de 300 €; propagación a grupos; enlace individual al WhatsApp registrado; datos guardados, precios y fechas confirmadas; aviso sin fechas. Cero errores JavaScript y vista de 390 px sin desbordamiento. No se abre ni se envía WhatsApp durante las pruebas.
+
+Control de alcance: landing, `experiencias.html`, reservas y calendario general, cliente Supabase y políticas del sistema A idénticos al commit `2c05735`. `vercel.json` incorpora únicamente `git.deploymentEnabled` en `false` para `gitop/domus-agenda-grupos-20261027`, evitando que actualizar la PR publique otra vista previa; las demás ramas conservan su comportamiento. No se modifica la configuración remota de Vercel.
+
+Sin bloqueos funcionales detectados en estos tres puntos dentro del entorno probado. Producción permanece sin cambios y no se solicita autorización de publicación en esta entrega.
