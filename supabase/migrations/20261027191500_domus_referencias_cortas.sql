@@ -6,19 +6,6 @@ create table if not exists public.domus_referencia_contadores (
 revoke all on public.domus_referencia_contadores from public, anon, authenticated;
 alter table public.domus_referencia_contadores enable row level security;
 alter table public.domus_reservas add column if not exists referencia_corta text;
-with ordenadas as (
- select id, (creado_en at time zone 'Europe/Madrid')::date as dia,
- row_number() over (partition by (creado_en at time zone 'Europe/Madrid')::date order by creado_en,id) as numero
- from public.domus_reservas where referencia_corta is null
-), registradas as (
- update public.domus_reservas r
- set referencia_corta = to_char(o.dia,'DDMMYY') || o.numero::text
- from ordenadas o where r.id=o.id
- returning o.dia,o.numero
-)
-insert into public.domus_referencia_contadores(fecha,ultimo)
-select dia,max(numero)::integer from registradas group by dia
-on conflict(fecha) do update set ultimo=greatest(public.domus_referencia_contadores.ultimo,excluded.ultimo);
 create unique index if not exists domus_referencia_corta_unica on public.domus_reservas(referencia_corta);
 create or replace function domus_private.generar_referencia_corta() returns trigger
 language plpgsql security definer set search_path='' as $$
@@ -45,4 +32,17 @@ begin
 end $$;
 revoke all on function public.domus_registrar_con_referencia(jsonb) from public;
 grant execute on function public.domus_registrar_con_referencia(jsonb) to anon,authenticated;
+with ordenadas as (
+ select id, (creado_en at time zone 'Europe/Madrid')::date as dia,
+ row_number() over (partition by (creado_en at time zone 'Europe/Madrid')::date order by creado_en,id) as numero
+ from public.domus_reservas where referencia_corta is null
+), registradas as (
+ update public.domus_reservas r
+ set referencia_corta = to_char(o.dia,'DDMMYY') || o.numero::text
+ from ordenadas o where r.id=o.id
+ returning o.dia,o.numero
+)
+insert into public.domus_referencia_contadores(fecha,ultimo)
+select dia,max(numero)::integer from registradas group by dia
+on conflict(fecha) do update set ultimo=greatest(public.domus_referencia_contadores.ultimo,excluded.ultimo);
 commit;
