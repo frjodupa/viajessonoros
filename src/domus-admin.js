@@ -156,10 +156,21 @@ function openClass(id = '', busy = false, postpone = false) {
     form.append(actions)
   }
   form.hidden = false
+  if (!row) adjustDomusClassEnd(form)
   classFeedback()
   form.scrollIntoView({ block: 'start', behavior: 'smooth' })
 }
 function classPayload(row) { return { ...row, fecha: madridParts(row.inicio).date, hora_inicio: madridParts(row.inicio).time, hora_fin: madridParts(row.fin).time } }
+/* Todas las clases impartidas de Talleres Domus duran exactamente 90 minutos. */
+function domusEndTime(start) {
+ if (!/^([01]\\d|2[0-3]):[0-5]\\d$/.test(start || '')) return ''
+ const [h,m] = start.split(':').map(Number), end = h*60+m+90
+ return end < 1440 ? String(Math.floor(end/60)).padStart(2,'0')+':'+String(end%60).padStart(2,'0') : ''
+}
+function adjustDomusClassEnd(form) {
+ const end=domusEndTime(value(form,'hora_inicio'))
+ if(end) field(form,'hora_fin').value=end
+}
 function classFeedback() {
   if (!db) return
   const form = $('domus-class-form'), state = value(form, 'estado'), publish = field(form, 'publico')
@@ -170,8 +181,8 @@ function classFeedback() {
   const minutes = text => { const [h, m] = text.split(':').map(Number); return h * 60 + m }
   const duration = minutes(end) - minutes(start)
   const conflict = date && start && end && db.clases.some(c => c.id !== value(form, 'id') && state !== 'cancelada' && c.estado !== 'cancelada' && (c.sala_id === room || (group && c.grupo_id === group)) && `${date}T${start}` < `${madridParts(c.fin).date}T${madridParts(c.fin).time}` && `${madridParts(c.inicio).date}T${madridParts(c.inicio).time}` < `${date}T${end}`)
-  $('domus-class-feedback').textContent = conflict ? 'Posible solapamiento con otra clase u ocupación de la sala o del grupo. La base de datos rechazará el conflicto.' : duration > 0 ? `Duración: ${duration} minutos. El horario se validará al guardar.` : 'La finalización debe ser posterior al inicio en el mismo día.'
-  $('domus-class-feedback').classList.toggle('is-conflict', Boolean(conflict))
+  $('domus-class-feedback').textContent = duration !== 90 && state !== 'ocupada' ? 'Las clases Domus deben durar exactamente 90 minutos. Revisa la hora de inicio y fin.' : conflict ? 'Posible solapamiento con otra clase u ocupación de la sala o del grupo. La base de datos rechazará el conflicto.' : duration > 0 ? `Duración: ${duration} minutos. El horario se validará al guardar.` : 'La finalización debe ser posterior al inicio en el mismo día.'
+  $('domus-class-feedback').classList.toggle('is-conflict', Boolean(conflict || (duration !== 90 && state !== 'ocupada')))
 }
 function renderRooms() { $('domus-rooms').innerHTML = db.salas.map(r => `<article class="domus-record"><h3>${e(r.nombre)}</h3><p>${e(r.direccion)} · ${r.activa ? 'Activa' : 'Inactiva'}</p><button type="button" class="secondary" data-edit-room="${e(r.id)}">Editar sala</button></article>`).join('') }
 function clearMessage() { messageReady = false; $('domus-message-link').hidden = true; $('domus-message-link').removeAttribute('href'); $('domus-message-status').textContent = '' }
@@ -229,7 +240,7 @@ $('domus-reservation-filter').onchange = renderReservations
 $('domus-new-group').onclick = () => openGroup()
 $('domus-new-class').onclick = () => openClass()
 $('domus-new-busy').onclick = () => openClass('', true)
-$('domus-class-form').addEventListener('input', classFeedback)
+$('domus-class-form').addEventListener('input', event => { if(event.target.name === 'hora_inicio') adjustDomusClassEnd($('domus-class-form')); classFeedback() })
 field($('domus-class-form'), 'grupo_id').addEventListener('change', () => { const group = db.grupos.find(g => g.id === value($('domus-class-form'), 'grupo_id')); if (group?.sala_id) field($('domus-class-form'), 'sala_id').value = group.sala_id; classFeedback() })
 for (const id of ['domus-calendar-group', 'domus-calendar-room', 'domus-calendar-view']) $(id).onchange = renderCalendar
 for (const [id, direction] of [['domus-calendar-prev', -1], ['domus-calendar-next', 1]]) $(id).onclick = () => { cursor = $('domus-calendar-view').value === 'week' ? addDays(cursor, direction * 7) : monthDate(cursor, direction); renderCalendar() }
@@ -284,6 +295,7 @@ document.addEventListener('submit', event => {
       form.hidden = true
     } else if (formId === 'domus-class-form') {
       const payload = Object.fromEntries(['id', 'actualizado_en', 'grupo_id', 'sala_id', 'fecha', 'hora_inicio', 'hora_fin', 'estado', 'nota_publica', 'notas'].map(k => [k, value(form, k)]))
+      if (payload.estado !== 'ocupada' && (!domusEndTime(payload.hora_inicio) || payload.hora_fin !== domusEndTime(payload.hora_inicio))) throw new Error('Las clases deben durar exactamente 90 minutos.');
       payload.primera = field(form, 'primera').checked; payload.publico = field(form, 'publico').checked
       await check(supabase.rpc('domus_guardar_clase', { p_clase: payload })); form.hidden = true
     } else if (formId === 'domus-room-form') {
