@@ -206,8 +206,20 @@ form.addEventListener('submit', async event => {
     const success = $('domus-booking-success')
     success.hidden = false
     success.setAttribute('role', 'status')
+    success.setAttribute('tabindex', '-1')
     success.setAttribute('aria-live', 'polite')
-    $('domus-whatsapp').textContent = 'Enviar consulta por WhatsApp'
+    const heading = success.querySelector('h2, h3')
+    if (heading) heading.textContent = '¡Solicitud registrada!'
+    success.classList.add('domus-confirmation-prominent')
+    let instruction = document.getElementById('domus-whatsapp-instruction')
+    if (!instruction) {
+      instruction = document.createElement('p')
+      instruction.id = 'domus-whatsapp-instruction'
+      instruction.className = 'domus-whatsapp-instruction'
+      $('domus-whatsapp').before(instruction)
+    }
+    instruction.textContent = 'ÚLTIMO PASO: pulsa el botón para abrir WhatsApp y enviar tu petición. Tu plaza sigue pendiente hasta que recibas nuestra confirmación.'
+    $('domus-whatsapp').textContent = 'ENVIAR PETICIÓN POR WHATSAPP'
     // El registro se ha guardado; WhatsApp es opcional y no confirma su entrega.
     // Cada nueva solicitud recibe una clave distinta para evitar reutilizar la anterior.
     try { sessionStorage.removeItem('domus.solicitud.clave') } catch {}
@@ -234,7 +246,7 @@ form.addEventListener('submit', async event => {
       })
       success.appendChild(next)
     }
-    success.scrollIntoView({ behavior: 'smooth', block: 'center' })
+    requestAnimationFrame(() => { success.scrollIntoView({ behavior: 'auto', block: 'start' }); success.focus({ preventScroll: true }) })
   } catch (error) {
     $('domus-booking-status').textContent = `${friendlyError(error)} No se ha confirmado la inscripción. Puedes reintentar; la misma solicitud no se duplicará.`
     button.disabled = false
@@ -270,3 +282,17 @@ function installShareButton() {
   document.body.appendChild(share)
 }
 installShareButton()
+
+/* Confirmación de solicitud: siguiente paso y WhatsApp bien visibles. */
+const confirmationStyle = document.createElement('style')
+confirmationStyle.textContent = `
+#domus-booking-success.domus-confirmation-prominent{max-width:920px!important;margin:24px auto!important;padding:clamp(22px,4vw,48px)!important;border:3px solid #a37e43!important;border-radius:22px!important;background:#fff9e9!important;box-shadow:0 10px 35px rgba(70,42,18,.16)!important;scroll-margin-top:24px}
+#domus-booking-success.domus-confirmation-prominent h2,#domus-booking-success.domus-confirmation-prominent h3{font-size:clamp(27px,4vw,43px)!important;line-height:1.15!important;color:#3a245b!important;margin:0 0 20px!important}
+#domus-whatsapp-instruction.domus-whatsapp-instruction{font-size:clamp(20px,2.7vw,29px)!important;font-weight:800!important;line-height:1.35!important;color:#352349!important;margin:20px 0 22px!important;max-width:36ch}
+#domus-booking-success #domus-whatsapp{display:flex!important;align-items:center!important;justify-content:center!important;width:100%!important;min-height:68px!important;padding:18px 20px!important;border-radius:16px!important;background:#206947!important;color:#fff!important;font-size:clamp(17px,2.3vw,23px)!important;font-weight:800!important;text-align:center!important;text-decoration:none!important;box-shadow:0 6px 14px rgba(32,105,71,.18)!important}
+#domus-booking-success #domus-whatsapp:hover{background:#185739!important}
+#domus-booking-success #domus-whatsapp:focus-visible{outline:4px solid #c0a45e!important;outline-offset:4px}
+#domus-booking-success #domus-new-booking{font-size:16px!important;min-height:52px!important}
+@media(max-width:520px){#domus-booking-success.domus-confirmation-prominent{margin-inline:10px!important;padding:22px 16px!important}}
+`
+document.head.appendChild(confirmationStyle)
