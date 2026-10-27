@@ -98,3 +98,42 @@ form.addEventListener('submit', async event => {
 renderAges()
 refreshPrice()
 loadCalendar()
+
+
+/* Acceso visible para compartir la página pública de los talleres, sin enlazarla desde la landing. */
+function installShareButton() {
+  if (document.getElementById('domus-share-public')) return
+  const share = document.createElement('button')
+  share.id = 'domus-share-public'
+  share.type = 'button'
+  share.textContent = 'Compartir taller'
+  share.setAttribute('aria-label', 'Compartir la página de Talleres Domus')
+  Object.assign(share.style, {
+    position: 'fixed', right: '18px', bottom: '18px', zIndex: '40',
+    background: '#3a245b', color: '#fff', border: '1px solid #d7bc88',
+    borderRadius: '999px', padding: '14px 21px', minHeight: '48px',
+    boxShadow: '0 8px 25px rgba(43,26,56,.25)', cursor: 'pointer',
+    fontFamily: 'Montserrat, system-ui, sans-serif', fontWeight: '700',
+    fontSize: '14px', maxWidth: 'calc(100vw - 36px)'
+  })
+  share.addEventListener('click', async () => {
+    const url = new URL('/talleres-domus/', location.origin).href
+    const title = 'Talleres Domus Pan Drums · Viajes Sonoros'
+    const text = 'Descubre los talleres de iniciación a los Drums de Domus Pan Drums en Cáceres. Información e inscripciones: ' + url
+    try {
+      if (navigator.share) { await navigator.share({ title, text, url }); return }
+      if (navigator.clipboard?.writeText) {
+        await navigator.clipboard.writeText(text)
+        const original = share.textContent
+        share.textContent = '¡Enlace copiado!'
+        share.addEventListener('blur', () => { share.textContent = original }, { once: true })
+        return
+      }
+      window.open('https://wa.me/?text=' + encodeURIComponent(text), '_blank', 'noopener,noreferrer')
+    } catch (error) {
+      if (error?.name !== 'AbortError') window.open('https://wa.me/?text=' + encodeURIComponent(text), '_blank', 'noopener,noreferrer')
+    }
+  })
+  document.body.appendChild(share)
+}
+installShareButton()
