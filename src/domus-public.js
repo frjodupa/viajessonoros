@@ -132,12 +132,38 @@ form.addEventListener('submit', async event => {
     const message = ['Hola, he registrado una solicitud para Talleres Domus.', `Referencia: ${code}`, `Contacto: ${requestData.nombre} · ${phone}`, `Participantes: ${names.join(', ')}`, `Modalidad: ${MODES[requestData.modalidad]}`, `Paquete: ${MODES[requestData.paquete]}`, `Precio individual: ${money(requestData.precio_unitario)}`, `Importe total: ${money(requestData.importe_total)}`, `Preferencias: ${requestData.preferencias || 'Por confirmar'}`, elegido ? 'Has elegido una clase publicada. La plaza queda provisionalmente asignada al grupo; la confirmación final llegará desde la organización.' : 'La solicitud está pendiente. Fechas, horarios y sala se confirmarán con la organización.'].join('\n')
     $('domus-whatsapp').href = whatsappURL(DOMUS_PHONE, message)
     $('domus-reference').textContent = `Solicitud registrada: ${code}. ${elegido ? 'Asignación provisional a la clase seleccionada.' : 'Pendiente de asignación de grupo.'} Pendiente de confirmación.`
-    $('domus-booking-success').hidden = false
-    loadCalendar()
-    form.hidden = true
+    const success = $('domus-booking-success')
+    success.hidden = false
+    success.setAttribute('role', 'status')
+    success.setAttribute('aria-live', 'polite')
+    $('domus-whatsapp').textContent = 'Enviar consulta por WhatsApp'
+    // El registro se ha guardado; WhatsApp es opcional y no confirma su entrega.
+    // Cada nueva solicitud recibe una clave distinta para evitar reutilizar la anterior.
     try { sessionStorage.removeItem('domus.solicitud.clave') } catch {}
-    // Open only after a real successful registration and an explicit click.
-    $('domus-whatsapp').focus()
+    delete form.dataset.requestKey
+    form.reset()
+    $('domus-ages').replaceChildren()
+    renderAges()
+    refreshGroup()
+    refreshPrice()
+    button.disabled = false
+    $('domus-booking-status').textContent = ''
+    form.hidden = false
+    loadCalendar()
+    if (!document.getElementById('domus-new-booking')) {
+      const next = document.createElement('button')
+      next.type = 'button'
+      next.id = 'domus-new-booking'
+      next.textContent = 'Realizar otra reserva'
+      next.style.cssText = 'margin:12px 0;padding:12px 18px;border:1px solid #ae8fbd;border-radius:12px;background:#fff;color:#3a245b;font-weight:700;cursor:pointer'
+      next.addEventListener('click', () => {
+        success.hidden = true
+        form.scrollIntoView({ behavior: 'smooth', block: 'start' })
+        form.querySelector('input:not([type=hidden])')?.focus({ preventScroll: true })
+      })
+      success.appendChild(next)
+    }
+    success.scrollIntoView({ behavior: 'smooth', block: 'center' })
   } catch (error) {
     $('domus-booking-status').textContent = `${friendlyError(error)} No se ha confirmado la inscripción. Puedes reintentar; la misma solicitud no se duplicará.`
     button.disabled = false
