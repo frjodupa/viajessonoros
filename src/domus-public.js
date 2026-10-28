@@ -60,76 +60,7 @@ function refreshPrice() {
   const unit = PACKAGE_PRICES[$('paquete').value], count = Number($('plazas').value)
   $('domus-unit-price').textContent = `Precio individual: ${money(unit)}`
   $('domus-total-price').textContent = Number.isInteger(count) && count >= 1 && count <= (config?.max_participantes || 30) ? `Importe total: ${money(reservationPrice($('paquete').value, count).importe_total)}` : 'Indica un número válido de participantes.'
-  syncVisualSelects()
 }
-
-/* Selectores táctiles accesibles, sincronizados con los select originales y su lógica. */
-const visualGroups = []
-function installVisualSelect(id) {
-  const select = $(id)
-  if (!select || !select.options.length) return
-  const originalLabel = select.closest('label')
-  const container = document.createElement('div')
-  container.className = 'domus-choice-grid'
-  container.setAttribute('role', 'group')
-  container.setAttribute('aria-label', id === 'modalidad' ? 'Selecciona modalidad de taller' : 'Selecciona el bono de clases')
-  const choices = [...select.options].filter(option => option.value && !option.disabled)
-  for (const option of choices) {
-    const choice = document.createElement('button')
-    choice.type = 'button'
-    choice.className = 'domus-choice'
-    choice.dataset.value = option.value
-    const label = option.textContent.trim()
-    const match = label.match(/(\\d+[,.]?\\d*)\\s*€/)
-    const price = match ? match[0] : ''
-    const description = label.replace(price, '').replace(/^[·\\s]+|[·\\s]+$/g, '').trim()
-    const lead = document.createElement('strong')
-    lead.textContent = description || label
-    choice.appendChild(lead)
-    if (price) {
-      const amount = document.createElement('span')
-      amount.textContent = price
-      choice.appendChild(amount)
-    }
-    choice.addEventListener('click', () => {
-      select.value = option.value
-      select.dispatchEvent(new Event('change', { bubbles: true }))
-      syncVisualSelects()
-    })
-    container.appendChild(choice)
-  }
-  select.classList.add('domus-select-accessible')
-  originalLabel?.after(container)
-  visualGroups.push({ select, container })
-}
-function syncVisualSelects() {
-  for (const { select, container } of visualGroups) {
-    container.hidden = Boolean(select.closest('[hidden]'))
-    for (const choice of container.querySelectorAll('button')) {
-      const active = choice.dataset.value === select.value
-      choice.classList.toggle('selected', active)
-      choice.setAttribute('aria-pressed', String(active))
-    }
-  }
-}
-const visualStyle = document.createElement('style')
-visualStyle.textContent = `
-.domus-select-accessible{position:absolute!important;width:1px!important;height:1px!important;opacity:0!important;pointer-events:none!important;clip-path:inset(50%)!important}
-.domus-choice-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,200px),1fr));gap:12px;margin:8px 0 19px}
-.domus-choice-grid[hidden]{display:none!important}
-.domus-choice{min-height:76px;padding:15px 18px;border:2px solid #ddcbd9;border-radius:15px;background:#fffaf5;color:#3d2a4f;display:flex;flex-direction:column;gap:5px;align-items:flex-start;justify-content:center;text-align:left;cursor:pointer;font-family:inherit;box-shadow:0 2px 7px #4226570d}
-.domus-choice strong{font-size:clamp(15px,1.5vw,18px);line-height:1.35}
-.domus-choice span{font-weight:800;font-size:19px;color:#906e3d}
-.domus-choice:hover{border-color:#9b7aaa;background:#faf4fd}
-.domus-choice.selected{border-color:#3a245b;background:#ede7f4;box-shadow:inset 0 0 0 1px #3a245b}
-.domus-choice.selected:before{content:'✓ Seleccionado';font-size:12px;color:#31684b;font-weight:800}
-.domus-choice:focus-visible{outline:3px solid #a77b43;outline-offset:2px}
-@media(max-width:580px){.domus-choice-grid{grid-template-columns:1fr 1fr;gap:8px}.domus-choice{padding:12px;min-height:84px}.domus-choice strong{font-size:14px}.domus-choice span{font-size:17px}}
-`
-document.head.appendChild(visualStyle)
-installVisualSelect('modalidad')
-installVisualSelect('paquete')
-syncVisualSelects()
 
 $('plazas').addEventListener('input', () => { renderAges(); refreshPrice() })
 $('domus-ages').addEventListener('input', refreshGroup)
@@ -155,8 +86,7 @@ async function loadCalendar() {
     button.disabled = false
     $('domus-public-calendar').innerHTML = calendarHTML(data.clases, cursor)
     renderHorarioElegible(data.clases)
-    syncVisualSelects()
-    $('domus-calendar-status').textContent = data.clases.length ? 'Estas clases están confirmadas y publicadas por la organización. Las inscripciones requieren confirmación individual.' : 'Todavía no hay clases públicas confirmadas este mes. Puedes solicitar plaza y proponer tus horarios.'
+      $('domus-calendar-status').textContent = data.clases.length ? 'Estas clases están confirmadas y publicadas por la organización. Las inscripciones requieren confirmación individual.' : 'Todavía no hay clases públicas confirmadas este mes. Puedes solicitar plaza y proponer tus horarios.'
   } catch (error) {
     if (current === request) $('domus-calendar-status').textContent = `No se ha podido consultar el calendario. ${friendlyError(error)}`
   }
@@ -296,3 +226,18 @@ confirmationStyle.textContent = `
 @media(max-width:520px){#domus-booking-success.domus-confirmation-prominent{margin-inline:10px!important;padding:22px 16px!important}}
 `
 document.head.appendChild(confirmationStyle)
+
+/* Formulario premium: selects nativos SIEMPRE visibles, con flecha de apertura explícita. */
+const domusPremiumCSS = document.createElement('style')
+domusPremiumCSS.textContent = `
+#booking{background:linear-gradient(160deg,#fffdf9 0%,#f9f2e9 100%)!important;border:1px solid #e2c8a4!important;border-radius:24px!important;box-shadow:0 15px 42px rgba(70,43,54,.09)!important;padding:clamp(18px,3vw,38px)!important}
+#booking label{font-weight:750!important;color:#39254b!important}
+#booking input,#booking textarea,#booking select{border:1.5px solid #c9b4cb!important;border-radius:13px!important;min-height:54px!important;background-color:#fff!important;font-size:16px!important;box-shadow:0 2px 9px rgba(54,31,63,.045)!important}
+#booking select,#domus-horario-confirmado{appearance:none!important;-webkit-appearance:none!important;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Crect x='1' y='1' width='22' height='22' rx='7' fill='%233a245b'/%3E%3Cpath d='m7 10 5 5 5-5' fill='none' stroke='white' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E")!important;background-repeat:no-repeat!important;background-size:32px 32px!important;background-position:right 12px center!important;padding-right:58px!important;cursor:pointer!important;font-weight:700!important;color:#352546!important}
+#booking select:hover,#domus-horario-confirmado:hover{border-color:#8e6caa!important;background-color:#fbf8ff!important}
+#booking select:focus-visible,#domus-horario-confirmado:focus-visible,#booking input:focus-visible{outline:3px solid #b090c0!important;outline-offset:2px!important}
+#booking #modalidad,#booking #paquete{display:block!important;position:static!important;width:100%!important;height:auto!important;opacity:1!important;pointer-events:auto!important;clip-path:none!important;visibility:visible!important}
+#domus-package-wrap[hidden]{display:none!important}
+#booking button[type=submit]{font-size:18px!important;font-weight:800!important;min-height:58px!important;padding:15px 26px!important;border-radius:14px!important;box-shadow:0 8px 18px #39245425!important}
+`
+document.head.appendChild(domusPremiumCSS)
