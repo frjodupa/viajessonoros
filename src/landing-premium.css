@@ -1,0 +1,74 @@
+/* Landing only: intentional colour chapters, preserving the existing brand. */
+#contenido { --chapter-violet: #351b49; --chapter-forest: #e5eeea; --chapter-mineral: #e4edf3; --chapter-rose: #f2e5ea; --chapter-linen: #f3eee3; }
+#contenido > section { border: 0; }
+#contenido .hero { background: #251a32 url('/hero-maria-jose.jpg') right 40% / auto 100% no-repeat; min-height: 680px; }
+#contenido .hero::before { inset: 0; width: 100%; background: linear-gradient(90deg,#251a32 0%,rgba(37,26,50,.94) 30%,rgba(37,26,50,.28) 70%,rgba(37,26,50,.08)); mask-image: none; -webkit-mask-image: none; }
+#contenido .hero::after { display: none; }
+#contenido .hero-inner { min-height: 680px; }
+#contenido .hero-copy { width: 58%; max-width: 710px; }
+#contenido .hero h1 { color: #fff; font-size: clamp(52px,5.4vw,82px); line-height: 1.02; letter-spacing: -.025em; }
+#contenido .hero h1 strong { color: inherit; font-weight: inherit; margin: 0; display: inline; }
+#contenido .hero-copy > p { color: #eee6f1; max-width: 43ch; font-size: 17px; }
+#contenido .hero .button-primary { background: #e8d3a3; color: #302138; border-color: #e8d3a3; box-shadow: none; }
+#contenido .hero .button-whatsapp { background: transparent; color: #fff; border: 1px solid #cbbcd3; box-shadow: none; }
+#contenido :is(.events-section,.intro-section,.vs-therapies,.experiences-section,.instruments-section,.meditate-section,.reviews-section,.about-section,.shop-section,.partners-section) { padding-block: clamp(52px,6vw,88px); background-image: none; }
+#contenido .events-section { background: #fff; }
+#contenido .events-heading { text-align: left; }
+#contenido .events-heading h2 { font-size: clamp(38px,4vw,58px); }
+#contenido .events-capture { grid-column: 1 / -1; background: transparent; padding: 24px 0 0; margin: 12px 0 0; border-top: 1px solid #ded5e4; }
+#contenido .events-capture-inner { width: 100%; max-width: none; padding: 0; gap: 24px; text-align: left; }
+#contenido .events-capture h2 { font-size: 28px; }
+#contenido .events-capture p { margin-bottom: 0; }
+#contenido .events-capture .button { padding: 12px 20px; font-size: 12px; }
+#contenido .landing-introduction { background: var(--chapter-violet); color: #f8f2fa; }
+.landing-introduction-inner { display: grid; grid-template-columns: .8fr 1.2fr; gap: clamp(24px,6vw,80px); align-items: start; }
+#contenido .landing-introduction h2 { color: inherit; margin: 0; font: 500 clamp(38px,4vw,60px)/1.05 var(--serif); }
+.landing-introduction p { max-width: 65ch; margin: 0 0 18px; }
+.landing-introduction p + p { color: #d9cfe0; font-size: 14px; }
+#contenido .vs-therapies { background: var(--chapter-rose); }
+#contenido .experiences-section { background: var(--chapter-forest); }
+#contenido .instruments-section { background: var(--chapter-linen); }
+#contenido .meditate-section { background: var(--chapter-mineral); }
+#contenido .reviews-section { background: #faf7fb; }
+#contenido .about-section { background: var(--chapter-rose); }
+#contenido .shop-section { background: var(--chapter-linen); }
+#contenido .partners-section { background: var(--chapter-forest); }
+#contenido :is(.experience-card,.vs-therapy-card,.product-card,.partner-card) { box-shadow: none; border: 1px solid #ffffff9c; border-radius: 14px; }
+#contenido :is(.experience-card,.vs-therapy-card):hover { box-shadow: 0 12px 28px #30213812; }
+#contenido .eyebrow { text-transform: none; letter-spacing: .025em; }
+#contenido .journey-section { padding: 0; background: var(--chapter-mineral); }
+#contenido .purchase-guide { padding: 0; background: var(--chapter-linen); }
+#contenido .landing-disclosure { padding-block: 24px; border-top: 1px solid #30213828; }
+.landing-disclosure > summary { cursor: pointer; color: #351b49; font: 500 clamp(25px,3vw,34px)/1.3 var(--serif); padding: 8px 0; }
+#contenido .landing-disclosure[open] { padding-bottom: 48px; }
+#contenido .journey-layout { display: block; margin-top: 32px; }
+#contenido .purchase-steps { margin-top: 32px; }
+#contenido .landing-disclosure .reveal { opacity: 1; transform: none; }
+#contenido .reveal { transition: none; }
+@media(max-width:767px) {
+ #contenido .hero { min-height: 740px; background-size: auto 390px; background-position: right top; padding: 0; }
+ #contenido .hero::before { background: linear-gradient(0deg,#251a32 0%,#251a32 45%,rgba(37,26,50,.25) 80%); }
+ #contenido .hero-inner { min-height: 740px; padding-top: 300px; align-items: end; }
+ #contenido .hero-copy { width: 100%; padding: 24px 0 44px; }
+ #contenido .hero h1 { font-size: clamp(42px,10vw,56px); }
+ #contenido .hero-copy > p { font-size: 15px; margin-top: 20px; }
+ #contenido .hero-actions { gap: 12px; margin-top: 24px; }
+ #contenido .hero-actions .button { width: 100%; }
+ .landing-introduction-inner { grid-template-columns: 1fr; }
+ #contenido .events-capture-inner { display: flex; flex-direction: column; align-items: start; }
+}
+@media(prefers-reduced-motion:reduce) { html { scroll-behavior: auto; } }
+
+#contenido .vs-therapies { padding-block: 0; }
+#contenido .vs-therapies .landing-disclosure { border-top: 0; }
+#contenido .vs-therapies-grid { margin-top: 30px; }
+
+/* Content stays visible without waiting for scroll animations. */
+#contenido .reveal { opacity: 1; transform: none; }
+
+/* Contrast on the new chapter surfaces, including the existing mobile rules. */
+#contenido .hero::before { display: block; }
+#contenido .hero-copy > p { background: none; border: 0; box-shadow: none; padding: 0; border-radius: 0; }
+#contenido .meditate-copy h2 { color: #263b4b; font-family: var(--serif); font-weight: 500; }
+#contenido .meditate-copy > p, #contenido .meditate-copy > span { color: #3e5668; }
+.site-header:not(.is-scrolled) .header-inner { background: rgba(255,253,249,.94); }

@@ -29,3 +29,16 @@
 - Migración adicional: `20261027161840_domus_names_prices_whatsapp.sql`, pendiente. RLS y aislamiento del sistema A conservados; sin nombres ni importes históricos inventados.
 - Autodespliegue excluido solo en esta rama mediante `vercel.json`. No se aplican migraciones ni se despliega. No se solicita autorización de publicación.
 - Informe: `docs/DOMUS_INTEGRACION.md`, apartado Corrección final PR #39.
+
+
+## Landing premium — 28 de octubre de 2026
+
+HECHO: rama local gitop/landing-premium-20261028, base main edcda4e. Copia independiente /tmp/gitop-landing-premium-w3QS8v/repo; original y cambios sin confirmar intactos.
+
+Cambios: src/main.js y nuevo src/landing-premium.css, importado únicamente en la landing. Portada con fotografía original y violeta profundo; capítulos en verde bosque suave, azul mineral, rosa y lino. Se unifican introducción y descripción local conservando Cáceres/Extremadura y servicios. La difusión se integra en la agenda; modalidades privadas, proceso y guía de compra se compactan en desplegables. Se retiran el banner de productos redundante y la llamada final repetida. Precios, productos, reseñas, navegación y funciones comerciales conservados.
+
+PROBADO: navegador Chromium aislado, datos sintéticos y conexiones exteriores bloqueadas; un h1, IDs únicos, enlaces de navegación válidos, tres desplegables, menú móvil y detalle de productos operativos, imágenes cargadas, cero excepciones JS. Sin desbordamientos a 390 y 1440 px. Revisión visual y contraste de portada/meditación. Una única ejecución npm run build correcta, incluidas validaciones prebuild y postbuild. La prueba de navegador se realizó sobre Vite dev, no sobre un despliegue. No se han probado conexiones reales de Supabase ni reservas reales.
+
+Evidencias: ../artifacts/landing-results.json, ../artifacts/landing-desktop.png, ../artifacts/landing-mobile.png, ../artifacts/mobile-hero.png y ../build.log. Scripts locales conservados en ../artifacts; si se reutilizan, ejecutar desde la copia con las dependencias y el perfil de aislamiento indicados en los logs.
+
+PENDIENTE: revisión y autorización de publicación. Sin push, fusión ni despliegue. Sin cambios en Supabase, reservas, experiencias.html ni Talleres Domus. Reversión: descartar el commit local de esta mejora sin intervenir en main ni en el original.
