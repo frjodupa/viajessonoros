@@ -1,4 +1,5 @@
 import './style.css'
+import './landing-premium.css'
 import './banner-public.js'
 import { supabase } from './supabase.js'
 import { getOptimizedExperienceImage } from './admin-image-optimizer.js'
@@ -689,53 +690,19 @@ app.innerHTML = `
       </div>
     </section>
 
-    <section class="intro-section" aria-labelledby="intro-title">
-      <div class="container intro-inner reveal">
-        <span class="lotus-mark" aria-hidden="true">${icons.lotus}</span>
+    <section class="intro-section landing-introduction" aria-labelledby="intro-title">
+      <div class="container landing-introduction-inner">
         <h2 id="intro-title">Mucho más que un concierto</h2>
-        <p>
-          Un viaje sonoro es una experiencia de escucha en la que la música en
-          directo y la vibración acompañan la meditación, la relajación y la
-          conexión interior. No necesitas experiencia previa: solo detenerte,
-          escuchar y dejarte llevar.
-        </p>
-        <span class="heart-mark" aria-hidden="true">${icons.heart}</span>
-      </div>
-    </section>
-
-    <section class="local-seo-section" aria-labelledby="local-seo-title">
-      <div class="container local-seo-inner reveal">
-        <p class="eyebrow">En Cáceres, Extremadura y donde nos llame el sonido</p>
-        <h2 id="local-seo-title">Meditación y baños de sonido en Cáceres</h2>
-        <div class="local-seo-copy">
-          <p>
-            Viajes Sonoros crea experiencias de bienestar y meditación con
-            sonido, baños de sonido y espacios de relajación principalmente en
-            Cáceres y Extremadura. A través del handpan, los cuencos, el gong, la voz,
-            la kora y otros instrumentos acústicos, proponemos encuentros para
-            detener el ritmo, respirar y volver al presente.
-          </p>
-          <p>
-            También creamos conciertos meditativos, kirtan y mantras, y nos
-            desplazamos para aportar música a clases de yoga, retiros, hoteles,
-            centros de bienestar, espacios culturales, empresas y eventos.
-          </p>
-          <p>
-            Cada experiencia se adapta al espacio, al grupo y al propósito del
-            encuentro, manteniendo siempre una propuesta cuidada, cercana y
-            respetuosa.
-          </p>
+        <div>
+          <p>Un viaje sonoro es una experiencia de escucha: música en directo y vibración para acompañar la meditación y la relajación. No necesitas experiencia previa.</p>
+          <p>En Cáceres y Extremadura, y allí donde nos llame el sonido. Creamos baños de sonido, conciertos meditativos, kirtan y mantras; también acompañamos yoga, retiros y encuentros en hoteles, centros culturales y empresas.</p>
         </div>
       </div>
     </section>
 
     <section class="vs-therapies" id="terapias" aria-labelledby="vs-therapies-title">
-      <div class="container">
-        <div class="vs-therapies-heading">
-          <p class="eyebrow">Experiencias a tu medida</p>
-          <h2 id="vs-therapies-title">Un viaje sonoro para cada momento</h2>
-          <p>Descubre nuestras propuestas para disfrutar del sonido desde la calma, la conexión y el bienestar.</p>
-        </div>
+      <div class="container therapies-visible">
+        <div class="vs-therapies-heading"><p class="eyebrow">Experiencias a tu medida</p><h2 id="vs-therapies-title">Sesiones individuales, en pareja y en grupo</h2><p>Descubre nuestras propuestas de bienestar sonoro y elige tu experiencia.</p></div>
         <div class="vs-therapies-grid">
           <article class="vs-therapy-card">
             <a href="/terapias-individuales.html" aria-label="Conocer las terapias individuales">
@@ -859,12 +826,11 @@ app.innerHTML = `
       </div>
     </section>
 
-    <section class="journey-section" aria-labelledby="journey-title">
-      <div class="container editorial-layout journey-layout">
-        <aside class="section-intro reveal">
-          <p class="eyebrow">Qué vivirás</p>
-          <h2 id="journey-title">Un viaje en<br>tres pasos.</h2>
-        </aside>
+    <section class="journey-section" aria-label="Cómo es la experiencia">
+      <details class="container landing-disclosure">
+        <summary>Cómo es un viaje sonoro</summary>
+      <div class="editorial-layout journey-layout">
+
 
         <div class="steps">
           ${steps
@@ -887,14 +853,15 @@ app.innerHTML = `
             .join('')}
         </div>
       </div>
+      </details>
     </section>
 
     <section class="events-section" id="eventos" aria-labelledby="events-title">
       <div class="container events-layout">
         <header class="events-heading reveal">
-          <p class="eyebrow">Próximas experiencias</p>
+          <p class="eyebrow">La agenda</p>
           <h2 id="events-title">Próximas experiencias</h2>
-          <p>Próximas experiencias para encontrarte, respirar y volver a ti.</p>
+          <p>Encuentra tu próxima fecha y reserva tu plaza.</p>
           <a
             class="outline-link"
             id="events-agenda-link"
@@ -920,8 +887,8 @@ app.innerHTML = `
     <section class="events-capture" aria-labelledby="events-capture-title">
       <div class="container events-capture-inner reveal">
         <div>
-          <h2 id="events-capture-title">Sé la primera persona en conocer nuestras próximas experiencias</h2>
-          <p>Apúntate a nuestra <a class="broadcast-list-link" href="${links.upcomingDates}" target="_blank" rel="noopener noreferrer" aria-label="Apuntarse por WhatsApp a la lista de difusión de Viajes Sonoros">lista de difusión</a> y recibe las nuevas fechas, lugares y propuestas de Viajes Sonoros directamente en WhatsApp.</p>
+          <h2 id="events-capture-title">Recibe las nuevas fechas</h2>
+          <p>Únete a la <a class="broadcast-list-link" href="${links.upcomingDates}" target="_blank" rel="noopener noreferrer" aria-label="Apuntarse por WhatsApp a la lista de difusión de Viajes Sonoros">lista de difusión</a> de WhatsApp.</p>
         </div>
         <a
           class="button button-primary"
@@ -1158,21 +1125,13 @@ app.innerHTML = `
             </article>
           </div>
       </div>
-      <div class="container shop-banner reveal">
-        <picture>
-          <source type="image/avif" srcset="/banner-tienda-640.avif 640w, /banner-tienda-960.avif 960w, /banner-tienda-1440.avif 1440w" sizes="(max-width: 1220px) calc(100vw - 40px), 1180px">
-          <source type="image/webp" srcset="/banner-tienda-640.webp 640w, /banner-tienda-960.webp 960w, /banner-tienda-1440.webp 1440w" sizes="(max-width: 1220px) calc(100vw - 40px), 1180px">
-          <img src="/banner-tienda.png" alt="Tarjeta y pendrive de madera con meditaciones y música de Viajes Sonoros" loading="lazy" decoding="async" width="1983" height="793">
-        </picture>
-      </div>
+
     </section>
 
     <section class="purchase-guide" aria-labelledby="purchase-guide-title">
-      <div class="container purchase-guide-inner">
-        <div class="purchase-guide-heading reveal">
-          <p class="eyebrow">Cómo comprar</p>
-          <h2 id="purchase-guide-title">Comprar es muy sencillo</h2>
-        </div>
+      <details class="container purchase-guide-inner landing-disclosure">
+        <summary id="purchase-guide-title">Compra, envíos y preguntas frecuentes</summary>
+
 
         <ol class="purchase-steps">
           <li class="purchase-step reveal">
@@ -1227,23 +1186,9 @@ app.innerHTML = `
           ${renderIcon('whatsapp', 'icon-brand icon-whatsapp')}
           Consultar y comprar por WhatsApp
         </a>
-      </div>
+      </details>
     </section>
 
-    <section class="final-quote" aria-label="Frase final">
-      <div class="container final-quote-inner reveal">
-        <p>
-          El viaje más importante no es el que haces hacia un lugar,<br>
-          sino el que te devuelve a ti.
-        </p>
-        <a
-          class="button button-gold"
-          href="/reserva.html"
-        >
-          Reserva tu experiencia ${renderIcon('arrow', 'icon-arrow')}
-        </a>
-      </div>
-    </section>
     <section class="partners-section" id="espacios-colaboradores" aria-labelledby="partners-title">
       <div class="container partners-layout reveal">
         <div class="partners-intro">
@@ -1367,7 +1312,7 @@ shareSiteButton?.addEventListener('click', async () => {
 })
 
 heroSection.after(eventsSection)
-eventsSection.after(eventsCaptureSection)
+eventsSection.querySelector('.events-layout').append(eventsCaptureSection)
 linkifyBroadcastListMentions(app)
 
 landingExperienceDetail.bind()
