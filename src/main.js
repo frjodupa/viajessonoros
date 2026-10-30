@@ -701,8 +701,8 @@ app.innerHTML = `
     </section>
 
     <section class="vs-therapies" id="terapias" aria-labelledby="vs-therapies-title">
-      <details class="container landing-disclosure">
-        <summary id="vs-therapies-title">Sesiones individuales, en pareja y grupos privados</summary>
+      <div class="container therapies-visible">
+        <div class="vs-therapies-heading"><p class="eyebrow">Experiencias a tu medida</p><h2 id="vs-therapies-title">Sesiones individuales, en pareja y en grupo</h2><p>Descubre nuestras propuestas de bienestar sonoro y elige tu experiencia.</p></div>
         <div class="vs-therapies-grid">
           <article class="vs-therapy-card">
             <a href="/terapias-individuales.html" aria-label="Conocer las terapias individuales">
@@ -735,7 +735,7 @@ app.innerHTML = `
             </div>
           </article>
         </div>
-      </details>
+      </div>
     </section>
 
     <section class="experiences-section" id="experiencias" aria-labelledby="experiences-title">
