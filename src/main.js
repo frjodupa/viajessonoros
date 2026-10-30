@@ -887,8 +887,9 @@ app.innerHTML = `
     <section class="events-capture" aria-labelledby="events-capture-title">
       <div class="container events-capture-inner reveal">
         <div>
-          <h2 id="events-capture-title">Recibe las nuevas fechas</h2>
-          <p>Únete a la <a class="broadcast-list-link" href="${links.upcomingDates}" target="_blank" rel="noopener noreferrer" aria-label="Apuntarse por WhatsApp a la lista de difusión de Viajes Sonoros">lista de difusión</a> de WhatsApp.</p>
+          <p class="broadcast-eyebrow">Sigue conectado con Viajes Sonoros</p>
+          <h2 id="events-capture-title">Que no se te escape tu próximo viaje sonoro</h2>
+          <p>Entérate de las próximas fechas y nuevas experiencias directamente por WhatsApp. Únete a nuestra lista de difusión y elige cuándo volver a compartir un momento de calma.</p>
         </div>
         <a
           class="button button-primary"
@@ -898,7 +899,7 @@ app.innerHTML = `
           aria-label="Apuntarse por WhatsApp a la lista de difusión de Viajes Sonoros"
         >
           ${renderIcon('whatsapp', 'icon-brand icon-whatsapp')}
-          Unirme a la lista de difusión
+          Quiero recibir las próximas fechas
         </a>
       </div>
     </section>
