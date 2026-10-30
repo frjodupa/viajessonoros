@@ -205,8 +205,8 @@ function installShareButton() {
   })
   share.textContent = 'Compartir por WhatsApp'
   share.addEventListener('click', () => {
-    const url = new URL('/talleres-domus/', location.origin).href
-    const text = 'Descubre los talleres de iniciación a los Drums de Domus Pan Drums en Cáceres. Información e inscripciones: ' + url
+    const url = new URL('/talleres-domus/compartir.html', location.origin).href
+    const text = 'Talleres Domus Pan Drums en Cáceres. Para niños y adultos, clases de 90 minutos, instrumentos incluidos y plazas limitadas. Descubre la experiencia y reserva aquí: ' + url
     window.open('https://wa.me/?text=' + encodeURIComponent(text), '_blank', 'noopener,noreferrer')
   })
   document.body.appendChild(share)
