@@ -11,8 +11,8 @@ test('exactamente las cinco RPC revisadas, sin alterar sus operaciones',()=>{
  assert.deepEqual(embedded,snapshots.map(s=>s.definition));
  for(const f of snapshots){
   assert.equal(f.definition.split(guard).length-1,1);
-  const proposed=f.definition.replace(guard,'if v_actor is null or not vs_security.is_admin() then');
-  assert.equal(proposed.replace('if v_actor is null or not vs_security.is_admin() then',guard),f.definition);
+  const proposed=f.definition.replace(guard,'if v_actor is null or vs_security.is_admin() is not true then');
+  assert.equal(proposed.replace('if v_actor is null or vs_security.is_admin() is not true then',guard),f.definition);
   assert.match(proposed,/SECURITY DEFINER\n SET search_path TO ''/);
  }
 });
@@ -27,7 +27,7 @@ test('transacción y EXECUTE mínimo sin ejecutar datos de negocio',()=>{
  const executable=sql.replace(/\$vs_snapshot\$[\s\S]*?\$vs_snapshot\$/g,"''").replace(/--[^\n]*/g,'');
  assert.match(executable,/begin;\s*set local search_path = pg_catalog;/);
  assert.match(executable,/commit;\s*$/);
- assert.match(executable,/execute pg_catalog\.replace\(candidate,old_guard,'if v_actor is null or not vs_security\.is_admin\(\) then'\)/);
+ assert.match(executable,/execute pg_catalog\.replace\(candidate,old_guard,'if v_actor is null or vs_security\.is_admin\(\) is not true then'\)/);
  assert.match(executable,/revoke all on function %s from public, anon/);
  assert.match(executable,/grant execute on function %s to authenticated/);
  assert.doesNotMatch(executable,/\b(?:insert into|update public\.|delete from|truncate|drop table|alter table)\b/i);

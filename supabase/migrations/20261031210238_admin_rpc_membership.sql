@@ -148,7 +148,7 @@ $vs_snapshot$)
   if pg_catalog.length(candidate)-pg_catalog.length(pg_catalog.replace(candidate,old_guard,'')) <> pg_catalog.length(old_guard) then
    raise exception 'Guardia administrativa inesperada: %',item.signature;
   end if;
-  execute pg_catalog.replace(candidate,old_guard,'if v_actor is null or not vs_security.is_admin() then');
+  execute pg_catalog.replace(candidate,old_guard,'if v_actor is null or vs_security.is_admin() is not true then');
   -- CREATE OR REPLACE conserva propietario y ACL existentes; cerrar PUBLIC/anon explicitamente.
   execute pg_catalog.format('revoke all on function %s from public, anon',target::regprocedure);
   execute pg_catalog.format('grant execute on function %s to authenticated',target::regprocedure);
