@@ -887,8 +887,9 @@ app.innerHTML = `
     <section class="events-capture" aria-labelledby="events-capture-title">
       <div class="container events-capture-inner reveal">
         <div>
-          <h2 id="events-capture-title">Recibe las nuevas fechas</h2>
-          <p>Únete a la <a class="broadcast-list-link" href="${links.upcomingDates}" target="_blank" rel="noopener noreferrer" aria-label="Apuntarse por WhatsApp a la lista de difusión de Viajes Sonoros">lista de difusión</a> de WhatsApp.</p>
+          <p class="eyebrow">Sigue conectado con Viajes Sonoros</p>
+          <h2 id="events-capture-title">No te pierdas nuestras próximas experiencias</h2>
+          <p>Únete a nuestra lista de difusión de WhatsApp y recibe antes que nadie las nuevas fechas, talleres y encuentros de Viajes Sonoros. Sin grupos ni conversaciones compartidas.</p>
         </div>
         <a
           class="button button-primary"
@@ -1312,7 +1313,7 @@ shareSiteButton?.addEventListener('click', async () => {
 })
 
 heroSection.after(eventsSection)
-eventsSection.querySelector('.events-layout').append(eventsCaptureSection)
+eventsSection.after(eventsCaptureSection)
 linkifyBroadcastListMentions(app)
 
 landingExperienceDetail.bind()
