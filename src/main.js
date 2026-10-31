@@ -890,6 +890,7 @@ app.innerHTML = `
           <p class="eyebrow">Sigue conectado con Viajes Sonoros</p>
           <h2 id="events-capture-title">No te pierdas nuestras próximas experiencias</h2>
           <p>Únete a nuestra lista de difusión de WhatsApp y recibe antes que nadie las nuevas fechas, talleres y encuentros de Viajes Sonoros. Sin grupos ni conversaciones compartidas.</p>
+          <p>La adhesión es voluntaria: envíanos el mensaje para solicitar el alta. Puedes pedir la baja en cualquier momento.</p>
         </div>
         <a
           class="button button-primary"
