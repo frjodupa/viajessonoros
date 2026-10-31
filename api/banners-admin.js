@@ -6,9 +6,13 @@ async function authorizedSession(req){
  const url=process.env.VITE_SUPABASE_URL, key=process.env.VITE_SUPABASE_ANON_KEY;
  const allowed=String(process.env.VS_BANNERS_ADMIN_USER||'').trim().toLowerCase();
  if(!url||!key||!allowed)return false;
- const client=createClient(url,key,{auth:{persistSession:false,autoRefreshToken:false}});
- const {data,error}=await client.auth.getUser(bearer.slice(7));
- return !error&&Boolean(data?.user?.email)&&data.user.email.toLowerCase()===allowed;
+ try{
+  const client=createClient(url,key,{auth:{persistSession:false,autoRefreshToken:false},global:{headers:{Authorization:bearer}}});
+  const {data,error}=await client.auth.getUser(bearer.slice(7));
+  if(error||!data?.user?.email||data.user.email.toLowerCase()!==allowed)return false;
+  const admin=await client.rpc('is_vs_admin');
+  return !admin.error&&admin.data===true;
+ }catch{return false;}
 }
 export default async function handler(req,res){
  res.setHeader('Cache-Control','no-store');

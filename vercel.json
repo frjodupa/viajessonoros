@@ -1,6 +1,6 @@
 {
   "git": {
-    "deploymentEnabled": { "gitop/domus-agenda-grupos-20261027": false }
+    "deploymentEnabled": { "gitop/domus-agenda-grupos-20261027": false, "gitop/integral-*": false }
   },
   "redirects": [
     {
