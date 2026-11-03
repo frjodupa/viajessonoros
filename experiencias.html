@@ -565,7 +565,21 @@ window.guardarEvento=async()=>{
     if(imageOptimizationFailed&&fileToUpload)throw new Error('La fotografía seleccionada no se ha podido preparar. Selecciona una imagen JPEG, PNG o WebP válida.')
     if(imageResolutionInsufficient&&fileToUpload)throw new Error('La fotografía tiene una resolución insuficiente para las tarjetas. Selecciona una imagen de al menos 640 × 427 px.')
     if(fileToUpload){
-      if(!optimizedImage)throw new Error('La fotografía todavía no está preparada. Vuelve a seleccionarla.')
+      // Galeria y archivos usan la misma composicion. Se regenera con los datos actuales.
+      if(!fecha||!hora||!lugar)throw new Error('Completa fecha, hora y lugar para incrustarlos en la portada.')
+      const previousCover=optimizedImage
+      const focusSource=sourceOptimizedImage||optimizedImage
+      const freshCover=await createExperienceCover({
+        photo:fileToUpload,logoURL:LOGO,title:titulo,dateText:formatAssistantDate(fecha),
+        timeText:String(hora).slice(0,5)+' h',locality:lugar,
+        focusX:focusSource?.focusX??50,focusY:focusSource?.focusY??50
+      })
+      optimizedImage=freshCover
+      imageDataUrl=freshCover.previewURL
+      if(previousCover&&previousCover!==sourceOptimizedImage)releaseOptimizedImage(previousCover)
+      updateImagePreview(freshCover)
+      if(!optimizedImage?.isGeneratedCover||!optimizedImage.fullBlob?.size)throw new Error('No se pudo incrustar el texto en la fotografia. No se ha guardado.')
+      if(!optimizedImage)throw new Error('La fotografia todavia no esta preparada.')
       if(supabase){
         const paths=buildExperienceImagePaths(fileToUpload.name,optimizedImage)
         try{
