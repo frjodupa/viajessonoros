@@ -121,17 +121,15 @@ const reviewMessage=(row,ev)=>{
   '*María y José · Viajes Sonoros* 💜'
  ].join('\n');
 };
-const openBookingWhatsApp=async(row,ev,confirmed,customMessage)=>{
+const openBookingWhatsApp=(row,ev,confirmed,customMessage)=>{
  const digits=String(row.telefono||'').replace(/[^\d]/g,'');
  const phone=digits.length===9?'34'+digits:digits;
- if(phone.length<9||phone.length>15){alert('Comprueba el número de teléfono de esta reserva.');return}
+ if(!/^\d{9,15}$/.test(phone)){alert('Comprueba el número de teléfono de esta reserva.');return}
  const message=customMessage||bookingMessage(row,ev,confirmed);
- // Abrir primero la conversación, sin texto precargado que iOS desplaza hasta el final.
- // Copiar el mensaje para pegarlo manualmente desde su inicio.
- try{await navigator.clipboard.writeText(message)}
- catch{const area=document.createElement('textarea');area.value=message;area.style.cssText='position:fixed;left:-9999px;top:0';document.body.append(area);area.select();try{document.execCommand('copy')}finally{area.remove()}}
- alert('Mensaje breve copiado. Se abrirá WhatsApp: pega el texto en el chat para revisarlo desde el principio.');
- window.open('https://wa.me/'+phone,'_blank','noopener,noreferrer');
+ // Un toque: abre el chat con el mensaje precargado. El usuario revisa y pulsa Enviar.
+ // Abrir WhatsApp NO registra la comunicación como enviada.
+ const url='https://api.whatsapp.com/send?phone='+encodeURIComponent(phone)+'&text='+encodeURIComponent(message);
+ window.location.assign(url);
 };
 async function persistStatus(row,next){
  if(next!=='confirmada'&&next!=='pendiente')throw Error('Este movimiento necesita el historial seguro.');
