@@ -230,30 +230,25 @@ export const createExperienceCover = async ({
     context.imageSmoothingEnabled = true
     context.imageSmoothingQuality = 'high'
 
-    // Arquitectura editorial: fotografía y contenido nunca comparten la misma zona.
-    // El 57% izquierdo se reserva a imagen y el 43% derecho a identidad y datos.
-    const photoWidth = Math.round(width * 0.57)
-    const textX = photoWidth
-    const textWidth = width - photoWidth
-
-    context.fillStyle = '#fffaf5'
-    context.fillRect(0, 0, width, height)
-
-    const sourceScale = Math.max(photoWidth / sourceWidth, height / sourceHeight)
-    const visibleWidth = photoWidth / sourceScale
+    // La fotografía ocupa la portada completa: el texto se integra dentro de ella.
+    const textWidth = Math.round(width * 0.47)
+    const textX = 0
+    const sourceScale = Math.max(width / sourceWidth, height / sourceHeight)
+    const visibleWidth = width / sourceScale
     const visibleHeight = height / sourceScale
     const maxX = Math.max(0, sourceWidth - visibleWidth)
     const maxY = Math.max(0, sourceHeight - visibleHeight)
     const sourceX = maxX * Math.min(100, Math.max(0, focusX)) / 100
     const sourceY = maxY * Math.min(100, Math.max(0, focusY)) / 100
-    context.drawImage(image, sourceX, sourceY, visibleWidth, visibleHeight, 0, 0, photoWidth, height)
+    context.drawImage(image, sourceX, sourceY, visibleWidth, visibleHeight, 0, 0, width, height)
 
-    const panelGradient = context.createLinearGradient(textX, 0, width, height)
-    panelGradient.addColorStop(0, '#fffaf5')
-    panelGradient.addColorStop(0.72, '#fffdf9')
-    panelGradient.addColorStop(1, '#f4e8f7')
-    context.fillStyle = panelGradient
-    context.fillRect(textX, 0, textWidth, height)
+    // Contraste sobre la zona reservada para texto, sin crear un panel separado.
+    const readability = context.createLinearGradient(0, 0, textWidth * 1.22, 0)
+    readability.addColorStop(0, 'rgba(255,250,245,0.94)')
+    readability.addColorStop(0.78, 'rgba(255,250,245,0.82)')
+    readability.addColorStop(1, 'rgba(255,250,245,0)')
+    context.fillStyle = readability
+    context.fillRect(0, 0, Math.round(textWidth * 1.22), height)
 
     const pad = Math.round(textWidth * 0.12)
     const contentX = textX + pad
