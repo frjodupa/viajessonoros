@@ -1,4 +1,124 @@
-<!doctype html><html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Solicitar reserva | Viajes Sonoros</title><style>html{background:#faf7f4} [hidden]{display:none!important} body{margin:0;background:#faf7f4;color:#321b42;font:16px system-ui,-apple-system,sans-serif}main{max-width:520px;margin:auto;padding:25px 18px}section{background:white;padding:23px;border-radius:18px;box-shadow:0 5px 28px #321b4216}h1{font:500 clamp(2.3rem,7vw,3.5rem) 'Cormorant Garamond',Georgia,serif;line-height:1.08}h2{font-family:'Cormorant Garamond',Georgia,serif;font-size:2rem;font-weight:600} .brand-logo{display:block;width:155px;max-width:48%;height:auto;margin:0 0 24px} .event-cover{width:100%;height:auto;display:block;max-height:680px;object-fit:contain;background:#f5f0f7;border-radius:14px;margin:0 0 22px} .event-description{white-space:pre-line;color:#554c59} .event-summary{padding:14px 16px;background:#f4f0f7;border-radius:12px} a{color:#5b3f98} button{cursor:pointer} button:focus-visible,input:focus-visible{outline:3px solid #3b9db8;outline-offset:2px} @font-face{font-family:'Cormorant Garamond';src:url('/fonts/cormorant-garamond-latin.woff2') format('woff2');font-display:swap} label{display:block;font-weight:600;margin:16px 0}input{display:block;box-sizing:border-box;width:100%;font:inherit;margin-top:6px;border:1px solid #cbb9d0;border-radius:10px;padding:12px}button{width:100%;border:0;border-radius:11px;padding:15px;background:#5b3f98;color:white;font:700 1rem system-ui}#event-fallback-label{display:block;width:100%;margin:0 0 22px;font-size:1.1rem;font-weight:700;color:#321b42}#event-fallback{display:block;box-sizing:border-box;width:100%;min-height:56px;margin-top:10px;padding:14px 44px 14px 14px;border:2px solid #79538b;border-radius:12px;background:#fff;color:#321b42;font:600 17px system-ui,-apple-system,sans-serif;line-height:1.4;appearance:auto}#event-fallback:focus{outline:3px solid #d8bce5;outline-offset:2px}button:disabled{opacity:.5}#error{color:#a12633}#total{font-size:1.15rem;font-weight:700}p{line-height:1.5}small{color:#59505c}</style></head><body><main><img class="brand-logo" src="/logo-oficial.png" alt="Viajes Sonoros" width="155" height="80"><a href="/experiencias.html">← Ver experiencias</a><h1>Reserva tu experiencia</h1><section><p id="loading" role="status">Consultando la experiencia…</p><div id="load-error" hidden role="alert"><p id="load-error-text">No hemos podido cargar la experiencia.</p><label id="event-fallback-label" hidden>Selecciona una experiencia<select id="event-fallback"></select></label><button id="load-retry" type="button">Reintentar carga</button></div><div id="details" hidden><img id="event-cover" class="event-cover" alt="" hidden><h2 id="title"></h2><p id="meta" class="event-summary"></p><p id="description" class="event-description" hidden></p><p id="availability" role="status"></p><form id="form"><label>Nombre y apellidos<input id="name" required minlength="2" maxlength="100" autocomplete="name"></label><label>Teléfono de contacto<input id="phone" type="tel" required inputmode="tel" autocomplete="tel" placeholder="600 000 000"></label><label>Plazas<input id="seats" required type="number" min="1" max="10" value="1"></label><p id="total" aria-live="polite"></p><p id="error" role="alert"></p><button id="submit" type="submit">Registrar solicitud y abrir WhatsApp</button><p><small>Guardaremos tu nombre, teléfono y plazas para gestionar la solicitud. Después se abrirá WhatsApp para enviar el mensaje y adjuntar la captura del Bizum. El pago y la disponibilidad se comprueban antes de confirmar tu plaza. <a href="/politica-privacidad.html">Privacidad</a>.</small></p></form><div id="success" hidden role="status"><h2>Solicitud registrada · pendiente de confirmar</h2><p id="reference"></p><p>Ahora envía el mensaje preparado en WhatsApp y adjunta el justificante del Bizum. Tu plaza no estará confirmada hasta que recibas nuestra respuesta.</p><button type="button" id="whatsapp">Abrir WhatsApp</button><p><small>Si WhatsApp no se abre automáticamente, pulsa el botón.</small></p></div></div></section></main><script type="module">
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#5b236f">
+<title>Solicitar reserva | Viajes Sonoros</title>
+<style>
+@font-face{font-family:'Cormorant Garamond';src:url('/fonts/cormorant-garamond-latin.woff2') format('woff2');font-display:swap}
+@font-face{font-family:'Montserrat';src:url('/fonts/montserrat-latin.woff2') format('woff2');font-display:swap}
+:root{font-family:'Montserrat',system-ui,-apple-system,sans-serif;color:#321b42;background:#fffaf7}
+*,*::before,*::after{box-sizing:border-box}
+[hidden]{display:none!important}
+body{margin:0;background:linear-gradient(180deg,#fff7f2,#fffdfb 45%,#f9f4fa);min-height:100dvh}
+a{color:#5b236f}
+button{cursor:pointer;font:inherit}
+button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible{outline:3px solid #3b9db8;outline-offset:3px}
+.topbar{background:linear-gradient(110deg,#682557,#4c1764 65%,#361146);color:#fff}
+.topbar-inner{max-width:1100px;margin:auto;display:flex;align-items:center;justify-content:space-between;gap:14px;min-height:70px;padding:12px 24px}
+.back-link{color:#fff;text-decoration:none;font-size:.92rem;font-weight:650;white-space:nowrap}
+.topbar-title{font:500 clamp(1.45rem,3vw,2.05rem) 'Cormorant Garamond',Georgia,serif;text-align:center;line-height:1.05}
+.topbar-brand{color:#f7e8f9;font-size:.72rem;letter-spacing:.08em;white-space:nowrap}
+main{width:min(1100px,100%);margin:auto;padding:24px 20px 48px}
+#loading,#load-error{max-width:740px;margin:35px auto;background:#fff;padding:24px;border:1px solid #ecdfeb;border-radius:20px}
+#details{display:grid;grid-template-columns:minmax(0,1.08fr) minmax(320px,.92fr);align-items:start;gap:24px}
+.event-panel{min-width:0;overflow:hidden;background:#fff;border:1px solid #eadfe9;border-radius:24px;box-shadow:0 12px 35px #321b420a}
+.event-cover{display:block;width:100%;height:auto;aspect-ratio:3/2;object-fit:contain;background:#f6ebe9}
+.event-body{padding:20px 24px 24px}
+.eyebrow{display:block;font-weight:700;letter-spacing:.13em;color:#916b91;font-size:.67rem;text-transform:uppercase;margin-bottom:8px}
+h1,h2{font-family:'Cormorant Garamond',Georgia,serif;line-height:1.05;font-weight:600}
+h1{font-size:clamp(2.2rem,4vw,3rem);margin:0 0 16px;color:#4a1c61;overflow-wrap:anywhere}
+h2{font-size:clamp(1.85rem,3vw,2.4rem);margin:0 0 10px;color:#4a1c61}
+.event-summary{display:flex;align-items:center;flex-wrap:wrap;gap:8px;margin:0 0 15px;font-size:.9rem;font-weight:650;color:#533562}
+.event-summary::before{content:'◷';font-size:1.16rem;color:#a26b35}
+.event-summary,.contribution{border-radius:12px}
+.contribution{display:inline-flex;margin:0 0 12px;padding:8px 12px;color:#70411a;background:#fff5e5;border:1px solid #e5cfab;font-size:.94rem;font-weight:750}
+.venue{color:#745127;font-weight:650;line-height:1.55;margin:4px 0 8px;overflow-wrap:anywhere}
+.event-description{color:#625664;line-height:1.6;white-space:pre-line;margin:12px 0 0;font-size:.91rem;display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:3;overflow:hidden}
+.reservation-panel{min-width:0;background:#fff;border:1px solid #eadfe9;border-radius:24px;padding:25px;box-shadow:0 12px 35px #321b420d}
+.reservation-intro{font-size:.9rem;color:#6b596d;line-height:1.6;margin:0 0 15px}
+#availability{margin:0 0 12px;font-size:.85rem;color:#63556a;line-height:1.5}
+#form{display:grid;gap:14px}
+#form label{font-weight:700;font-size:.89rem;display:grid;gap:7px;margin:0}
+input,select{width:100%;min-height:48px;padding:12px 14px;border:1px solid #cdb9d3;border-radius:12px;font:inherit;font-size:16px;background:#fff;color:#321b42}
+input:focus{border-color:#79538b}
+.form-fields{display:grid;gap:14px}
+#total{font-size:1.03rem;font-weight:750;color:#552262;margin:2px 0 0}
+#error{color:#a12633;margin:0;font-weight:650;font-size:.9rem}
+button{width:100%;border:0;border-radius:13px;padding:15px 18px;background:linear-gradient(110deg,#6d2374,#451454);color:#fff;font-weight:750;min-height:52px;box-shadow:0 5px 14px #4416531a}
+button:disabled{opacity:.55;cursor:not-allowed}
+.privacy-note{font-size:.77rem;line-height:1.55;color:#695e6b;margin:0}
+#success{border-top:1px solid #e7ddea;padding-top:12px}
+#success p{line-height:1.6}
+#event-fallback-label{display:grid;gap:8px;font-size:.92rem;font-weight:700;margin:0 0 16px}
+#event-fallback{width:100%;margin-top:3px}
+#load-error p{line-height:1.6}
+@media(max-width:820px){#details{grid-template-columns:minmax(0,1fr);gap:14px;max-width:620px;margin:auto}.topbar-inner{min-height:62px}.reservation-panel{padding:22px}}
+@media(max-width:600px){
+ .topbar-inner{min-height:54px;padding:10px 16px;gap:8px}
+ .topbar-title{font-size:1.47rem}
+ .topbar-brand{display:none}
+ .back-link{font-size:.87rem}
+ main{padding:13px 12px 28px}
+ #details{gap:12px}
+ .event-panel,.reservation-panel{border-radius:19px}
+ .event-body{padding:15px 17px 16px}
+ .event-cover{aspect-ratio:3/2}
+ h1{font-size:2rem;margin-bottom:10px}
+ h2{font-size:2rem}
+ .event-summary{font-size:.84rem;margin-bottom:9px}
+ .contribution{font-size:.85rem;padding:7px 10px;margin-bottom:7px}
+ .venue{font-size:.88rem;margin-bottom:5px}
+ .event-description{font-size:.85rem;margin-top:7px;-webkit-line-clamp:2}
+ .reservation-panel{padding:18px 17px}
+ #form{gap:12px}
+ .form-fields{gap:12px}
+ .reservation-intro{margin-bottom:12px}
+}
+@media(min-width:821px){.reservation-panel{position:sticky;top:18px}}
+@media(prefers-reduced-motion:reduce){*,*::before,*::after{scroll-behavior:auto!important}}
+</style>
+</head>
+<body>
+<header class="topbar">
+ <div class="topbar-inner"><a class="back-link" href="/experiencias.html" aria-label="Volver a experiencias">← Volver</a><div class="topbar-title">Reserva tu experiencia</div><span class="topbar-brand">VIAJES SONOROS</span></div>
+</header>
+<main>
+ <div id="loading" role="status">Consultando la experiencia…</div>
+ <div id="load-error" hidden role="alert"><p id="load-error-text">No hemos podido cargar la experiencia.</p><label id="event-fallback-label" hidden>Selecciona una experiencia<select id="event-fallback"></select></label><button id="load-retry" type="button">Reintentar carga</button></div>
+ <div id="details" hidden>
+  <section class="event-panel" aria-label="Experiencia seleccionada">
+   <img id="event-cover" class="event-cover" alt="" hidden>
+   <div class="event-body">
+    <span class="eyebrow">Tu próxima experiencia</span>
+    <h1 id="title"></h1>
+    <p id="meta" class="event-summary"></p>
+    <div id="contribution" class="contribution"></div>
+    <p id="venue" class="venue"></p>
+    <p id="description" class="event-description" hidden></p>
+   </div>
+  </section>
+  <section class="reservation-panel" aria-labelledby="booking-heading">
+   <h2 id="booking-heading">Realiza tu reserva</h2>
+   <p class="reservation-intro">Completa tus datos y envía la solicitud por WhatsApp.</p>
+   <p id="availability" role="status"></p>
+   <form id="form">
+    <div class="form-fields">
+     <label>Nombre y apellidos<input id="name" required minlength="2" maxlength="100" autocomplete="name" placeholder="Tu nombre completo"></label>
+     <label>Teléfono (WhatsApp)<input id="phone" type="tel" required inputmode="tel" autocomplete="tel" placeholder="600 000 000"></label>
+     <label>Número de plazas<input id="seats" required type="number" min="1" max="10" value="1"></label>
+    </div>
+    <p id="total" aria-live="polite"></p>
+    <p id="error" role="alert"></p>
+    <button id="submit" type="submit">Solicitar reserva por WhatsApp</button>
+    <p class="privacy-note">La solicitud queda pendiente hasta comprobar el ingreso y confirmar disponibilidad. Podrás enviar el justificante por WhatsApp. Guardaremos nombre, teléfono y plazas para gestionar tu solicitud. <a href="/politica-privacidad.html">Privacidad</a>.</p>
+   </form>
+   <div id="success" hidden role="status"><h2>Solicitud registrada · pendiente de confirmar</h2><p id="reference"></p><p>Envía el mensaje preparado en WhatsApp y adjunta el justificante del Bizum. La plaza se confirmará tras comprobar el ingreso y la disponibilidad.</p><button type="button" id="whatsapp">Abrir WhatsApp</button><p><small>Si WhatsApp no se abre automáticamente, pulsa el botón.</small></p></div>
+  </section>
+ </div>
+</main>
+<script type="module">
 import {supabase} from '/src/supabase.js';
 const id=new URLSearchParams(location.search).get('experiencia');
 const loading=document.getElementById('loading'),details=document.getElementById('details'),errorNode=document.getElementById('error'),seatsNode=document.getElementById('seats');
@@ -43,7 +163,9 @@ if(event){
  loading.hidden=true;details.hidden=false;
  const fallbackLabel=document.getElementById('event-fallback-label');if(!fallbackLabel.hidden)details.prepend(fallbackLabel);
  document.getElementById('title').textContent=event.titulo;
- document.getElementById('meta').textContent=[event.fecha?.replace(/^(\d{4})-(\d{2})-(\d{2})$/,'$3-$2-$1'),event.hora,event.lugar].filter(Boolean).join(' · ');
+ document.getElementById('meta').textContent=[event.fecha?new Intl.DateTimeFormat('es-ES',{day:'numeric',month:'long',year:'numeric',timeZone:'Europe/Madrid'}).format(new Date(event.fecha+'T12:00:00Z')):'',String(event.hora||'').slice(0,5)+' h'].filter(Boolean).join(' · ');
+ document.getElementById('venue').textContent=event.lugar||'Lugar por confirmar';
+ document.getElementById('contribution').textContent=String(event.precio||'').trim()? (/^aportaci[oó]n/i.test(String(event.precio))?String(event.precio):'Aportación '+String(event.precio)):'Aportación a consultar';
  const desc=document.getElementById('description');if(event.descripcion){desc.textContent=event.descripcion;desc.hidden=false;}
  const cover=document.getElementById('event-cover');try{const img=new URL(event.imagen_url||'',location.origin);if((img.protocol==='https:'||(img.protocol==='http:'&&['localhost','127.0.0.1'].includes(img.hostname)))&&event.imagen_url){cover.src=img.href;cover.alt='Fotografía de '+event.titulo;cover.hidden=false;cover.onerror=()=>{cover.hidden=true}}}catch{}
  if(event.aforo_maximo!=null){document.getElementById('availability').textContent='Aforo máximo: '+event.aforo_maximo+' plazas · Disponibilidad pendiente de confirmar.';}
@@ -82,7 +204,7 @@ if(event){
    document.getElementById('reference').textContent='Experiencia: '+event.titulo+' · '+seats+' plaza(s). Solicitud pendiente.';
    // Mantener pantalla de confirmación como alternativa si el navegador bloquea WhatsApp.
    location.assign(url);
-  }catch(error){errorNode.textContent=error?.message?.includes('No quedan suficientes plazas')?'No quedan suficientes plazas para esta solicitud. Elige menos plazas o escríbenos por WhatsApp.':'No hemos podido guardar tu solicitud. No se ha registrado. Inténtalo de nuevo antes de enviar el Bizum.';button.disabled=false;button.textContent='Registrar solicitud y abrir WhatsApp';}
+  }catch(error){errorNode.textContent=error?.message?.includes('No quedan suficientes plazas')?'No quedan suficientes plazas para esta solicitud. Elige menos plazas o escríbenos por WhatsApp.':'No hemos podido guardar tu solicitud. No se ha registrado. Inténtalo de nuevo antes de enviar el Bizum.';button.disabled=false;button.textContent='Solicitar reserva por WhatsApp';}
  });
 }
 </script></body></html>
