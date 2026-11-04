@@ -217,7 +217,7 @@ function openBookingEditor(row,ev,card){
    save.disabled=true;
    try{const changes={estado:'aplazada',aplazamiento_motivo:reason.value.trim(),aplazamiento_resolucion:resolution.value};const {data,error}=await supabase.from('reservas_whatsapp').update(changes).eq('id',row.id).eq('estado',row.estado).select('id').maybeSingle();if(error)throw error;if(!data)throw Error('La reserva cambió en otra sesión.');note.textContent='Aplazamiento guardado. La resolución económica queda pendiente de gestión manual.';await load()}catch(e){note.textContent='No se ha guardado el aplazamiento: '+e.message+' (requiere activar la migración segura).'}finally{save.disabled=false}return}
   if(status.value==='cancelada'){note.textContent='Cancelación protegida: el motivo debe conservarse en el historial. Esta acción se activará con el registro de motivos y aportaciones.';return}
-  if(status.value===row.estado&&!(status.value==='confirmada'&&row.pago_estado!=='recibido')){note.textContent='No hay cambios de estado ni pago.';return}
+  if(status.value===row.estado&&!(status.value==='confirmada'&&!atVenue&&row.pago_estado!=='recibido')){note.textContent='No hay cambios de estado ni pago.';return}
   if(status.value==='pendiente'&&row.pago_estado==='recibido'){note.textContent='La aportación ya está recibida. Para pasar a pendiente sin perder su registro hace falta el flujo especial de revisión.';return}
   if(!confirm(status.value==='confirmada'?(atVenue?'¿Confirmar las plazas de '+row.nombre+'? El pago permanecerá pendiente hasta que se abone en el centro.':'¿Has comprobado que la aportación se ha recibido? Se marcarán juntos RESERVA CONFIRMADA y PAGO RECIBIDO.'):'¿Cambiar el estado de esta reserva a pendiente?'))return;
   save.disabled=true;
