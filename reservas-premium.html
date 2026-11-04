@@ -226,7 +226,40 @@ function openBookingEditor(row,ev,card){
   finally{save.disabled=false}
  });
  const close=document.createElement('button');close.type='button';close.className='secondary';close.textContent='Cerrar';close.onclick=()=>editor.remove();
- buttons.append(save,close);editor.append(heading,details,field,reasonLabel,resolutionLabel,warning,note,buttons);card.append(editor);
+ // El borrado queda reservado a solicitudes pendientes sin pago recibido.
+ // La RLS del servidor comprueba la identidad administrativa y los FK protegen historial y asistencia.
+ const canDelete=row.estado==='pendiente'&&row.pago_estado==='pendiente';
+ const remove=document.createElement('button');remove.type='button';
+ remove.textContent='Eliminar reserva de prueba';
+ remove.style.cssText='background:#fff3f1;color:#a12633;border:1px solid #e4aaa4';
+ remove.hidden=!canDelete;
+ remove.addEventListener('click',async()=>{
+  if(!canDelete)return;
+  const confirmation=prompt('Eliminar definitivamente la solicitud pendiente de '+row.nombre+' (referencia '+row.id+'). Esta acción no se puede deshacer. Escribe BORRAR para continuar:');
+  if(confirmation!=='BORRAR')return;
+  if(!confirm('Última comprobación: ¿eliminar la reserva '+row.id+' de '+row.nombre+'? No se borrarán las experiencias.'))return;
+  remove.disabled=true;
+  note.textContent='Comprobando que la reserva pueda eliminarse…';
+  try{
+   const auth=await supabase.auth.getUser();
+   if(auth.error||!isAuthorized(auth.data?.user))throw Error('Sesión administrativa no autorizada.');
+   const communications=await supabase.from('vs_reserva_comunicaciones').select('reserva_id').eq('reserva_id',row.id).limit(1);
+   if(communications.error)throw communications.error;
+   if(communications.data?.length)throw Error('Esta reserva tiene comunicaciones registradas. Por seguridad no puede eliminarse como prueba.');
+   const result=await supabase.from('reservas_whatsapp').delete()
+    .eq('id',row.id).eq('estado','pendiente').eq('pago_estado','pendiente')
+    .select('id').maybeSingle();
+   if(result.error)throw result.error;
+   if(!result.data)throw Error('La reserva ya no está pendiente o ha cambiado. Actualiza la lista.');
+   editor.remove();
+   await load();
+   setText('notice','Reserva de prueba '+row.id+' eliminada. Las demás reservas no se han modificado.');
+  }catch(error){
+   note.textContent='No se ha eliminado la reserva: '+(error?.message||'error de permisos o dependencias.');
+   remove.disabled=false;
+  }
+ });
+ buttons.append(save,close,remove);editor.append(heading,details,field,reasonLabel,resolutionLabel,warning,note,buttons);card.append(editor);
 }
 let pdfPreviewUrl=null;
 async function addOfficialLogoToPdf(pdf){
