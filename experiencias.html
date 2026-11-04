@@ -302,6 +302,16 @@ select:not([multiple]):disabled{background-color:#eee9f0!important;opacity:.65;c
 .admin-app-bottom svg{width:20px!important;height:20px!important;flex-shrink:0!important}
 .admin-app-bottom span{font-size:clamp(8px,1.65vw,10px)!important;text-align:center!important;white-space:nowrap!important}
 @media(max-width:480px){.admin-app-bottom{width:calc(100% - 12px)!important;padding:5px 2px!important;gap:0!important}.admin-app-bottom svg{width:19px!important;height:19px!important}.admin-app-bottom span{font-size:8px!important}}
+
+/* Portada: vista previa del texto integrado dentro de la zona libre izquierda. */
+.admin-live-card-media{position:relative;isolation:isolate;overflow:hidden}
+.admin-live-card-media img{object-fit:contain!important}
+.admin-cover-text-preview{position:absolute;inset:0 auto 0 0;z-index:2;width:53%;min-width:0;padding:clamp(10px,2vw,23px);display:flex;flex-direction:column;justify-content:center;gap:clamp(3px,.8vw,9px);background:linear-gradient(90deg,#fffaf5f5 0%,#fffaf5df 74%,#fffaf500 100%);pointer-events:none;color:#4a1c61;text-shadow:0 1px #fff8}
+.admin-cover-text-preview[hidden]{display:none!important}
+.admin-cover-text-preview strong{font:600 clamp(18px,2.7vw,42px)/1.05 'Cormorant Garamond',Georgia,serif;overflow-wrap:anywhere}
+.admin-cover-text-preview span{font:700 clamp(10px,1.2vw,16px)/1.4 Montserrat,system-ui,sans-serif;overflow-wrap:anywhere}
+.admin-cover-text-preview small{font:600 clamp(9px,1.05vw,13px)/1.35 Montserrat,system-ui,sans-serif;overflow-wrap:anywhere}
+@media(max-width:600px){.admin-cover-text-preview{width:57%;padding:10px;gap:3px}.admin-cover-text-preview strong{font-size:clamp(16px,5vw,26px)}.admin-cover-text-preview span{font-size:10px}.admin-cover-text-preview small{font-size:9px}}
 </style>
 </head>
 <body class="operational-page experiences-page">
@@ -574,7 +584,7 @@ window.updateAssistantState=()=>{const button=document.getElementById('assistant
 const applyDraftToFields=(draft)=>{document.getElementById('f-titulo').value=draft.title;document.getElementById('f-card-text').value=draft.shortText;document.getElementById('f-desc').value=draft.description;document.getElementById('f-additional').value=draft.additional||''}
 const renderAssistantResult=()=>{const result=document.getElementById('assistant-result');if(!result||!assistantDraft||!optimizedImage)return;const place=[document.getElementById('f-lugar').value.trim(),document.getElementById('f-localidad').value.trim()].filter(Boolean).join(' · ');const price=document.getElementById('f-precio').value.trim();result.hidden=false;result.innerHTML=`<div class="assistant-result-heading"><div><span>Borrador generado</span><h3>Previsualización completa</h3></div><p id="assistant-result-status" role="status" aria-live="polite">La experiencia sigue como borrador hasta que pulses Guardar o Publicar.</p></div><div class="assistant-cover-preview"><img src="${escapeHTML(optimizedImage.previewURL)}" alt="Portada generada para ${escapeHTML(assistantDraft.title)}"><p><strong>${optimizedImage.width} × ${optimizedImage.height} px · ${formatImageBytes(optimizedImage.optimizedSize)}</strong><span>WebP · Ahorro respecto a la fotografía seleccionada: ${optimizedImage.savingPercent}%</span></p></div><div class="assistant-public-previews"><article class="assistant-card-preview"><img src="${escapeHTML(optimizedImage.previewURL)}" alt=""><div><small>Tarjeta pública</small><h4>${escapeHTML(assistantDraft.title)}</h4><p>${escapeHTML(assistantDraft.shortText)}</p></div></article><article class="assistant-detail-preview"><img src="${escapeHTML(optimizedImage.previewURL)}" alt=""><div><small>Detalle de la experiencia</small><h4>${escapeHTML(assistantDraft.title)}</h4><p class="assistant-preview-meta">${escapeHTML(assistantDraft.dateText)} · ${escapeHTML(assistantDraft.timeText)}${place?` · ${escapeHTML(place)}`:''}${price?` · ${escapeHTML(price)}`:''}</p><p>${escapeHTML(assistantDraft.description)}</p>${assistantDraft.additional?`<p>${escapeHTML(assistantDraft.additional)}</p>`:''}</div></article></div><div class="assistant-actions"><button type="button" onclick="window.regenerateAssistantTexts()" aria-label="Regenerar los textos de la experiencia">Regenerar textos</button><button type="button" onclick="window.adjustAssistantCover()" aria-label="Ajustar el punto focal de la portada">Ajustar portada</button><button type="button" onclick="window.regenerateAssistantCover()" aria-label="Volver a generar la portada con el encuadre actual">Volver a generar portada</button><button type="button" class="is-primary" onclick="window.useAssistantResult()" aria-label="Usar el borrador generado en el formulario">Usar este resultado</button><button type="button" onclick="window.downloadAssistantCover()" aria-label="Descargar la portada generada en formato WebP">Descargar portada</button></div>`}
 const generateAssistantTexts=()=>{assistantDraft=buildExperienceDraft({...assistantFormData(),variant:assistantVariant});applyDraftToFields(assistantDraft);return assistantDraft}
-const generateAssistantCover=async()=>{if(!assistantDraft)generateAssistantTexts();assistantDraft={...assistantDraft,dateText:formatAssistantDate(document.getElementById('f-fecha').value),timeText:`${document.getElementById('f-hora').value.slice(0,5)} h`};const previous=optimizedImage;const focusSource=sourceOptimizedImage||optimizedImage;const cover=await createExperienceCover({photo:fileToUpload,logoURL:LOGO,title:assistantDraft.coverTitle,dateText:assistantDraft.dateText,timeText:assistantDraft.timeText,locality:document.getElementById('f-localidad').value.trim(),focusX:focusSource?.focusX??50,focusY:focusSource?.focusY??50});optimizedImage=cover;imageDataUrl=cover.previewURL;if(previous&&previous!==sourceOptimizedImage)releaseOptimizedImage(previous);updateImagePreview(cover);if(sourceOptimizedImage){document.querySelectorAll('[data-focus-preview]').forEach(image=>{image.src=sourceOptimizedImage.previewURL;image.style.objectPosition=`${sourceOptimizedImage.focusX}% ${sourceOptimizedImage.focusY}%`})}renderAssistantResult();return cover}
+const generateAssistantCover=async()=>{if(!assistantDraft)generateAssistantTexts();assistantDraft={...assistantDraft,coverTitle:document.getElementById('f-titulo').value.trim()||assistantDraft.coverTitle,dateText:formatAssistantDate(document.getElementById('f-fecha').value),timeText:`${document.getElementById('f-hora').value.slice(0,5)} h`};const previous=optimizedImage;const focusSource=sourceOptimizedImage||optimizedImage;const cover=await createExperienceCover({photo:fileToUpload,logoURL:LOGO,title:assistantDraft.coverTitle,dateText:assistantDraft.dateText,timeText:assistantDraft.timeText,locality:[document.getElementById('f-lugar').value.trim(),document.getElementById('f-localidad').value.trim()].filter(Boolean).join(' · '),focusX:focusSource?.focusX??50,focusY:focusSource?.focusY??50});optimizedImage=cover;imageDataUrl=cover.previewURL;if(previous&&previous!==sourceOptimizedImage)releaseOptimizedImage(previous);updateImagePreview(cover);if(sourceOptimizedImage){document.querySelectorAll('[data-focus-preview]').forEach(image=>{image.src=sourceOptimizedImage.previewURL;image.style.objectPosition=`${sourceOptimizedImage.focusX}% ${sourceOptimizedImage.focusY}%`})}renderAssistantResult();return cover}
 window.createAssistantContent=async()=>{const button=document.getElementById('assistant-create');const error=document.getElementById('assistant-error');if(button?.disabled)return;if(error)error.textContent='';button.disabled=true;button.textContent='Creando…';try{generateAssistantTexts();await generateAssistantCover()}catch(problem){if(error)error.textContent=problem.message||'No se pudo crear el borrador. La fotografía y los datos se conservan.'}finally{button.textContent='Crear contenido y portada';window.updateAssistantState()}}
 window.regenerateAssistantTexts=()=>{const error=document.getElementById('assistant-error');try{assistantVariant+=1;generateAssistantTexts();renderAssistantResult();if(error)error.textContent=''}catch(problem){if(error)error.textContent=problem.message}}
 window.adjustAssistantCover=()=>{const controls=document.querySelector('.admin-focus-controls');controls?.scrollIntoView({behavior:'smooth',block:'center'});controls?.querySelector('input')?.focus()}
@@ -1202,7 +1212,7 @@ function renderAdminPanel(){ return `${headerHTML()}<main class="admin-premium-s
                 <span>Selecciona una fotografía o un fondo corporativo.</span>
               </div>
             </div>
-            <img id="live-preview-image" alt="Vista previa de la experiencia" hidden/>
+            <img id="live-preview-image" alt="Vista previa de la experiencia" hidden/><div class="admin-cover-text-preview" id="live-cover-overlay" aria-hidden="true" hidden><strong id="live-cover-title">Concierto Meditativo</strong><span id="live-cover-date"></span><span id="live-cover-time"></span><small id="live-cover-place"></small></div>
           </div>
           <div class="admin-live-card-body">
             <span class="admin-live-eyebrow">VIAJES SONOROS · EXPERIENCIA</span>
@@ -1275,6 +1285,16 @@ window.updateAdminLivePreview=()=>{
   const price=val('f-precio')
   const cardText=val('f-card-text')||'El texto breve de la experiencia aparecerá aquí.'
   const set=(id,text)=>{const el=document.getElementById(id);if(el)el.textContent=text}
+  const composedCover=Boolean(fileToUpload&&optimizedImage?.isGeneratedCover);
+  const coverOverlay=document.getElementById('live-cover-overlay');
+  if(coverOverlay){
+    const sourcePhoto=Boolean(fileToUpload&&!composedCover);
+    coverOverlay.hidden=!sourcePhoto;
+    set('live-cover-title',title);
+    set('live-cover-date',date?formatAssistantDate(date):'Fecha por confirmar');
+    set('live-cover-time',time?time.slice(0,5)+' h':'');
+    set('live-cover-place',place);
+  }
   set('live-preview-title',title)
   set('live-preview-date',date?('📅 '+formatAssistantDate(date)):'📅 Fecha por definir')
   set('live-preview-time',time?('🕒 '+time):'🕒 Hora por definir')

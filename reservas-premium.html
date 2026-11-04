@@ -40,6 +40,17 @@ select:not([multiple]):focus-visible,select:not([multiple]):focus{
 }
 select:not([multiple]):disabled{background-color:#eee9f0!important;opacity:.65;cursor:not-allowed}
 @media(max-width:700px){select:not([multiple]){min-height:54px!important}}
+
+/* Una acción principal por reserva; las operaciones especiales siguen disponibles en «Más opciones». */
+.booking-compact-actions{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px;align-items:start}
+.booking-compact-actions>button:not([hidden]),.booking-compact-actions>details{min-width:0;min-height:46px}
+.booking-compact-actions>.booking-primary-action{background:#5b3f98;color:#fff;border:1px solid #5b3f98;font-weight:750}
+.booking-compact-actions>.whatsapp{background:#e6f5ea;color:#215e3f;border:1px solid #98c9a8;font-weight:750}
+.booking-compact-actions>.more-actions{grid-column:1/-1}
+.booking-compact-actions>.more-actions>summary{padding:12px 15px;border-radius:11px;background:#f8f3fa;border:1px solid #dfcfe7;color:#4a2866;font-weight:700}
+.booking-compact-actions .more-actions .booking-actions{padding:10px 4px}
+.booking-compact-actions>.booking-primary-action[hidden]+.whatsapp{grid-column:1/-1}
+@media(max-width:560px){.booking-compact-actions{grid-template-columns:minmax(0,1fr)}.booking-compact-actions>.more-actions,.booking-compact-actions>.booking-primary-action[hidden]+.whatsapp{grid-column:1}}
 </style></head><body><header><img src="/logo-oficial.png" alt="Viajes Sonoros"><a href="/experiencias.html">← Volver a experiencias</a></header><main><div class="hint">ADMINISTRACIÓN · MÓDULO INDEPENDIENTE</div><h1>Reservas Premium</h1><p class="hint">Flujo único: solicitud → ingreso comprobado → reserva confirmada → WhatsApp → asistencia.</p><div class="notice" id="notice">Comprobando sesión segura…</div><form id="auth-form" class="auth-panel" hidden><h2>Acceso de administración</h2><p class="hint">Inicia sesión con las credenciales del administrador de Viajes Sonoros para ver las reservas en este dominio de pruebas.</p><label>Correo electrónico<input id="auth-email" type="email" autocomplete="username" required></label><label>Contraseña<input id="auth-password" type="password" autocomplete="current-password" required></label><button type="submit" id="auth-submit">Entrar en Reservas Premium</button><p id="auth-error" role="alert"></p></form><div id="private-content" hidden><section class="panel" id="event-quick-summary" aria-label="Control de asistentes"><h2>Control del evento</h2><div id="event-totals" class="metrics"></div><p class="hint">Las plazas confirmadas solo cuentan cuando el pago consta como recibido. El aforo disponible descuenta también las solicitudes pendientes.</p></section><section class="panel" id="operations-panel" style="margin-top:16px">
 <h2>Alquiler y gastos del evento</h2><p class="hint">Registra el alquiler realmente entregado y otros gastos sin repetir las cifras del control del evento.</p><div id="rental-payment" class="panel" style="padding:15px;background:#f7f1fa;margin:12px 0"><h3>Alquiler de sala · Pago realizado</h3><p class="hint">El 20 % es orientativo. Registra la cantidad realmente entregada, aunque sea mayor.</p><div id="rental-payment-info" class="hint"></div><div class="toolbar"><label>Importe entregado (€) <input id="rental-paid-amount" type="number" min="0" step="0.01" inputmode="decimal" style="max-width:150px"></label><label style="display:flex;align-items:center;gap:8px"><input id="rental-paid-check" type="checkbox"> Pagado</label><button id="save-rental-payment" type="button">Guardar pago</button></div></div>
 <div class="toolbar"><button type="button" id="closing-pdf" class="secondary">Guardar cierre en PDF</button><button type="button" id="add-expense">Añadir gasto</button></div>
@@ -609,15 +620,15 @@ function render(){
  closingSummary();
  const term=$('search').value.trim().toLocaleLowerCase('es-ES'),eventId=$('event').value,status=$('status').value;
  const all=reservations.filter(r=>(eventId==='all'||String(r.experiencia_id)===eventId));
- const filtered=all.filter(r=>(status==='all'||r.estado===status)&&(!term||r.nombre.toLocaleLowerCase('es-ES').includes(term)||r.telefono.includes(term)));
+ const filtered=all.filter(r=>(status==='all'||r.estado===status)&&(!term||r.nombre.toLocaleLowerCase('es-ES').includes(term)||r.telefono.includes(term))).sort((a,b)=>{const rank=r=>r.estado==='pendiente'?0:r.estado==='confirmada'?1:r.estado==='aplazada'?2:3;return rank(a)-rank(b)||String(b.created_at||'').localeCompare(String(a.created_at||''))});
  const active=all.filter(r=>r.estado!=='cancelada'&&r.estado!=='aplazada');
- setText('m-confirmed',String(active.filter(r=>r.estado==='confirmada'&&r.pago_estado==='recibido').reduce((n,r)=>n+Number(r.plazas||0),0)));
- setText('m-pending',String(active.filter(r=>r.estado==='pendiente'||(r.estado==='confirmada'&&r.pago_estado!=='recibido')).reduce((n,r)=>n+Number(r.plazas||0),0)));
+ setText('m-confirmed',String(active.filter(r=>r.estado==='confirmada').reduce((n,r)=>n+Number(r.plazas||0),0)));
+ setText('m-pending',String(active.filter(r=>r.estado==='pendiente').reduce((n,r)=>n+Number(r.plazas||0),0)));
  setText('m-reservations',String(active.length));
  setText('m-amount',money(active.reduce((n,r)=>n+Number(r.importe_total||0),0)));
- const confirmedPaid=active.filter(r=>r.estado==='confirmada'&&r.pago_estado==='recibido');
- const confirmedSeats=confirmedPaid.reduce((n,r)=>n+Number(r.plazas||0),0);
- const pendingSeats=active.filter(r=>r.estado==='pendiente'||(r.estado==='confirmada'&&r.pago_estado!=='recibido')).reduce((n,r)=>n+Number(r.plazas||0),0);
+ const confirmedPaid=active.filter(r=>r.pago_estado==='recibido');
+ const confirmedSeats=active.filter(r=>r.estado==='confirmada').reduce((n,r)=>n+Number(r.plazas||0),0);
+ const pendingSeats=active.filter(r=>r.estado==='pendiente').reduce((n,r)=>n+Number(r.plazas||0),0);
  const capacity=eventId==='all'?null:events.find(e=>String(e.id)===eventId)?.aforo_maximo;
  const roomRentCards=()=>{
   const ids=eventId==='all'?[...new Set(all.map(r=>String(r.experiencia_id)))]:[eventId];
@@ -642,8 +653,8 @@ function render(){
  };
  const roomRental=roomRentCards();
  const totalCards=[
-  ['Plazas confirmadas y pagadas',confirmedSeats],
-  ['Plazas pendientes de verificar',pendingSeats],
+  ['Plazas confirmadas',confirmedSeats],
+  ['Plazas pendientes de confirmar',pendingSeats],
   ['Asistentes previstos',confirmedSeats+pendingSeats],
   ['Aforo total',capacity==null?'—':Number(capacity)],
   ['Plazas disponibles',capacity==null?'—':Math.max(0,Number(capacity)-confirmedSeats-pendingSeats)],
@@ -704,12 +715,13 @@ const buckets=[
   manage.addEventListener('click',()=>openBookingEditor(row,event,article));
   // Confirmacion rapida: exige comprobar ingreso; mantiene actualizacion condicional.
   const quickConfirm=document.createElement('button');quickConfirm.type='button';
-  quickConfirm.className='manage';quickConfirm.textContent='✓ Confirmar ingreso y reserva';
-  quickConfirm.hidden=row.estado!=='pendiente'||isPayAtVenue(event);
+  quickConfirm.className='manage booking-primary-action';quickConfirm.textContent=isPayAtVenue(event)?'✓ Confirmar plazas':'✓ Confirmar ingreso y reserva';
+  quickConfirm.hidden=row.estado!=='pendiente';
   quickConfirm.addEventListener('click',async()=>{
    if(row.estado!=='pendiente')return;
+   const atVenue=isPayAtVenue(event);
    const amount=row.importe_total==null?'importe por revisar':money(Number(row.importe_total));
-   if(!confirm('¿Has comprobado realmente el ingreso de '+amount+' de '+row.nombre+'? Se confirmaran conjuntamente reserva y pago.'))return;
+   if(!confirm(atVenue?'¿Confirmar '+row.plazas+' plazas de '+row.nombre+'? La aportación se pagará en el centro, sin marcar ningún ingreso recibido.':'¿Has comprobado realmente el ingreso de '+amount+' de '+row.nombre+'? Se confirmarán conjuntamente reserva y pago.'))return;
    quickConfirm.disabled=true;
    try{
     await persistStatus(row,'confirmada',event);await load();
@@ -755,11 +767,13 @@ const buckets=[
   sentBox.append(mark);
  }
  const more=document.createElement('details');more.className='more-actions';const moreTitle=document.createElement('summary');moreTitle.textContent='Más opciones y comunicaciones';const inner=document.createElement('div');inner.className='booking-actions';
- inner.append(request,confirmation,reminder,review,sentBox);more.append(moreTitle,inner);
+ inner.append(manage,phone,request,confirmation,reminder,review,sentBox);more.append(moreTitle,inner);
  const quickWhatsApp=document.createElement('button');quickWhatsApp.type='button';
   quickWhatsApp.className='whatsapp';quickWhatsApp.textContent='WhatsApp · Avisar';
   quickWhatsApp.addEventListener('click',()=>openBookingWhatsApp(row,event,row.estado==='confirmada'&&(isPayAtVenue(event)||row.pago_estado==='recibido')));
-  buttons.append(quickConfirm,quickWhatsApp,manage,phone,more);if(row.estado==='confirmada'&&row.pago_estado!=='recibido'&&!isPayAtVenue(event)){const alert=document.createElement('p');alert.style.cssText='padding:9px;border-radius:10px;background:#fff2dc;color:#774818;font-weight:650';alert.textContent='Revisar: reserva confirmada sin pago registrado. Abre Gestionar para verificar la aportación.';article.append(top,detail,info,paymentStatus,alert,activity,buttons)}else article.append(top,detail,info,paymentStatus,activity,buttons);return article;
+  quickWhatsApp.textContent=row.estado==='confirmada'?'WhatsApp · Confirmación':'WhatsApp · Consultar';
+  buttons.classList.add('booking-compact-actions');
+  buttons.append(quickConfirm,quickWhatsApp,more);if(row.estado==='confirmada'&&row.pago_estado!=='recibido'&&!isPayAtVenue(event)){const alert=document.createElement('p');alert.style.cssText='padding:9px;border-radius:10px;background:#fff2dc;color:#774818;font-weight:650';alert.textContent='Revisar: reserva confirmada sin pago registrado. Abre Gestionar para verificar la aportación.';article.append(top,detail,info,paymentStatus,alert,activity,buttons)}else article.append(top,detail,info,paymentStatus,activity,buttons);return article;
  }));
  if(!filtered.length)setText('bookings','No hay reservas que coincidan con los filtros.');
 }
