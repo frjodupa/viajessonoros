@@ -312,6 +312,42 @@ select:not([multiple]):disabled{background-color:#eee9f0!important;opacity:.65;c
 .admin-cover-text-preview span{font:700 clamp(10px,1.2vw,16px)/1.4 Montserrat,system-ui,sans-serif;overflow-wrap:anywhere}
 .admin-cover-text-preview small{font:600 clamp(9px,1.05vw,13px)/1.35 Montserrat,system-ui,sans-serif;overflow-wrap:anywhere}
 @media(max-width:600px){.admin-cover-text-preview{width:57%;padding:10px;gap:3px}.admin-cover-text-preview strong{font-size:clamp(16px,5vw,26px)}.admin-cover-text-preview span{font-size:10px}.admin-cover-text-preview small{font-size:9px}}
+
+/* GITOP 2.1: desplegables legibles y consistentes, sin modificar su funcionamiento. */
+select:not([multiple]){
+ -webkit-appearance:none!important;appearance:none!important;
+ min-height:52px!important;max-width:100%;box-sizing:border-box;
+ padding:12px 54px 12px 15px!important;
+ border:1.5px solid #a88dbd!important;border-radius:14px!important;
+ background-color:#fff!important;color:#321b42!important;
+ background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24'%3E%3Crect x='1' y='1' width='22' height='22' rx='7' fill='%23eee5f6'/%3E%3Cpath d='m7 10 5 5 5-5' fill='none' stroke='%234c2268' stroke-width='2.6' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E")!important;
+ background-repeat:no-repeat!important;background-position:right 12px center!important;
+ background-size:28px 28px!important;
+ font-family:Montserrat,system-ui,sans-serif;font-size:16px!important;
+ line-height:1.3;cursor:pointer;
+ transition:border-color .18s ease,box-shadow .18s ease;
+}
+select:not([multiple]):hover{border-color:#795195!important}
+select:not([multiple]):focus-visible,select:not([multiple]):focus{outline:2px solid #6b3c98!important;outline-offset:1px;box-shadow:0 0 0 4px #734a951f!important}
+select:not([multiple]):disabled{opacity:.65;cursor:not-allowed;background-color:#f5f1f7!important}
+details.more-actions>summary,details.admin-action-menu>summary{
+ position:relative;min-height:48px;display:flex;align-items:center;
+ padding:10px 48px 10px 15px!important;cursor:pointer;
+ border:1.5px solid #bba5cb!important;border-radius:13px!important;
+ background-color:#fbf8fd!important;background-image:none!important;
+ color:#4c2268!important;font-weight:700;list-style:none!important;
+}
+details.more-actions>summary::-webkit-details-marker,details.admin-action-menu>summary::-webkit-details-marker{display:none}
+details.more-actions>summary::after,details.admin-action-menu>summary::after{
+ content:"";position:absolute;right:12px;top:50%;width:28px;height:28px;
+ transform:translateY(-50%);border-radius:8px;
+ background:#eee5f6 url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24'%3E%3Cpath d='m7 10 5 5 5-5' fill='none' stroke='%234c2268' stroke-width='2.6' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") center/24px no-repeat;
+ transition:transform .18s ease;
+}
+details.more-actions[open]>summary::after,details.admin-action-menu[open]>summary::after{transform:translateY(-50%) rotate(180deg)}
+details.more-actions>summary:focus-visible,details.admin-action-menu>summary:focus-visible{outline:3px solid #734a95;outline-offset:2px}
+@media(max-width:620px){select:not([multiple]){min-height:50px!important}}
+@media(prefers-reduced-motion:reduce){details.more-actions>summary::after,details.admin-action-menu>summary::after{transition:none}}
 </style>
 </head>
 <body class="operational-page experiences-page">
