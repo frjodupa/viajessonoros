@@ -1,6 +1,8 @@
 import './style.css'
 import './landing-premium.css'
 import './banner-public.js'
+import { installOfficialEventCoverRecovery } from './official-event-covers.js'
+installOfficialEventCoverRecovery()
 import { supabase } from './supabase.js'
 import { getOptimizedExperienceImage } from './admin-image-optimizer.js'
 import {
