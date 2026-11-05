@@ -587,27 +587,30 @@ function showAttendanceReport(){
  const modal=document.createElement('div');modal.id='attendance-report-modal';
  modal.style.cssText='position:fixed;inset:0;z-index:10020;background:#20172cdd;padding:12px;display:grid;place-items:center';
  const panel=document.createElement('section');panel.style.cssText='box-sizing:border-box;width:min(100%,760px);height:min(92dvh,980px);background:white;border-radius:16px;padding:18px;display:flex;flex-direction:column;gap:14px;overflow:hidden';
- const heading=document.createElement('h2');heading.textContent='Informe de asistentes';heading.style.margin='0';
+ const heading=document.createElement('h2');heading.textContent='Control de asistencia';heading.style.margin='0';
  const details=document.createElement('div');details.style.cssText='flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch';
  const add=(parent,value,tag='p')=>{const node=document.createElement(tag);node.textContent=value;node.style.cssText='margin:8px 0;line-height:1.5';parent.append(node);return node};
+ const note=document.createElement('p');note.textContent='La asistencia y los pagos se consultan de forma independiente. Por seguridad, la base de datos actual solo permite guardar asistencia si el pago está verificado.';note.style.cssText='margin:0;color:#675972;font-size:14px;line-height:1.5';
  for(const id of [...new Set(rows.map(r=>String(r.experiencia_id)))]){
   const ev=events.find(e=>String(e.id)===id),group=rows.filter(r=>String(r.experiencia_id)===id);
   const active=group.filter(r=>!['cancelada','aplazada'].includes(r.estado));
   const seats=group=>group.reduce((sum,r)=>sum+Number(r.plazas||0),0);
-  const confirmed=active.filter(r=>r.estado==='confirmada'&&r.pago_estado==='recibido');
-  const pending=active.filter(r=>r.estado!=='confirmada'||r.pago_estado!=='recibido');
+  const confirmed=active.filter(r=>r.estado==='confirmada');
+  const pending=active.filter(r=>r.estado==='pendiente');
+  const paid=active.filter(r=>r.pago_estado==='recibido');
+  const present=active.filter(r=>panelAttendance.has(String(r.id))).reduce((n,r)=>n+Number(panelAttendance.get(String(r.id))||0),0);
   const date=String(ev?.fecha||'').replace(/^(\\d{4})-(\\d{2})-(\\d{2})$/,'$3-$2-$1');
   add(details,(ev?.titulo||'Experiencia')+' · '+date,'h3');
-  add(details,'Reservas: '+group.length+' · Confirmados: '+seats(confirmed)+' · Pendientes: '+seats(pending)+' · Aforo: '+(ev?.aforo_maximo??'Sin definir')+' · Disponibles: '+(ev?.aforo_maximo==null?'—':Math.max(0,Number(ev.aforo_maximo)-seats(active))));
-  add(details,'Aportación registrada como recibida: '+money(confirmed.reduce((sum,r)=>sum+Number(r.importe_total||0),0)));
+  const summary=add(details,'Reservas: '+group.length+' · Plazas confirmadas: '+seats(confirmed)+' · Pendientes: '+seats(pending)+' · Asistentes presentes: '+present+' · Aforo: '+(ev?.aforo_maximo??'Sin definir')+' · Disponibles: '+(ev?.aforo_maximo==null?'—':Math.max(0,Number(ev.aforo_maximo)-seats(active))));summary.style.cssText='background:#f4eef8;padding:14px;border-radius:12px;color:#43235c;font-weight:650;line-height:1.7';
+  const economics=document.createElement('details');economics.style.cssText='margin:12px 0;padding:12px;border:1px solid #e3d8ea;border-radius:12px';const economicHeading=document.createElement('summary');economicHeading.textContent='Control económico · Consulta independiente';economicHeading.style.cssText='font-weight:700;cursor:pointer';const economicText=document.createElement('p');economicText.textContent='Plazas con pago recibido: '+seats(paid)+' · Aportación recibida: '+money(paid.reduce((n,r)=>n+Number(r.importe_total||0),0))+'. Registrar asistencia no registra cobros.';economics.append(economicHeading,economicText);details.append(economics);
   for(const row of group){
    const line=document.createElement('label');line.style.cssText='display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;gap:8px 12px;padding:12px 4px;border-bottom:1px solid #ddd';
    const check=document.createElement('input');check.type='number';check.min='0';check.max=String(row.plazas);check.step='1';check.inputMode='numeric';check.style.cssText='width:74px;height:44px;flex-shrink:0';check.setAttribute('aria-label','Plazas presentes de '+row.nombre);
-   const permitted=row.estado==='confirmada'&&(isPayAtVenue(ev)||row.pago_estado==='recibido');check.disabled=!permitted;
+   const permitted=row.estado==='confirmada'&&row.pago_estado==='recibido';check.disabled=!permitted;
    check.placeholder='—';if(panelAttendance.has(String(row.id)))check.value=String(panelAttendance.get(String(row.id)));
-   const saveAttendance=document.createElement('button');saveAttendance.type='button';saveAttendance.textContent='Guardar';saveAttendance.disabled=!permitted;
+   const saveAttendance=document.createElement('button');saveAttendance.type='button';saveAttendance.textContent='Guardar';saveAttendance.disabled=!permitted;saveAttendance.title=permitted?'Guardar asistentes presentes':'La regla actual requiere reserva confirmada con pago recibido';
    saveAttendance.onclick=async()=>{const n=Number(check.value);if(check.value===''||!Number.isInteger(n)||n<0||n>Number(row.plazas)){alert('Indica las plazas presentes, de 0 a '+row.plazas);return}saveAttendance.disabled=true;try{await adminPanelWrite('asistencia',{reserva_id:row.id,plazas_presentes:n});saveAttendance.textContent='Guardado';}catch(e){alert('No guardado: '+e.message)}finally{saveAttendance.disabled=false}};
-   const copy=document.createElement('span');copy.textContent=row.nombre+' · '+row.plazas+' plaza(s) · '+row.estado+' · '+(row.pago_estado||'sin verificar');
+   const copy=document.createElement('span');copy.textContent=row.nombre+' · '+row.plazas+' plaza(s) · Reserva '+row.estado+(permitted?'':' · Pago sin verificar: registro bloqueado');
    const labeled=document.createElement('span');labeled.style.cssText='display:flex;align-items:center;gap:8px;flex-wrap:wrap';const caption=document.createElement('strong');caption.textContent='Asistentes presentes:';labeled.append(caption,check);copy.style.cssText='grid-column:1/-1;overflow-wrap:anywhere';line.append(copy,labeled,saveAttendance);details.append(line);
   }
  }
@@ -615,7 +618,7 @@ function showAttendanceReport(){
  const pdf=document.createElement('button');pdf.textContent='Guardar PDF';pdf.type='button';
  pdf.onclick=async()=>{pdf.disabled=true;try{await createAttendancePdf();modal.remove()}catch(e){alert('No se pudo crear el PDF: '+e.message)}finally{pdf.disabled=false}};
  const close=document.createElement('button');close.textContent='Cerrar informe';close.className='secondary';close.type='button';close.onclick=()=>modal.remove();
- actions.append(pdf,close);panel.append(heading,details,actions);modal.append(panel);document.body.append(modal);
+ actions.append(pdf,close);panel.append(heading,note,details,actions);modal.append(panel);document.body.append(modal);
 }
 $('attendance-pdf').addEventListener('click',showAttendanceReport);
 function renderCommunications(){
