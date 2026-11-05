@@ -77,18 +77,20 @@
 .site-header:not(.is-scrolled) .header-inner { background: rgba(255,253,249,.94); }
 
 
-/* PREMIUM · Instrumentos: fotografías oficiales completas, sin recortes circulares. */
-#contenido .instruments-section {background:var(--chapter-linen);padding-block:clamp(54px,6vw,92px)}
-#contenido .instruments-layout {display:block;width:min(100% - 36px,1400px);max-width:1400px;margin-inline:auto}
-#contenido .instruments-layout>.section-intro {display:flex;align-items:end;justify-content:space-between;gap:20px;margin-bottom:28px;max-width:none}
-#contenido .instruments-layout>.section-intro h2 {font-size:clamp(32px,3.7vw,54px);line-height:1.09;letter-spacing:-.02em;margin:0;max-width:18ch}
-#contenido .instruments-layout>.section-intro h2 br {display:none}
-#contenido .instrument-grid {display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:clamp(12px,1.5vw,22px);align-items:stretch}
-#contenido .instrument {display:flex;flex-direction:column;min-width:0;width:auto;margin:0!important;grid-column:auto!important;text-align:left;background:#fff;border:1px solid #e5d9ca;border-radius:18px;overflow:hidden;box-shadow:0 9px 25px rgba(53,27,73,.06);transition:transform .25s ease,box-shadow .25s ease}
-#contenido .instrument-image {display:flex;align-items:center;justify-content:center;width:100%;max-width:none;height:auto;aspect-ratio:4/3;margin:0;border:0;border-radius:0;box-shadow:none;overflow:hidden;background:#f8f3ed}
-#contenido .instrument-image img {display:block;width:100%;height:100%;object-fit:contain;object-position:center;transform:none!important}
-#contenido .instrument h3 {display:flex;align-items:center;min-height:64px;max-width:none;margin:0;padding:13px 16px;color:#3c2551;font-size:clamp(13px,1.2vw,17px);line-height:1.35;font-weight:700;letter-spacing:-.01em}
-@media(hover:hover) and (prefers-reduced-motion:no-preference){#contenido .instrument:hover{transform:translateY(-4px);box-shadow:0 15px 30px rgba(53,27,73,.12)}}
-@media(max-width:1100px){#contenido .instrument-grid{grid-template-columns:repeat(3,minmax(0,1fr))}#contenido .instrument:nth-child(n){grid-column:auto!important;width:auto!important;justify-self:stretch;margin:0!important}}
-@media(max-width:650px){#contenido .instruments-layout>.section-intro{display:block;margin-bottom:22px}#contenido .instrument-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}#contenido .instrument-image{aspect-ratio:1/1}#contenido .instrument h3{min-height:66px;padding:12px;font-size:14px}#contenido .instrument:last-child{grid-column:1/-1!important;width:min(100%,300px)!important;justify-self:center}}
-@media(max-width:360px){#contenido .instrument-grid{grid-template-columns:1fr}#contenido .instrument:last-child{grid-column:auto!important;width:100%!important}}
+
+/* Instrumentos v2: composición editorial compacta, sin cabecera desalineada */
+#contenido .instruments-section{padding:clamp(42px,4vw,66px) 0!important;background:#f5f0e7}
+#contenido .instruments-layout{display:block!important;width:min(calc(100% - 48px),1260px)!important;max-width:1260px!important;margin-inline:auto!important}
+#contenido .instruments-layout>.section-intro{display:block!important;width:100%!important;max-width:none!important;margin:0 0 26px!important;text-align:left!important}
+#contenido .instruments-layout>.section-intro .eyebrow{display:block!important;margin:0 0 10px!important;color:#986318;font-size:12px;font-weight:750;letter-spacing:.10em;text-transform:uppercase}
+#contenido .instruments-layout>.section-intro h2{display:block!important;width:auto!important;max-width:none!important;font-size:clamp(29px,3.1vw,44px)!important;line-height:1.13!important;letter-spacing:-.02em;margin:0!important;text-align:left!important}
+#contenido .instruments-layout>.section-intro h2 br{display:none!important}
+#contenido .instrument-grid{display:grid!important;grid-template-columns:repeat(5,minmax(0,1fr))!important;gap:15px!important;align-items:stretch!important;width:100%!important}
+#contenido .instrument{display:block!important;width:100%!important;min-width:0!important;margin:0!important;grid-column:auto!important;justify-self:stretch!important;background:#fff!important;border:1px solid #e7dfd4!important;border-radius:15px!important;overflow:hidden!important;box-shadow:0 8px 18px #39274c0b!important;text-align:left!important;transform:none!important}
+#contenido .instrument-image{display:block!important;width:100%!important;max-width:none!important;aspect-ratio:5/4!important;height:auto!important;margin:0!important;border:0!important;border-radius:0!important;overflow:hidden!important;background:#e8ded1!important;box-shadow:none!important}
+#contenido .instrument-image img{display:block!important;width:100%!important;height:100%!important;object-fit:cover!important;object-position:center 52%!important;transform:scale(1.38)!important;transition:none!important}
+#contenido .instrument:hover .instrument-image img{transform:scale(1.38)!important}
+#contenido .instrument h3{display:flex!important;align-items:center!important;min-height:65px!important;max-width:none!important;margin:0!important;padding:13px 15px!important;color:#412650!important;font-size:clamp(14px,1.1vw,17px)!important;line-height:1.3!important;font-weight:700!important}
+@media(max-width:1050px){#contenido .instrument-grid{grid-template-columns:repeat(3,minmax(0,1fr))!important;gap:14px!important}}
+@media(max-width:600px){#contenido .instruments-section{padding:40px 0!important}#contenido .instruments-layout{width:calc(100% - 30px)!important}#contenido .instrument-grid{grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:10px!important}#contenido .instrument-image{aspect-ratio:1!important}#contenido .instrument-image img{transform:scale(1.35)!important}#contenido .instrument h3{min-height:60px!important;padding:11px!important;font-size:13px!important}#contenido .instrument:last-child{grid-column:auto!important;width:100%!important;justify-self:stretch!important}}
+@media(max-width:340px){#contenido .instrument-grid{grid-template-columns:1fr!important}}
