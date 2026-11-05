@@ -348,6 +348,16 @@ const escapeHTML = (value = '') =>
 
 const safeImageURL = (value = '') => {
   const url = String(value).trim()
+  // Las portadas propias deben cargarse desde el mismo despliegue, también en previews.
+  // Evita peticiones cross-site a viajessonoros.es sin cambiar los datos originales.
+  try {
+    const parsed = new URL(url, window.location.origin)
+    if (['viajessonoros.es', 'www.viajessonoros.es'].includes(parsed.hostname)) {
+      return parsed.pathname + parsed.search + parsed.hash
+    }
+  } catch {
+    // Mantener el tratamiento anterior si la URL no es válida.
+  }
 
   if (
     url.startsWith('/') ||
