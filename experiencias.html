@@ -762,11 +762,13 @@ async function loadAdminAppDetails(ev){
  if(error){if(recent)recent.textContent='No se pudo consultar las reservas';if(comms)comms.textContent='No se pudo consultar las comunicaciones';return}
  const rows=data||[],active=rows.filter(x=>!['cancelada','aplazada'].includes(x.estado));
  const seats=list=>list.reduce((n,x)=>n+Number(x.plazas||0),0);
- const confirmed=active.filter(x=>x.estado==='confirmada'&&x.pago_estado==='recibido');
+ const confirmed=active.filter(x=>x.estado==='confirmada');
+  const pending=active.filter(x=>x.estado==='pendiente');
+  const paymentUnverified=confirmed.filter(x=>x.pago_estado!=='recibido');
  set('admin-app-count',rows.length+' reservas registradas · '+seats(active)+' plazas activas · '+seats(confirmed)+' plazas confirmadas');
- set('admin-app-confirmed',seats(confirmed));set('admin-app-pending',seats(active)-seats(confirmed));set('admin-app-capacity',ev.aforo_maximo??'—');set('admin-app-available',ev.aforo_maximo==null?'—':Math.max(0,Number(ev.aforo_maximo)-seats(active)));
+ set('admin-app-confirmed',seats(confirmed));set('admin-app-pending',seats(pending));set('admin-app-capacity',ev.aforo_maximo??'—');set('admin-app-available',ev.aforo_maximo==null?'—':Math.max(0,Number(ev.aforo_maximo)-seats(active)));
  if(recent){recent.replaceChildren();if(!rows.length)recent.textContent='Todavía no hay reservas';for(const r of rows){const line=document.createElement('div');line.className='admin-app-line';const name=document.createElement('span');name.textContent=r.nombre+' · '+r.plazas+' '+(Number(r.plazas)===1?'plaza':'plazas');const state=document.createElement('small');state.textContent=r.estado;line.append(name,state);recent.append(line)}}
- if(comms){comms.replaceChildren();const link=document.createElement('a');link.href='/reservas-premium.html?experiencia='+encodeURIComponent(ev.id)+'#communications-panel';link.textContent='Abrir comunicaciones y recordatorios →';const p=document.createElement('div');p.className='admin-app-line';p.textContent='Reservas pendientes: '+rows.filter(x=>x.estado==='pendiente').length+' · Reservas confirmadas y pagadas: '+confirmed.length+'. ';p.append(link);comms.append(p)}
+ if(comms){comms.replaceChildren();const link=document.createElement('a');link.href='/reservas-premium.html?experiencia='+encodeURIComponent(ev.id)+'#communications-panel';link.textContent='Abrir comunicaciones y recordatorios →';const p=document.createElement('div');p.className='admin-app-line';p.textContent='Reservas pendientes de confirmar: '+pending.length+' · Reservas confirmadas: '+confirmed.length+' · Pagos pendientes de verificar: '+paymentUnverified.length+'. ';p.append(link);comms.append(p)}
 }
 window.selectAdminExperience=(id)=>{
  const ev=eventos.find(e=>String(e.id)===String(id));
