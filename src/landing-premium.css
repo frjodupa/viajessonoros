@@ -75,3 +75,20 @@
 #contenido .meditate-copy h2 { color: #263b4b; font-family: var(--serif); font-weight: 500; }
 #contenido .meditate-copy > p, #contenido .meditate-copy > span { color: #3e5668; }
 .site-header:not(.is-scrolled) .header-inner { background: rgba(255,253,249,.94); }
+
+
+/* PREMIUM · Instrumentos: fotografías oficiales completas, sin recortes circulares. */
+#contenido .instruments-section {background:var(--chapter-linen);padding-block:clamp(54px,6vw,92px)}
+#contenido .instruments-layout {display:block;width:min(100% - 36px,1400px);max-width:1400px;margin-inline:auto}
+#contenido .instruments-layout>.section-intro {display:flex;align-items:end;justify-content:space-between;gap:20px;margin-bottom:28px;max-width:none}
+#contenido .instruments-layout>.section-intro h2 {font-size:clamp(32px,3.7vw,54px);line-height:1.09;letter-spacing:-.02em;margin:0;max-width:18ch}
+#contenido .instruments-layout>.section-intro h2 br {display:none}
+#contenido .instrument-grid {display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:clamp(12px,1.5vw,22px);align-items:stretch}
+#contenido .instrument {display:flex;flex-direction:column;min-width:0;width:auto;margin:0!important;grid-column:auto!important;text-align:left;background:#fff;border:1px solid #e5d9ca;border-radius:18px;overflow:hidden;box-shadow:0 9px 25px rgba(53,27,73,.06);transition:transform .25s ease,box-shadow .25s ease}
+#contenido .instrument-image {display:flex;align-items:center;justify-content:center;width:100%;max-width:none;height:auto;aspect-ratio:4/3;margin:0;border:0;border-radius:0;box-shadow:none;overflow:hidden;background:#f8f3ed}
+#contenido .instrument-image img {display:block;width:100%;height:100%;object-fit:contain;object-position:center;transform:none!important}
+#contenido .instrument h3 {display:flex;align-items:center;min-height:64px;max-width:none;margin:0;padding:13px 16px;color:#3c2551;font-size:clamp(13px,1.2vw,17px);line-height:1.35;font-weight:700;letter-spacing:-.01em}
+@media(hover:hover) and (prefers-reduced-motion:no-preference){#contenido .instrument:hover{transform:translateY(-4px);box-shadow:0 15px 30px rgba(53,27,73,.12)}}
+@media(max-width:1100px){#contenido .instrument-grid{grid-template-columns:repeat(3,minmax(0,1fr))}#contenido .instrument:nth-child(n){grid-column:auto!important;width:auto!important;justify-self:stretch;margin:0!important}}
+@media(max-width:650px){#contenido .instruments-layout>.section-intro{display:block;margin-bottom:22px}#contenido .instrument-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}#contenido .instrument-image{aspect-ratio:1/1}#contenido .instrument h3{min-height:66px;padding:12px;font-size:14px}#contenido .instrument:last-child{grid-column:1/-1!important;width:min(100%,300px)!important;justify-self:center}}
+@media(max-width:360px){#contenido .instrument-grid{grid-template-columns:1fr}#contenido .instrument:last-child{grid-column:auto!important;width:100%!important}}
