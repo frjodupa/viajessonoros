@@ -601,14 +601,14 @@ function showAttendanceReport(){
   add(details,'Reservas: '+group.length+' · Confirmados: '+seats(confirmed)+' · Pendientes: '+seats(pending)+' · Aforo: '+(ev?.aforo_maximo??'Sin definir')+' · Disponibles: '+(ev?.aforo_maximo==null?'—':Math.max(0,Number(ev.aforo_maximo)-seats(active))));
   add(details,'Aportación registrada como recibida: '+money(confirmed.reduce((sum,r)=>sum+Number(r.importe_total||0),0)));
   for(const row of group){
-   const line=document.createElement('label');line.style.cssText='display:flex;align-items:center;gap:12px;padding:12px 4px;border-bottom:1px solid #ddd';
+   const line=document.createElement('label');line.style.cssText='display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;gap:8px 12px;padding:12px 4px;border-bottom:1px solid #ddd';
    const check=document.createElement('input');check.type='number';check.min='0';check.max=String(row.plazas);check.step='1';check.inputMode='numeric';check.style.cssText='width:74px;height:44px;flex-shrink:0';check.setAttribute('aria-label','Plazas presentes de '+row.nombre);
    const permitted=row.estado==='confirmada'&&(isPayAtVenue(ev)||row.pago_estado==='recibido');check.disabled=!permitted;
    check.placeholder='—';if(panelAttendance.has(String(row.id)))check.value=String(panelAttendance.get(String(row.id)));
    const saveAttendance=document.createElement('button');saveAttendance.type='button';saveAttendance.textContent='Guardar';saveAttendance.disabled=!permitted;
    saveAttendance.onclick=async()=>{const n=Number(check.value);if(check.value===''||!Number.isInteger(n)||n<0||n>Number(row.plazas)){alert('Indica las plazas presentes, de 0 a '+row.plazas);return}saveAttendance.disabled=true;try{await adminPanelWrite('asistencia',{reserva_id:row.id,plazas_presentes:n});saveAttendance.textContent='Guardado';}catch(e){alert('No guardado: '+e.message)}finally{saveAttendance.disabled=false}};
    const copy=document.createElement('span');copy.textContent=row.nombre+' · '+row.plazas+' plaza(s) · '+row.estado+' · '+(row.pago_estado||'sin verificar');
-   line.append(check,copy,saveAttendance);details.append(line);
+   const labeled=document.createElement('span');labeled.style.cssText='display:flex;align-items:center;gap:8px;flex-wrap:wrap';const caption=document.createElement('strong');caption.textContent='Asistentes presentes:';labeled.append(caption,check);copy.style.cssText='grid-column:1/-1;overflow-wrap:anywhere';line.append(copy,labeled,saveAttendance);details.append(line);
   }
  }
  const actions=document.createElement('div');actions.style.cssText='display:grid;grid-template-columns:1fr 1fr;gap:8px';
@@ -806,8 +806,15 @@ const buckets=[
  inner.append(manage,phone,request,confirmation,reminder,review,sentBox);more.append(moreTitle,inner);
  const quickWhatsApp=document.createElement('button');quickWhatsApp.type='button';
   quickWhatsApp.className='whatsapp';quickWhatsApp.textContent='WhatsApp · Avisar';
-  quickWhatsApp.addEventListener('click',()=>openBookingWhatsApp(row,event,row.estado==='confirmada'&&(isPayAtVenue(event)||row.pago_estado==='recibido')));
-  quickWhatsApp.textContent=row.estado==='confirmada'?'WhatsApp · Confirmación':'WhatsApp · Consultar';
+  const canConfirm=row.estado==='confirmada'&&(isPayAtVenue(event)||row.pago_estado==='recibido');
+  if(canConfirm&&communicationSent.has(row.id+':confirmacion')){
+    quickWhatsApp.textContent='Siguiente · Registrar asistencia';
+    quickWhatsApp.className='booking-primary-action';
+    quickWhatsApp.onclick=()=>{$('event').value=String(row.experiencia_id);showAttendanceReport()};
+  }else{
+    quickWhatsApp.textContent=canConfirm?'Siguiente · Enviar confirmación':row.estado==='pendiente'?'Siguiente · Consultar solicitud':'WhatsApp · Consultar';
+    quickWhatsApp.onclick=()=>openBookingWhatsApp(row,event,canConfirm);
+  }
   buttons.classList.add('booking-compact-actions');
   buttons.append(quickConfirm,quickWhatsApp,more);if(row.estado==='confirmada'&&row.pago_estado!=='recibido'&&!isPayAtVenue(event)){const alert=document.createElement('p');alert.style.cssText='padding:9px;border-radius:10px;background:#fff2dc;color:#774818;font-weight:650';alert.textContent='Revisar: reserva confirmada sin pago registrado. Abre Gestionar para verificar la aportación.';article.append(top,detail,info,paymentStatus,alert,activity,buttons)}else article.append(top,detail,info,paymentStatus,activity,buttons);return article;
  }));
