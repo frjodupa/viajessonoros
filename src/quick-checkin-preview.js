@@ -5,7 +5,7 @@
  */
 export function openQuickCheckin({reservations,events,attendance = new Map(),selectedEvent='all'}) {
   document.getElementById('vs-quick-checkin')?.remove();
-  const activeEvents = events.filter(ev => reservations.some(r=>String(r.experiencia_id)===String(ev.id)&&!['cancelada','aplazada'].includes(r.estado)));
+  const activeEvents = events.filter(ev => reservations.some(r=>String(r.experiencia_id)===String(ev.id)&&r.estado==='confirmada'));
   const picked = activeEvents.find(ev=>String(ev.id)===String(selectedEvent)) || activeEvents[0];
   if(!picked){alert('No hay experiencias con reservas activas.');return}
   const overlay=document.createElement('div');
@@ -42,7 +42,7 @@ export function openQuickCheckin({reservations,events,attendance = new Map(),sel
   const staged=new Map();
   const keyOf=r=>String(r.id);
   const seatsOf=r=>Math.max(0,Number(r.plazas)||0);
-  const currentRows=()=>reservations.filter(r=>String(r.experiencia_id)===select.value&&!['cancelada','aplazada'].includes(r.estado));
+  const currentRows=()=>reservations.filter(r=>String(r.experiencia_id)===select.value&&r.estado==='confirmada');
   function metric(label,value){
     const box=document.createElement('div');box.style.cssText='background:#f6f0f9;border-radius:12px;padding:12px;text-align:center;min-width:0';
     const n=document.createElement('strong');n.style.cssText='display:block;font-size:clamp(20px,3.5vw,28px);font-variant-numeric:tabular-nums';n.textContent=String(value);
@@ -53,7 +53,7 @@ export function openQuickCheckin({reservations,events,attendance = new Map(),sel
    const rows=currentRows(),total=rows.reduce((sum,r)=>sum+seatsOf(r),0);
    const arrived=rows.reduce((sum,r)=>sum+(staged.has(keyOf(r))?staged.get(keyOf(r)):Number(attendance.get(keyOf(r))||0)),0);
    const registered=rows.reduce((sum,r)=>sum+(staged.has(keyOf(r))||attendance.has(keyOf(r))?seatsOf(r):0),0);
-   counters.replaceChildren(metric('Plazas activas',total),metric('Presentes',arrived),metric('Sin comprobar',Math.max(0,total-registered)));
+   counters.replaceChildren(metric('Plazas confirmadas',total),metric('Presentes',arrived),metric('Sin comprobar',Math.max(0,total-registered)));
    list.replaceChildren();
    const term=search.value.trim().toLocaleLowerCase('es');
    const matches=rows.filter(r=>r.nombre?.toLocaleLowerCase('es').includes(term)).sort((a,b)=>a.nombre.localeCompare(b.nombre,'es'));
@@ -63,7 +63,7 @@ export function openQuickCheckin({reservations,events,attendance = new Map(),sel
     const card=document.createElement('div');card.style.cssText='display:grid;grid-template-columns:minmax(0,1fr) auto;gap:9px;align-items:center;padding:13px 3px;border-bottom:1px solid #e8e0ed';
     const info=document.createElement('div');info.style.cssText='min-width:0;overflow-wrap:anywhere';
     const name=document.createElement('strong');name.textContent=row.nombre;name.style.cssText='display:block;font-size:16px';
-    const meta=document.createElement('small');meta.textContent=seats+' plaza(s) · '+(row.estado==='confirmada'?'Reserva confirmada':'Solicitud pendiente')+(row.pago_estado==='recibido'?' · Pago verificado':' · Pago sin verificar');meta.style.cssText='color:#735d82;line-height:1.5';
+    const meta=document.createElement('small');meta.textContent=seats+' plaza(s) · '+'Reserva confirmada'+(row.pago_estado==='recibido'?' · Pago verificado':' · Pago sin verificar');meta.style.cssText='color:#735d82;line-height:1.5';
     info.append(name,meta);
     const controls=document.createElement('div');controls.style.cssText='display:flex;gap:6px;align-items:center;flex-wrap:wrap;justify-content:flex-end';
     const label=document.createElement('label');label.textContent='Presentes: ';label.style.cssText='font-size:13px;font-weight:700';
