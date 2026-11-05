@@ -376,6 +376,8 @@ details.more-actions>summary:focus-visible,details.admin-action-menu>summary:foc
 </div>
 <script type="module">
 import { supabase } from '/src/supabase.js'
+import { installOfficialEventCoverRecovery } from '/src/official-event-covers.js'
+installOfficialEventCoverRecovery()
 import { installExperienceDetail, linkifyBroadcastListMentions } from '/src/experience-detail.js'
 import { assessExperienceImage, buildExperienceImagePaths, formatImageBytes, getOptimizedExperienceImage, optimizeExperienceImage, releaseOptimizedImage } from '/src/admin-image-optimizer.js'
 import { assistantRequiredFields, buildExperienceDraft, createExperienceCover, formatAssistantDate } from '/src/experience-creation-assistant.js'
