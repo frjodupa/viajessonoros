@@ -260,6 +260,17 @@ select:not([multiple]):focus-visible,select:not([multiple]):focus{
 }
 select:not([multiple]):disabled{background-color:#eee9f0!important;opacity:.65;cursor:not-allowed}
 @media(max-width:700px){select:not([multiple]){min-height:54px!important}}
+
+/* GITOP: gestión premium de experiencias, sin cambio de datos */
+#lista-admin{display:grid;gap:12px;width:100%}
+#lista-admin .admin-experience-row{display:grid!important;grid-template-columns:78px minmax(0,1fr) auto!important;gap:14px!important;align-items:center!important;box-sizing:border-box;width:100%;min-height:106px;box-shadow:0 8px 25px rgba(55,31,73,.06)}
+#lista-admin .admin-experience-thumb{width:78px!important;height:78px!important;object-fit:cover}
+#lista-admin .admin-experience-info{min-width:0!important;line-height:1.4}
+#lista-admin .admin-experience-info strong{display:inline;white-space:normal;overflow-wrap:anywhere;font-size:clamp(15px,1.25vw,18px)}
+#lista-admin .admin-experience-info small{display:block;margin-top:6px}
+#lista-admin .admin-experience-actions{display:flex!important;flex-wrap:wrap;align-items:center;justify-content:flex-end;gap:8px;width:auto!important;max-width:540px}
+#lista-admin .admin-experience-actions>button,#lista-admin .admin-experience-actions>details{flex:0 1 auto;min-width:100px}
+@media(max-width:850px){#lista-admin .admin-experience-row{grid-template-columns:70px minmax(0,1fr)!important}#lista-admin .admin-experience-actions{grid-column:1/-1;justify-content:stretch;width:100%!important;max-width:none}#lista-admin .admin-experience-actions>button,#lista-admin .admin-experience-actions>details{flex:1 1 130px;min-width:0}#lista-admin .admin-experience-thumb{width:70px!important;height:70px!important}}
 </style>
 <link rel="stylesheet" href="/secondary.css">
 <link rel="stylesheet" href="/whatsapp-button.css">
@@ -365,6 +376,8 @@ details.more-actions>summary:focus-visible,details.admin-action-menu>summary:foc
 </div>
 <script type="module">
 import { supabase } from '/src/supabase.js'
+import { installOfficialEventCoverRecovery } from '/src/official-event-covers.js'
+installOfficialEventCoverRecovery()
 import { installExperienceDetail, linkifyBroadcastListMentions } from '/src/experience-detail.js'
 import { assessExperienceImage, buildExperienceImagePaths, formatImageBytes, getOptimizedExperienceImage, optimizeExperienceImage, releaseOptimizedImage } from '/src/admin-image-optimizer.js'
 import { assistantRequiredFields, buildExperienceDraft, createExperienceCover, formatAssistantDate } from '/src/experience-creation-assistant.js'
@@ -382,6 +395,7 @@ const TEMPLATES=[
   {key:'viaje',label:'Viaje Sonoro',titulo:'Viaje Sonoro · Un espacio para volver a ti'},
   {key:'privada',label:'Sesión Privada',titulo:'Sesión Privada · Sonido y presencia'},
   {key:'concierto',label:'Concierto Meditativo',titulo:'Concierto Meditativo · Paisajes del alma'},
+  {key:'personalizada',label:'Crear otro tipo de experiencia',titulo:''},
 ]
 let eventos=[], view='experiencias', user=null, editId=null, fileToUpload=null, imageDataUrl=null, optimizedImage=null, sourceOptimizedImage=null, existingImageFocus=null, selectedTemplateKey='', assistantDraft=null, assistantVariant=0, imageOptimizationFailed=false, imageResolutionInsufficient=false, currentStory=null, currentStoryExperienceId=null
 const parseLocalDate=(value)=>{const match=String(value||'').match(/^(\d{4})-(\d{2})-(\d{2})$/);return match?new Date(Number(match[1]),Number(match[2])-1,Number(match[3])):null}
@@ -614,8 +628,8 @@ const setPreviewSources=(url)=>{document.querySelectorAll('[data-experience-prev
 const updateImagePreview=(result)=>{const preview=document.getElementById('preview-img');const details=document.getElementById('image-details');const status=document.getElementById('image-status');if(!preview||!details||!status)return;const assessment=assessExperienceImage(result.sourceWidth,result.sourceHeight,result.originalSize);imageResolutionInsufficient=assessment.blocksUpload;setPreviewSources(result.previewURL);details.innerHTML=`<span>Imagen seleccionada: <strong>${result.sourceWidth} × ${result.sourceHeight} px · ${formatImageBytes(result.originalSize)}</strong></span><span>Resultado optimizado: <strong>${result.width} × ${result.height} px · ${formatImageBytes(result.optimizedSize)}</strong></span><span>Ahorro estimado: <strong>${result.savingPercent}%</strong></span>${result.cardBlob?`<span>Variante de tarjeta: <strong>${result.cardWidth} × ${result.cardHeight} px · ${formatImageBytes(result.cardBlob.size)}</strong></span>`:''}`;status.className=`admin-image-status is-${assessment.key}`;status.innerHTML=`<strong>${assessment.label}</strong><span>${assessment.message}</span>`;preview.style.display='grid'}
 window.previewFile=async(e)=>{const f=e.target.files[0];if(!f)return;showImageError('');if(optimizedImage)releaseOptimizedImage(optimizedImage);if(sourceOptimizedImage&&sourceOptimizedImage!==optimizedImage)releaseOptimizedImage(sourceOptimizedImage);optimizedImage=null;sourceOptimizedImage=null;existingImageFocus=null;assistantDraft=null;fileToUpload=f;imageDataUrl=null;imageOptimizationFailed=false;imageResolutionInsufficient=false;const preview=document.getElementById('preview-img');if(preview)preview.style.display='none';const resultPreview=document.getElementById('assistant-result');if(resultPreview)resultPreview.hidden=true;try{const result=await optimizeExperienceImage(f);sourceOptimizedImage=result;optimizedImage=result;imageDataUrl=result.previewURL;updateImagePreview(result)}catch(error){imageOptimizationFailed=true;showImageError((error.message||'No se pudo optimizar la fotografía.')+' No se subirá ni se guardará la experiencia hasta seleccionar una imagen válida.')}window.updateAssistantState()}
 window.cancelarEdicion=()=>{ editId=null; fileToUpload=null; imageDataUrl=null; imageOptimizationFailed=false; imageResolutionInsufficient=false; selectedTemplateKey='';assistantDraft=null;assistantVariant=0;if(optimizedImage)releaseOptimizedImage(optimizedImage);if(sourceOptimizedImage&&sourceOptimizedImage!==optimizedImage)releaseOptimizedImage(sourceOptimizedImage);optimizedImage=null;sourceOptimizedImage=null;existingImageFocus=null; ['f-titulo','f-fecha','f-hora','f-precio','f-lugar','f-localidad','f-card-text','f-desc','f-additional','f-imagen','f-file'].forEach(id=>{const el=document.getElementById(id); if(el) el.value=''}); document.querySelectorAll('[data-template-key]').forEach(button=>{button.classList.remove('is-selected');button.setAttribute('aria-pressed','false')});const estado=document.getElementById('f-publicado'); if(estado)estado.value='false'; const aforoInput=document.getElementById('f-aforo-maximo');if(aforoInput)aforoInput.value=''; const p=document.getElementById('preview-img'); if(p) p.style.display='none';const result=document.getElementById('assistant-result');if(result)result.hidden=true; showImageError(''); const error=document.getElementById('form-error'); if(error){error.textContent='';error.style.display='none'};window.updateAssistantState() }
-window.usarPlantilla=(index)=>{const template=TEMPLATES[index];if(!template)return;selectedTemplateKey=template.key;assistantVariant=0;assistantDraft=null;document.querySelectorAll('[data-template-key]').forEach(button=>{const selected=button.dataset.templateKey===template.key;button.classList.toggle('is-selected',selected);button.setAttribute('aria-pressed',String(selected))});document.getElementById('f-titulo').value=template.titulo;document.getElementById('f-publicado').value='false';document.getElementById('f-fecha').focus();window.updateAssistantState()}
-const assistantFormData=()=>({template:selectedTemplateKey,date:document.getElementById('f-fecha')?.value||'',time:document.getElementById('f-hora')?.value||'',place:document.getElementById('f-lugar')?.value||'',locality:document.getElementById('f-localidad')?.value||'',additional:document.getElementById('f-additional')?.value||'',photo:fileToUpload})
+window.usarPlantilla=(index)=>{const template=TEMPLATES[index];if(!template)return;selectedTemplateKey=template.key;assistantVariant=0;assistantDraft=null;document.querySelectorAll('[data-template-key]').forEach(button=>{const selected=button.dataset.templateKey===template.key;button.classList.toggle('is-selected',selected);button.setAttribute('aria-pressed',String(selected))});document.getElementById('f-titulo').value=template.titulo;const custom=document.getElementById('custom-type-help');if(custom)custom.hidden=template.key!=='personalizada';document.getElementById('f-publicado').value='false';if(template.key==='personalizada'){document.getElementById('f-titulo').placeholder='Ej. Taller de Kirtan, Encuentro de Chakras';document.getElementById('f-titulo').focus();}document.getElementById('f-fecha').focus();window.updateAssistantState()}
+const assistantFormData=()=>({template:selectedTemplateKey,customTitle:document.getElementById('f-titulo')?.value?.trim()||'',date:document.getElementById('f-fecha')?.value||'',time:document.getElementById('f-hora')?.value||'',place:document.getElementById('f-lugar')?.value||'',locality:document.getElementById('f-localidad')?.value||'',additional:document.getElementById('f-additional')?.value||'',photo:fileToUpload})
 window.updateAssistantState=()=>{const button=document.getElementById('assistant-create');const status=document.getElementById('assistant-pending');if(!button||!status)return;const missing=assistantRequiredFields(assistantFormData());if(imageResolutionInsufficient)missing.push('una fotografía con resolución suficiente');if(imageOptimizationFailed)missing.push('una fotografía válida');button.disabled=missing.length>0;status.textContent=missing.length?`Pendiente: ${[...new Set(missing)].join(', ')}.`:'Todo listo para crear el contenido y la portada.';status.classList.toggle('is-ready',missing.length===0)}
 const applyDraftToFields=(draft)=>{document.getElementById('f-titulo').value=draft.title;document.getElementById('f-card-text').value=draft.shortText;document.getElementById('f-desc').value=draft.description;document.getElementById('f-additional').value=draft.additional||''}
 const renderAssistantResult=()=>{const result=document.getElementById('assistant-result');if(!result||!assistantDraft||!optimizedImage)return;const place=[document.getElementById('f-lugar').value.trim(),document.getElementById('f-localidad').value.trim()].filter(Boolean).join(' · ');const price=document.getElementById('f-precio').value.trim();result.hidden=false;result.innerHTML=`<div class="assistant-result-heading"><div><span>Borrador generado</span><h3>Previsualización completa</h3></div><p id="assistant-result-status" role="status" aria-live="polite">La experiencia sigue como borrador hasta que pulses Guardar o Publicar.</p></div><div class="assistant-cover-preview"><img src="${escapeHTML(optimizedImage.previewURL)}" alt="Portada generada para ${escapeHTML(assistantDraft.title)}"><p><strong>${optimizedImage.width} × ${optimizedImage.height} px · ${formatImageBytes(optimizedImage.optimizedSize)}</strong><span>WebP · Ahorro respecto a la fotografía seleccionada: ${optimizedImage.savingPercent}%</span></p></div><div class="assistant-public-previews"><article class="assistant-card-preview"><img src="${escapeHTML(optimizedImage.previewURL)}" alt=""><div><small>Tarjeta pública</small><h4>${escapeHTML(assistantDraft.title)}</h4><p>${escapeHTML(assistantDraft.shortText)}</p></div></article><article class="assistant-detail-preview"><img src="${escapeHTML(optimizedImage.previewURL)}" alt=""><div><small>Detalle de la experiencia</small><h4>${escapeHTML(assistantDraft.title)}</h4><p class="assistant-preview-meta">${escapeHTML(assistantDraft.dateText)} · ${escapeHTML(assistantDraft.timeText)}${place?` · ${escapeHTML(place)}`:''}${price?` · ${escapeHTML(price)}`:''}</p><p>${escapeHTML(assistantDraft.description)}</p>${assistantDraft.additional?`<p>${escapeHTML(assistantDraft.additional)}</p>`:''}</div></article></div><div class="assistant-actions"><button type="button" onclick="window.regenerateAssistantTexts()" aria-label="Regenerar los textos de la experiencia">Regenerar textos</button><button type="button" onclick="window.adjustAssistantCover()" aria-label="Ajustar el punto focal de la portada">Ajustar portada</button><button type="button" onclick="window.regenerateAssistantCover()" aria-label="Volver a generar la portada con el encuadre actual">Volver a generar portada</button><button type="button" class="is-primary" onclick="window.useAssistantResult()" aria-label="Usar el borrador generado en el formulario">Usar este resultado</button><button type="button" onclick="window.downloadAssistantCover()" aria-label="Descargar la portada generada en formato WebP">Descargar portada</button></div>`}
@@ -729,7 +743,7 @@ window.guardarEvento=async()=>{
     window.scrollTo({top:0,behavior:'smooth'})
   }catch(err){ if(errorElement){errorElement.textContent='No se pudo guardar: '+err.message;errorElement.style.display='block'} } finally{ if(btn){ btn.textContent='Guardar experiencia'; btn.disabled=false } }
 }
-window.editarEvento=async(id)=>{ window.showAdminEditor(); if(!(await hasValidAdmin())){view='admin-login';render();return} const ev=eventos.find(e=>e.id==id); if(!ev) return; editId=id;fileToUpload=null;selectedTemplateKey='';assistantDraft=null;assistantVariant=0;if(optimizedImage)releaseOptimizedImage(optimizedImage);if(sourceOptimizedImage&&sourceOptimizedImage!==optimizedImage)releaseOptimizedImage(sourceOptimizedImage);optimizedImage=null;sourceOptimizedImage=null;existingImageFocus=null; document.getElementById('f-titulo').value=ev.titulo||''; document.getElementById('f-fecha').value=ev.fecha||''; document.getElementById('f-hora').value=String(ev.hora||'').slice(0,5); document.getElementById('f-precio').value=ev.precio||''; document.getElementById('f-aforo-maximo').value=ev.aforo_maximo??''; document.getElementById('f-lugar').value=ev.lugar||'';document.getElementById('f-localidad').value='';document.getElementById('f-card-text').value=''; document.getElementById('f-desc').value=ev.descripcion||'';document.getElementById('f-additional').value=''; document.getElementById('f-imagen').value=ev.imagen_url||''; document.getElementById('f-publicado').value=String(ev.publicado===true);
+window.editarEvento=async(id)=>{ window.showAdminEditor(); if(!(await hasValidAdmin())){view='admin-login';render();return} const ev=eventos.find(e=>String(e.id)===String(id)); if(!ev){alert('Experiencia no encontrada. Actualiza la lista.');return} editId=ev.id;fileToUpload=null;selectedTemplateKey='';assistantDraft=null;assistantVariant=0;if(optimizedImage)releaseOptimizedImage(optimizedImage);if(sourceOptimizedImage&&sourceOptimizedImage!==optimizedImage)releaseOptimizedImage(sourceOptimizedImage);optimizedImage=null;sourceOptimizedImage=null;existingImageFocus=null; document.getElementById('f-titulo').value=ev.titulo||''; document.getElementById('f-fecha').value=ev.fecha||''; document.getElementById('f-hora').value=String(ev.hora||'').slice(0,5); document.getElementById('f-precio').value=ev.precio||''; document.getElementById('f-aforo-maximo').value=ev.aforo_maximo??''; document.getElementById('f-lugar').value=ev.lugar||'';document.getElementById('f-localidad').value='';document.getElementById('f-card-text').value=''; document.getElementById('f-desc').value=ev.descripcion||'';document.getElementById('f-additional').value=''; document.getElementById('f-imagen').value=ev.imagen_url||''; document.getElementById('f-publicado').value=String(ev.publicado===true);
   const capacityNote=document.getElementById('admin-event-capacity');
   if(capacityNote){const {data:reservations}=await supabase.from('reservas_whatsapp').select('plazas,estado').eq('experiencia_id',id);const occupied=(reservations||[]).filter(r=>r.estado==='confirmada').reduce((n,r)=>n+r.plazas,0),waiting=(reservations||[]).filter(r=>r.estado==='pendiente').reduce((n,r)=>n+r.plazas,0);capacityNote.textContent='Confirmadas/cerradas: '+occupied+' · Pendientes: '+waiting+' · Disponibles: '+(ev.aforo_maximo==null?'Aforo sin configurar':Math.max(0,ev.aforo_maximo-occupied));}
   if(ev.imagen_url){setPreviewSources(ev.imagen_url);document.getElementById('image-details').textContent='Imagen actual. Puedes cambiar los datos o sustituir la imagen; el encuadre se adapta automáticamente.';document.getElementById('preview-img').style.display='grid'} imageDataUrl=ev.imagen_url||null;window.updateAssistantState(); window.scrollTo({top:0,behavior:'smooth'}) }
@@ -748,11 +762,13 @@ async function loadAdminAppDetails(ev){
  if(error){if(recent)recent.textContent='No se pudo consultar las reservas';if(comms)comms.textContent='No se pudo consultar las comunicaciones';return}
  const rows=data||[],active=rows.filter(x=>!['cancelada','aplazada'].includes(x.estado));
  const seats=list=>list.reduce((n,x)=>n+Number(x.plazas||0),0);
- const confirmed=active.filter(x=>x.estado==='confirmada'&&x.pago_estado==='recibido');
+ const confirmed=active.filter(x=>x.estado==='confirmada');
+  const pending=active.filter(x=>x.estado==='pendiente');
+  const paymentUnverified=confirmed.filter(x=>x.pago_estado!=='recibido');
  set('admin-app-count',rows.length+' reservas registradas · '+seats(active)+' plazas activas · '+seats(confirmed)+' plazas confirmadas');
- set('admin-app-confirmed',seats(confirmed));set('admin-app-pending',seats(active)-seats(confirmed));set('admin-app-capacity',ev.aforo_maximo??'—');set('admin-app-available',ev.aforo_maximo==null?'—':Math.max(0,Number(ev.aforo_maximo)-seats(active)));
+ set('admin-app-confirmed',seats(confirmed));set('admin-app-pending',seats(pending));set('admin-app-capacity',ev.aforo_maximo??'—');set('admin-app-available',ev.aforo_maximo==null?'—':Math.max(0,Number(ev.aforo_maximo)-seats(active)));
  if(recent){recent.replaceChildren();if(!rows.length)recent.textContent='Todavía no hay reservas';for(const r of rows){const line=document.createElement('div');line.className='admin-app-line';const name=document.createElement('span');name.textContent=r.nombre+' · '+r.plazas+' '+(Number(r.plazas)===1?'plaza':'plazas');const state=document.createElement('small');state.textContent=r.estado;line.append(name,state);recent.append(line)}}
- if(comms){comms.replaceChildren();const link=document.createElement('a');link.href='/reservas-premium.html?experiencia='+encodeURIComponent(ev.id)+'#communications-panel';link.textContent='Abrir comunicaciones y recordatorios →';const p=document.createElement('div');p.className='admin-app-line';p.textContent='Reservas pendientes: '+rows.filter(x=>x.estado==='pendiente').length+' · Reservas confirmadas y pagadas: '+confirmed.length+'. ';p.append(link);comms.append(p)}
+ if(comms){comms.replaceChildren();const link=document.createElement('a');link.href='/reservas-premium.html?experiencia='+encodeURIComponent(ev.id)+'#communications-panel';link.textContent='Abrir comunicaciones y recordatorios →';const p=document.createElement('div');p.className='admin-app-line';p.textContent='Reservas pendientes de confirmar: '+pending.length+' · Reservas confirmadas: '+confirmed.length+' · Pagos pendientes de verificar: '+paymentUnverified.length+'. ';p.append(link);comms.append(p)}
 }
 window.selectAdminExperience=(id)=>{
  const ev=eventos.find(e=>String(e.id)===String(id));
@@ -764,7 +780,7 @@ window.selectAdminExperience=(id)=>{
  const title=document.createElement('h4');title.textContent=ev.titulo;
  const descr=document.createElement('p');descr.textContent='📅 '+String(ev.fecha||'Sin fecha').split('-').reverse().join('-')+' · '+String(ev.hora||'').slice(0,5)+(ev.lugar?' · '+ev.lugar:'')+' · '+(ev.publicado?'Publicada':'Borrador');
  const actions=document.createElement('div');actions.className='admin-modern-active-actions';
- const edit=document.createElement('button');edit.textContent='Editar experiencia';edit.onclick=()=>window.editarEvento(ev.id);
+ const edit=document.createElement('button');edit.textContent='Editar experiencia y aforo';edit.onclick=()=>window.editarEvento(ev.id);
  const reservations=document.createElement('a');reservations.href='/reservas-premium.html?experiencia='+encodeURIComponent(ev.id);reservations.textContent='Reservas y mensajes';
  const share=document.createElement('button');share.textContent='Copiar enlace';share.disabled=!ev.publicado;share.onclick=()=>window.copyReservationPage(ev.id);
  const duplicate=document.createElement('button');duplicate.type='button';duplicate.textContent='Duplicar experiencia';duplicate.onclick=()=>window.duplicarEvento(ev.id);actions.append(edit,duplicate,reservations,share);target.append(title,descr,actions);
@@ -785,8 +801,10 @@ function renderCurrentAdminExperiences(data){
   const meta=document.createElement('div');meta.className='admin-current-card-meta';meta.textContent=[formatDate(ev.fecha),formatTime(ev.hora),ev.lugar].filter(Boolean).join(' · ');
   const actions=document.createElement('div');actions.className='admin-current-card-actions';
   const manage=document.createElement('button');manage.type='button';manage.textContent='Ver gestión';manage.onclick=()=>window.selectAdminExperience(ev.id);
+   const edit=document.createElement('button');edit.type='button';edit.textContent='Editar / aforo';edit.onclick=()=>window.editarEvento(ev.id);
+   const capacity=document.createElement('button');capacity.type='button';capacity.textContent='Aforo: '+(ev.aforo_maximo??'Sin definir');capacity.onclick=()=>window.quickEditCapacity(ev.id);
   const reservations=document.createElement('a');reservations.href='/reservas-premium.html?experiencia='+encodeURIComponent(ev.id);reservations.textContent='Reservas'; 
-  actions.append(manage,reservations);body.append(title,meta,actions);card.append(body);grid.append(card)
+  actions.append(manage,edit,capacity,reservations);body.append(title,meta,actions);card.append(body);grid.append(card)
  }
  return active;
 }
@@ -808,6 +826,27 @@ function renderAdminModernEvents(data){
  }
  window.selectAdminExperience((active[0]||sorted[0]).id);
 }
+window.quickEditCapacity=async(id)=>{
+ if(!(await hasValidAdmin())){alert('Inicia sesión como administrador para editar el aforo.');return}
+ const ev=eventos.find(item=>String(item.id)===String(id));
+ if(!ev){alert('Experiencia no encontrada. Actualiza la lista.');return}
+ const {data:bookings,error:readError}=await supabase.from('reservas_whatsapp').select('plazas,estado').eq('experiencia_id',ev.id);
+ if(readError){alert('No se pudo consultar la ocupación: '+readError.message);return}
+ const occupied=(bookings||[]).filter(item=>!['cancelada','aplazada'].includes(item.estado)).reduce((n,item)=>n+Number(item.plazas||0),0);
+ const answer=prompt('Aforo total de '+ev.titulo+'\nPlazas activas: '+occupied+'\nAforo actual: '+(ev.aforo_maximo??'Sin definir')+'\n\nIntroduce el aforo total:',ev.aforo_maximo==null?'':String(ev.aforo_maximo));
+ if(answer===null)return;
+ const value=answer.trim();
+ if(!/^\d+$/.test(value)||!Number.isSafeInteger(Number(value))||Number(value)<Math.max(1,occupied)){alert('Introduce un número entero igual o superior a las '+occupied+' plazas activas.');return}
+ const capacity=Number(value);
+ if(capacity===ev.aforo_maximo)return;
+ if(!confirm('¿Guardar '+capacity+' plazas de aforo? Disponibles: '+(capacity-occupied)+'. Las reservas y los pagos no cambiarán.'))return;
+ const {data:updated,error}=await supabase.from('experiencias').update({aforo_maximo:capacity}).eq('id',ev.id).select('aforo_maximo').single();
+ if(error||Number(updated?.aforo_maximo)!==capacity){alert('No se pudo guardar: '+(error?.message||'Resultado no confirmado'));return}
+ const {data:verified,error:verifyError}=await supabase.from('experiencias').select('aforo_maximo').eq('id',ev.id).single();
+ if(verifyError||Number(verified?.aforo_maximo)!==capacity){alert('El dato no se pudo verificar; revisa el estado antes de repetir.');return}
+ await window.renderAdminList();
+ alert('Aforo actualizado y verificado: '+capacity+' plazas.');
+};
 window.duplicarEvento=async(id)=>{
  await window.editarEvento(id);
  if(!(await hasValidAdmin()))return;
@@ -829,6 +868,7 @@ window.renderAdminList=async()=>{ if(!(await hasValidAdmin())){view='admin-login
  const c=document.getElementById('lista-admin'); if(!c) return; c.innerHTML=data.map(ev=>{const id=safeEventId(ev.id);const image=safeImageURL(ev.imagen_url);return `<div class="admin-experience-row" style="background:white;border-radius:16px;padding:14px;display:flex;gap:12px;border:1px solid #EDE8F3">${image?`<img class="admin-experience-thumb" src="${escapeHTML(image)}" alt="" style="width:64px;height:64px;object-fit:cover;border-radius:10px"/>`:''}<div class="admin-experience-info" style="flex:1"><strong style="color:#412A6B">${escapeHTML(ev.titulo)}</strong> <span style="display:inline-block;padding:2px 7px;border-radius:999px;background:${ev.publicado?'#DCFCE7':'#F5F0E8'};color:${ev.publicado?'#166534':'#6B5A78'};font-size:10px;font-weight:700">${ev.publicado?'Publicada':'Borrador'}</span><br/><small style="color:#8A7AA8">${escapeHTML(eventMeta(ev))}</small></div><div class="admin-experience-actions">
 <button type="button" onclick="window.openReservationPage('${id}')" ${ev.publicado?"":"disabled"}>Ver reserva</button>
 <button type="button" onclick="window.editarEvento('${id}')">Editar</button>
+ <button type="button" onclick="window.quickEditCapacity('${id}')">Aforo: ${ev.aforo_maximo??'Sin definir'}</button>
 <details class="admin-action-menu"><summary>Compartir ▾</summary><div class="admin-action-menu-items">
 <button type="button" onclick="window.copyReservationPage('${id}')" ${ev.publicado?"":"disabled"}>Copiar enlace</button>
 <button type="button" onclick="window.shareReservationPage('${id}')" ${ev.publicado?"":"disabled"}>Compartir enlace</button>
@@ -1198,7 +1238,7 @@ function renderAdminPanel(){ return `${headerHTML()}<main class="admin-premium-s
     <span>Asistente de creación</span>
     <h3 id="assistant-title">Crea el borrador completo desde datos reales</h3>
     <p>Elige el tipo de experiencia, completa los datos y selecciona una fotografía. Nada se publicará hasta que lo confirmes al guardar.</p>
-    <div class="admin-template-options" role="group" aria-label="Tipo de experiencia">${TEMPLATES.map((template,index)=>`<button type="button" data-template-key="${template.key}" aria-pressed="false" onclick="window.usarPlantilla(${index})">${template.label}</button>`).join('')}</div>
+    <div class="admin-template-options" role="group" aria-label="Tipo de experiencia">${TEMPLATES.map((template,index)=>`<button type="button" data-template-key="${template.key}" aria-pressed="false" onclick="window.usarPlantilla(${index})">${template.label}</button>`).join('')}</div><p id="custom-type-help" hidden>Selecciona esta opción y escribe el nombre del nuevo tipo en «Título de la experiencia»; se guardará con su nombre propio sin alterar los existentes.</p>
   </section>
 
   <div class="admin-premium-grid">

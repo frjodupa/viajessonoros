@@ -88,28 +88,30 @@ export const buildExperienceDraft = ({
   time,
   place,
   locality,
+  customTitle = '',
   additional = '',
   variant = 0,
 }) => {
   const variants = TEXT_VARIANTS[template]
-  if (!variants) throw new Error('Selecciona primero un tipo de experiencia.')
+  if (template !== 'personalizada' && !variants) throw new Error('Selecciona primero un tipo de experiencia.')
+  if (template === 'personalizada' && !String(customTitle).trim()) throw new Error('Escribe el título de la experiencia personalizada.')
   const cleanLocality = String(locality || '').trim()
   const dateText = formatAssistantDate(date)
   if (!dateText || !time || !String(place || '').trim() || !cleanLocality) {
     throw new Error('Completa fecha, hora, lugar y localidad antes de crear el contenido.')
   }
-  const selected = variants[Math.abs(variant) % variants.length]
+  const selected = template === 'personalizada' ? null : variants[Math.abs(variant) % variants.length]
   const timeText = `${String(time).slice(0, 5)} h`
   const placeText = [String(place).trim(), cleanLocality].filter(Boolean).join(', ')
 
   return {
-    title: selected.title(cleanLocality),
-    shortText: selected.short,
-    description: selected.body({ dateText, timeText, placeText }),
+    title: template === 'personalizada' ? String(customTitle).trim() : selected.title(cleanLocality),
+    shortText: template === 'personalizada' ? 'Nueva experiencia de Viajes Sonoros. Consulta la información de la actividad y las reservas.' : selected.short,
+    description: template === 'personalizada' ? `Te invitamos a ${String(customTitle).trim()} el ${dateText} a las ${timeText} en ${placeText}. Consulta con la organización los detalles de la actividad.` : selected.body({ dateText, timeText, placeText }),
     additional: String(additional || '').trim(),
     dateText,
     timeText,
-    coverTitle: template === 'viaje'
+    coverTitle: template === 'personalizada' ? String(customTitle).trim() : template === 'viaje'
       ? 'Viaje Sonoro'
       : template === 'privada'
         ? 'Sesión Privada'
