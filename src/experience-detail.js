@@ -8,6 +8,9 @@ const escapeHTML = (value = '') =>
 const safeImageURL = (value) => {
   try {
     const url = new URL(String(value || ''), window.location.origin)
+    if (['viajessonoros.es', 'www.viajessonoros.es'].includes(url.hostname)) {
+      return window.location.origin + url.pathname + url.search + url.hash
+    }
     return url.protocol === 'https:' ||
       (url.protocol === 'http:' && ['localhost', '127.0.0.1'].includes(url.hostname))
       ? url.href
