@@ -807,10 +807,25 @@ const buckets=[
  const quickWhatsApp=document.createElement('button');quickWhatsApp.type='button';
   quickWhatsApp.className='whatsapp';quickWhatsApp.textContent='WhatsApp · Avisar';
   const canConfirm=row.estado==='confirmada'&&(isPayAtVenue(event)||row.pago_estado==='recibido');
-  if(canConfirm&&communicationSent.has(row.id+':confirmacion')){
+  const confirmationSent=communicationSent.has(row.id+':confirmacion');
+  const reminderSent=communicationSent.has(row.id+':recordatorio');
+  const eventDay=String(event?.fecha||'').slice(0,10);
+  const todayInMadrid=new Intl.DateTimeFormat('sv-SE',{timeZone:'Europe/Madrid',year:'numeric',month:'2-digit',day:'2-digit'}).format(new Date());
+  const eventHasPassed=/^\d{4}-\d{2}-\d{2}$/.test(eventDay)&&eventDay<=todayInMadrid;
+  if(row.estado==='cancelada'||row.estado==='aplazada'){
+    quickWhatsApp.textContent='Siguiente · Gestionar estado';
+    quickWhatsApp.onclick=()=>openBookingEditor(row,event,article);
+  }else if(row.estado==='confirmada'&&!canConfirm){
+    quickWhatsApp.textContent='Siguiente · Verificar pago';
+    quickWhatsApp.onclick=()=>openBookingEditor(row,event,article);
+  }else if(canConfirm&&confirmationSent&&eventHasPassed){
     quickWhatsApp.textContent='Siguiente · Registrar asistencia';
     quickWhatsApp.className='booking-primary-action';
     quickWhatsApp.onclick=()=>{$('event').value=String(row.experiencia_id);showAttendanceReport()};
+  }else if(canConfirm&&confirmationSent){
+    quickWhatsApp.textContent=reminderSent?'Confirmación y recordatorio enviados':'Siguiente · Preparar recordatorio';
+    quickWhatsApp.onclick=()=>{if(reminderSent)return;more.open=true;reminder.scrollIntoView({block:'nearest',behavior:'smooth'});reminder.focus()};
+    quickWhatsApp.disabled=reminderSent;
   }else{
     quickWhatsApp.textContent=canConfirm?'Siguiente · Enviar confirmación':row.estado==='pendiente'?'Siguiente · Consultar solicitud':'WhatsApp · Consultar';
     quickWhatsApp.onclick=()=>openBookingWhatsApp(row,event,canConfirm);
