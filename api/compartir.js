@@ -4,7 +4,7 @@ export default async function handler(req,res){
   const id=String(new URL(req.url,'https://viajessonoros.es').searchParams.get('experiencia')||'');
   if(!/^\d{1,19}$/.test(id)){res.statusCode=404;return res.end('Experiencia no encontrada');}
   const host='https://viajessonoros.es';
-  const url=host+'/api/compartir?experiencia='+encodeURIComponent(id);
+  const url=host+'/api/compartir?experiencia='+encodeURIComponent(id)+(id==='16'?'&v=2':'');
   const target=host+'/reserva.html?experiencia='+encodeURIComponent(id);
   const api=process.env.VITE_SUPABASE_URL;
   const key=process.env.VITE_SUPABASE_ANON_KEY;
@@ -25,10 +25,18 @@ export default async function handler(req,res){
     const image=(()=>{try{
       if(!String(ev.imagen_url||'').trim())return host+'/viajes-sonoros-social.jpg';
       const u=new URL(ev.imagen_url,host);
-      return u.protocol==='https:'?u.href:host+'/viajes-sonoros-social.jpg';
+      if(u.protocol!=='https:')return host+'/viajes-sonoros-social.jpg';
+      if(u.pathname.toLowerCase().endsWith('.svg')){
+        // WhatsApp/Facebook no garantizan miniaturas SVG. El evento 16 usa
+        // el JPEG original incrustado en su portada, servido como image/jpeg.
+        if(id==='16'&&u.origin===host&&u.pathname==='/portadas/concierto-meditativo-caceres-2026.svg')
+          return host+'/api/imagen-social?experiencia=16';
+        return host+'/viajes-sonoros-social.jpg';
+      }
+      return u.href;
     }catch{return host+'/viajes-sonoros-social.jpg'}})();
-    const imageType=/\\.jpe?g(?:[?#]|$)/i.test(image)?'image/jpeg':/\\.png(?:[?#]|$)/i.test(image)?'image/png':/\\.webp(?:[?#]|$)/i.test(image)?'image/webp':null;
-    const metaImage=`<meta property="og:image" content="${escapeHtml(image)}"><meta property="og:image:secure_url" content="${escapeHtml(image)}">${imageType?'<meta property="og:image:type" content="'+imageType+'">':''}<meta property="og:image:alt" content="${escapeHtml('Imagen de '+ev.titulo)}"><meta name="twitter:image" content="${escapeHtml(image)}">`;
+    const imageType=image.includes('/api/imagen-social?')?'image/jpeg':/\.jpe?g(?:[?#]|$)/i.test(image)?'image/jpeg':/\.png(?:[?#]|$)/i.test(image)?'image/png':/\.webp(?:[?#]|$)/i.test(image)?'image/webp':null;
+    const metaImage=`<meta property="og:image" content="${escapeHtml(image)}"><meta property="og:image:secure_url" content="${escapeHtml(image)}">${imageType?'<meta property="og:image:type" content="'+imageType+'">':''}<meta property="og:image:alt" content="${escapeHtml('Imagen de '+ev.titulo)}">${id==='16'?'<meta property="og:image:width" content="640"><meta property="og:image:height" content="640">':''}<meta name="twitter:image" content="${escapeHtml(image)}">`;
     const html=`<!doctype html><html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>${escapeHtml(title)}</title><meta name="description" content="${escapeHtml(description.slice(0,240))}"><meta property="og:type" content="website"><meta property="og:locale" content="es_ES"><meta property="og:site_name" content="Viajes Sonoros"><meta property="og:title" content="${escapeHtml(title)}"><meta property="og:description" content="${escapeHtml(description.slice(0,240))}"><meta property="og:url" content="${escapeHtml(url)}">${metaImage}<meta name="twitter:card" content="summary_large_image"><meta name="twitter:title" content="${escapeHtml(title)}"><meta name="twitter:description" content="${escapeHtml(description.slice(0,240))}"><link rel="canonical" href="${escapeHtml(target)}"></head><body><p><a href="${escapeHtml(target)}">Reservar plaza para ${escapeHtml(ev.titulo)}</a></p><script>window.location.replace(${JSON.stringify(target)})<\/script></body></html>`;
     res.setHeader('Content-Type','text/html; charset=utf-8');
     res.setHeader('Cache-Control','public, s-maxage=300, stale-while-revalidate=600');

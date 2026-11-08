@@ -562,7 +562,7 @@ window.openWhatsAppGeneral=()=>{
   window.open(whLink(txt),'_blank','noopener,noreferrer')
 }
 const reservationPageURL=id=>new URL('/reserva.html?experiencia='+encodeURIComponent(id),location.origin).href
-const socialShareURL=id=>new URL('/api/compartir?experiencia='+encodeURIComponent(id),location.origin).href
+const socialShareURL=id=>new URL('/api/compartir?experiencia='+encodeURIComponent(id)+(String(id)==='16'?'&v=2':''),location.origin).href
 window.sharePublicExperience=async(id,button)=>{
   const ev=eventos.find(e=>String(e.id)===String(id));
   if(!ev||!ev.publicado)return;
