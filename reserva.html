@@ -36,6 +36,10 @@ h2{font-size:clamp(1.85rem,3vw,2.4rem);margin:0 0 10px;color:#4a1c61}
 .contribution{display:inline-flex;margin:0 0 12px;padding:8px 12px;color:#70411a;background:#fff5e5;border:1px solid #e5cfab;font-size:.94rem;font-weight:750}
 .venue{color:#745127;font-weight:650;line-height:1.55;margin:4px 0 8px;overflow-wrap:anywhere}
 .event-description{color:#625664;line-height:1.6;white-space:pre-line;margin:12px 0 0;font-size:.91rem;display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:3;overflow:hidden}
+.share-experience{margin-top:16px;display:flex;align-items:center;justify-content:center;gap:10px;min-height:50px;background:#f4f0f7;color:#4a1c61;border:1.5px solid #cdb9d3;box-shadow:none}
+.share-experience:hover{background:#e8dff0}
+.share-experience svg{width:20px;height:20px;flex:none}
+.share-status{font-size:.8rem;color:#625664;line-height:1.5;margin:8px 0 0}
 .reservation-panel{min-width:0;background:#fff;border:1px solid #eadfe9;border-radius:24px;padding:25px;box-shadow:0 12px 35px #321b420d}
 .reservation-intro{font-size:.9rem;color:#6b596d;line-height:1.6;margin:0 0 15px}
 #availability{margin:0 0 12px;font-size:.85rem;color:#63556a;line-height:1.5}
@@ -133,6 +137,8 @@ details.more-actions>summary:focus-visible,details.admin-action-menu>summary:foc
     <div id="contribution" class="contribution"></div>
     <p id="venue" class="venue"></p>
     <p id="description" class="event-description" hidden></p>
+    <button id="share-experience" class="share-experience" type="button" aria-label="Compartir esta experiencia"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="m8.7 13.5 6.6 4m0-11-6.6 4"/></svg>Compartir experiencia</button>
+    <p id="share-status" class="share-status" role="status" aria-live="polite" hidden></p>
    </div>
   </section>
   <section class="reservation-panel" aria-labelledby="booking-heading">
@@ -201,6 +207,28 @@ if(event){
  document.getElementById('title').textContent=event.titulo;
  document.getElementById('meta').textContent=[event.fecha?new Intl.DateTimeFormat('es-ES',{day:'numeric',month:'long',year:'numeric',timeZone:'Europe/Madrid'}).format(new Date(event.fecha+'T12:00:00Z')):'',String(event.hora||'').slice(0,5)+' h'].filter(Boolean).join(' · ');
  document.getElementById('venue').textContent=event.lugar||'Lugar por confirmar';
+ const shareButton=document.getElementById('share-experience');
+ const shareStatus=document.getElementById('share-status');
+ shareButton.addEventListener('click',async()=>{
+  // Enlace individual de reserva: nunca incluye datos personales ni el estado del formulario.
+  const shareUrl=new URL('/api/compartir',location.origin);
+  shareUrl.searchParams.set('experiencia',String(event.id));
+  const shareText=[event.titulo,event.fecha?new Intl.DateTimeFormat('es-ES',{day:'numeric',month:'long',year:'numeric',timeZone:'Europe/Madrid'}).format(new Date(event.fecha+'T12:00:00Z')):'',String(event.hora||'').slice(0,5),event.lugar||''].filter(Boolean).join(' · ');
+  shareStatus.hidden=true;
+  if(navigator.share){
+   try{await navigator.share({title:event.titulo,text:shareText,url:shareUrl.href});return}
+   catch(error){if(error?.name==='AbortError')return}
+  }
+  try{
+   await navigator.clipboard.writeText(shareText+'\n'+shareUrl.href);
+   shareStatus.textContent='Enlace y datos de la experiencia copiados. Ya puedes compartirlos.';
+  }catch{
+   // Alternativa funcional para navegadores sin Web Share ni portapapeles.
+   location.href='https://api.whatsapp.com/send?text='+encodeURIComponent(shareText+'\n'+shareUrl.href);
+   return;
+  }
+  shareStatus.hidden=false;
+ });
  document.getElementById('contribution').textContent=String(event.precio||'').trim()? (/^aportaci[oó]n/i.test(String(event.precio))?String(event.precio):'Aportación '+String(event.precio)):'Aportación a consultar';
  const desc=document.getElementById('description');if(event.descripcion){desc.textContent=event.descripcion;desc.hidden=false;}
  const cover=document.getElementById('event-cover');try{const img=new URL(event.imagen_url||'',location.origin);if((img.protocol==='https:'||(img.protocol==='http:'&&['localhost','127.0.0.1'].includes(img.hostname)))&&event.imagen_url){cover.src=img.href;cover.alt='Fotografía de '+event.titulo;cover.hidden=false;cover.onerror=()=>{cover.hidden=true}}}catch{}
