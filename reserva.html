@@ -211,7 +211,7 @@ if(event){
  const shareStatus=document.getElementById('share-status');
  shareButton.addEventListener('click',async()=>{
   // Enlace individual de reserva: nunca incluye datos personales ni el estado del formulario.
-  const shareUrl=new URL('/reserva.html',location.origin);
+  const shareUrl=new URL('/api/compartir',location.origin);
   shareUrl.searchParams.set('experiencia',String(event.id));
   const shareText=[event.titulo,event.fecha?new Intl.DateTimeFormat('es-ES',{day:'numeric',month:'long',year:'numeric',timeZone:'Europe/Madrid'}).format(new Date(event.fecha+'T12:00:00Z')):'',String(event.hora||'').slice(0,5),event.lugar||''].filter(Boolean).join(' · ');
   shareStatus.hidden=true;
