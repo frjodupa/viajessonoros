@@ -11,7 +11,7 @@ export default async function handler(req,res){
     if(!source.ok)throw new Error('Imagen de origen no disponible');
     const svg=await source.text();
     if(svg.length>1500000)throw new Error('SVG demasiado grande');
-    const match=svg.match(/<image\\b[^>]*href="data:image\\/jpeg;base64,([^"]+)"/i);
+    const match=svg.match(/<image\b[^>]*href="data:image\/jpeg;base64,([^"]+)"/i);
     if(!match||match[1].length>1000000)throw new Error('Fotografía no encontrada');
     const jpeg=Buffer.from(match[1],'base64');
     if(jpeg.length<1000||jpeg[0]!==0xff||jpeg[1]!==0xd8||jpeg[jpeg.length-2]!==0xff||jpeg[jpeg.length-1]!==0xd9)throw new Error('JPEG no válido');
