@@ -20,8 +20,15 @@ export default async function handler(req,res){
     const day=/^\d{4}-\d{2}-\d{2}/.test(ev.fecha||'')?ev.fecha.slice(8,10)+'-'+ev.fecha.slice(5,7)+'-'+ev.fecha.slice(0,4):'';
     const details=[day,ev.hora?.slice(0,5),ev.lugar].filter(Boolean).join(' · ');
     const description=(details?details+'. ':'')+(ev.descripcion||'Descubre esta experiencia de Viajes Sonoros. Reserva tu plaza y disfruta de una pausa de calma y escucha.');
-    const image=(()=>{try{const u=new URL(ev.imagen_url||'',host);return u.protocol==='https:'?u.href:null}catch{return null}})();
-    const metaImage=image?`<meta property="og:image" content="${escapeHtml(image)}"><meta property="og:image:secure_url" content="${escapeHtml(image)}"><meta name="twitter:image" content="${escapeHtml(image)}">`:'';
+    // Utilizar siempre la fotografía publicada del evento cuando tenga una URL HTTPS válida.
+    // Si falta, usar la imagen social oficial para no entregar una vista previa sin imagen.
+    const image=(()=>{try{
+      if(!String(ev.imagen_url||'').trim())return host+'/viajes-sonoros-social.jpg';
+      const u=new URL(ev.imagen_url,host);
+      return u.protocol==='https:'?u.href:host+'/viajes-sonoros-social.jpg';
+    }catch{return host+'/viajes-sonoros-social.jpg'}})();
+    const imageType=/\\.jpe?g(?:[?#]|$)/i.test(image)?'image/jpeg':/\\.png(?:[?#]|$)/i.test(image)?'image/png':/\\.webp(?:[?#]|$)/i.test(image)?'image/webp':null;
+    const metaImage=`<meta property="og:image" content="${escapeHtml(image)}"><meta property="og:image:secure_url" content="${escapeHtml(image)}">${imageType?'<meta property="og:image:type" content="'+imageType+'">':''}<meta property="og:image:alt" content="${escapeHtml('Imagen de '+ev.titulo)}"><meta name="twitter:image" content="${escapeHtml(image)}">`;
     const html=`<!doctype html><html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>${escapeHtml(title)}</title><meta name="description" content="${escapeHtml(description.slice(0,240))}"><meta property="og:type" content="website"><meta property="og:locale" content="es_ES"><meta property="og:site_name" content="Viajes Sonoros"><meta property="og:title" content="${escapeHtml(title)}"><meta property="og:description" content="${escapeHtml(description.slice(0,240))}"><meta property="og:url" content="${escapeHtml(url)}">${metaImage}<meta name="twitter:card" content="summary_large_image"><meta name="twitter:title" content="${escapeHtml(title)}"><meta name="twitter:description" content="${escapeHtml(description.slice(0,240))}"><link rel="canonical" href="${escapeHtml(target)}"></head><body><p><a href="${escapeHtml(target)}">Reservar plaza para ${escapeHtml(ev.titulo)}</a></p><script>window.location.replace(${JSON.stringify(target)})<\/script></body></html>`;
     res.setHeader('Content-Type','text/html; charset=utf-8');
     res.setHeader('Cache-Control','public, s-maxage=300, stale-while-revalidate=600');
