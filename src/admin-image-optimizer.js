@@ -250,6 +250,7 @@ export const buildExperienceImagePaths = (fileName, result) => {
 
   return {
     full: `${imageBase}__full-${result.width}x${result.height}.${result.fullExtension}`,
+    source: `${imageBase}__source.jpg`,
     card: result.cardBlob ? `${imageBase}__card.webp` : null,
   }
 }
@@ -290,4 +291,18 @@ export const getOptimizedExperienceImage = (value) => {
     focusX,
     focusY,
   }
+}
+
+// La fotografia sin rotulos se guarda junto a cada portada generada.
+// Las portadas historicas sin este recurso no deben recomponerse sobre si mismas.
+export const getExperienceSourceImageURL = (coverURL) => {
+  try {
+    const url = new URL(String(coverURL || ''), window.location.origin)
+    if (!url.pathname.includes('/storage/v1/object/public/eventos/')) return null
+    const pattern = new RegExp(String.raw`__full-\d+x\d+\.(?:jpe?g|png|webp)$`, 'i')
+    if (!pattern.test(url.pathname)) return null
+    url.pathname = url.pathname.replace(pattern, '__source.jpg')
+    url.search = ''
+    return url.href
+  } catch { return null }
 }
