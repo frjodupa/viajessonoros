@@ -51,3 +51,13 @@ PROBADO: única compilación final de esta intervención (npm run build, prebuil
 ALCANCE: diff hacia main limitado a src/main.js, src/landing-premium.css y esta ficha. Resto de archivos idénticos a main: reservas, Domus, páginas de terapias, administración, Supabase y configuración de despliegue. Las modalidades privadas de la landing permanecen accesibles en un desplegable.
 DESPLIEGUE: GitHub conectado al proyecto Vercel viajessonoros (prj_g19HogAmL1XpexGzN41bXYQhfw5i), Vite/Node 24.x. Rama no excluida de previews. Sin fusión ni promoción a producción. Producción observada READY: dpl_Chy7PLJR15BhmYwaQ1fRYHAPjzJG, main 502f1f1; conservarlo como referencia de reversión. En una publicación posterior autorizada, comprobar el despliegue candidato antes de asignar dominio; ante fallo, restaurar ese despliegue mediante rollback, verificando antes que sigue siendo la versión anterior correcta. No se ensaya una reversión en producción.
 PENDIENTE EN ESTE COMMIT: subida autorizada de rama y creación de PR hacia main; verificación del despliegue preview y URL de PR se registran en su descripción y en el informe local final para evitar otro despliegue solo por documentación. No fusionar automáticamente.
+
+
+## Política de previews Vercel — 4 de noviembre de 2026
+
+HECHO: propuesta local en `gitop/vercel-preview-policy-20261104`, copia Git independiente y base `fcde2c5fd55aab903ff17d03b2484e09488cd6c2`. Cambios limitados a `vercel.json`, documentación de la política y este registro.
+PROPUESTO: main permitido siempre por regla exacta; previews de nuevas ramas solo en qa/**, con compatibilidad explícita para las 12 ramas de PR abiertos ya habilitadas. Se mantienen las cinco ramas gitop/integral-* sin autodespliegue y la exclusión histórica Domus. No se añade ignoreCommand ni se modifican workflows, rutas, cabeceras, datos o funciones.
+PROBADO: ver matriz y evidencias locales en la tarea; simulación offline con minimatch, validación de JSON y comparación estructural con la base. No equivale a pushes o builds reales de Vercel. Sin compilación de la aplicación.
+PENDIENTE: revisión y autorización expresa de aplicación. Actualizar main no propaga la política a las ramas existentes; no desplegar para verificar sin autorización. Ningún push, PR remoto, merge, cambio en el panel o despliegue ejecutado.
+REVERSIÓN: antes de aplicar, basta conservar o descartar la propuesta local. Si en el futuro se integra, revertir únicamente el cambio de git.deploymentEnabled en una nueva rama y bajo autorización de publicación, preservando cambios posteriores. No hace falta restaurar datos.
+INFORME: `docs/VERCEL_PREVIEW_POLICY.md`.

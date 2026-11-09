@@ -1,6 +1,24 @@
 {
   "git": {
-    "deploymentEnabled": { "gitop/domus-agenda-grupos-20261027": false }
+    "deploymentEnabled": {
+      "**": false,
+      "main": true,
+      "qa/**": true,
+      "gitop/domus-agenda-grupos-20261027": false,
+      "gitop/integral-*": false,
+      "fix/kirtan-og-fotografia-real-20261031": true,
+      "gitop/difusion-visible-20261031": true,
+      "gitop/restore-banners-nav-20261030": true,
+      "gitop/legibilidad-difusion-premium-20261030": true,
+      "gitop/auditoria-reservas-premium-20261029": true,
+      "feature/banners-informativos-admin-20261025": true,
+      "feature/vista-previa-pdf-asistencia-20261025": true,
+      "feature/reservas-premium-aplazamientos-20261023": true,
+      "gitop/experiencias-actions-20261014": true,
+      "gitop/playwright-smoke-20261014": true,
+      "feat/viajessonoros-github-script": true,
+      "codex/admin-experiencias-recientes": true
+    }
   },
   "redirects": [
     {
