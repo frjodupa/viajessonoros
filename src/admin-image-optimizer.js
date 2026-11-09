@@ -298,9 +298,10 @@ export const getOptimizedExperienceImage = (value) => {
 export const getExperienceSourceImageURL = (coverURL) => {
   try {
     const url = new URL(String(coverURL || ''), window.location.origin)
-    if (!/\\/storage\\/v1\\/object\\/public\\/eventos\\//.test(url.pathname)) return null
-    if (!/__full-\\d+x\\d+\\.(?:jpe?g|png|webp)$/i.test(url.pathname)) return null
-    url.pathname = url.pathname.replace(/__full-\\d+x\\d+\\.(?:jpe?g|png|webp)$/i, '__source.jpg')
+    if (!url.pathname.includes('/storage/v1/object/public/eventos/')) return null
+    const pattern = new RegExp(String.raw`__full-\d+x\d+\.(?:jpe?g|png|webp)$`, 'i')
+    if (!pattern.test(url.pathname)) return null
+    url.pathname = url.pathname.replace(pattern, '__source.jpg')
     url.search = ''
     return url.href
   } catch { return null }
