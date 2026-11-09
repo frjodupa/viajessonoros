@@ -385,7 +385,7 @@ import { supabase } from '/src/supabase.js'
 import { installOfficialEventCoverRecovery } from '/src/official-event-covers.js'
 installOfficialEventCoverRecovery()
 import { installExperienceDetail, linkifyBroadcastListMentions } from '/src/experience-detail.js'
-import { assessExperienceImage, buildExperienceImagePaths, formatImageBytes, getOptimizedExperienceImage, optimizeExperienceImage, releaseOptimizedImage } from '/src/admin-image-optimizer.js'
+import { assessExperienceImage, buildExperienceImagePaths, formatImageBytes, getOptimizedExperienceImage, getExperienceSourceImageURL, optimizeExperienceImage, releaseOptimizedImage } from '/src/admin-image-optimizer.js'
 import { assistantRequiredFields, buildExperienceDraft, createExperienceCover, formatAssistantDate } from '/src/experience-creation-assistant.js'
 import { createExperienceStory, releaseExperienceStory } from '/src/experience-story.js'
 const WHATSAPP='34610056859'
@@ -684,6 +684,23 @@ window.guardarEvento=async()=>{
   if(btn){ btn.textContent='Guardando...'; btn.disabled=true }
   try{
     let uploadedPaths=[]
+    const previousEvent=editId?eventos.find(e=>String(e.id)===String(editId)):null
+    const visualChanged=Boolean(previousEvent)&&(
+      String(previousEvent.titulo||'')!==titulo||String(previousEvent.fecha||'')!==fecha||
+      String(previousEvent.hora||'').slice(0,5)!==String(hora||'').slice(0,5)||
+      String(previousEvent.lugar||'')!==lugar
+    )
+    if(visualChanged&&!fileToUpload&&imagen_url===String(previousEvent.imagen_url||'')){
+      const sourceURL=getExperienceSourceImageURL(previousEvent.imagen_url)
+      if(!sourceURL)throw new Error('Esta portada antigua no conserva una fotografia de origen. Selecciona de nuevo la foto sin textos para actualizar fecha, hora, titulo o lugar sin duplicar rotulos.')
+      let response
+      try{response=await fetch(sourceURL,{cache:'no-store'})}catch{throw new Error('No se pudo recuperar la fotografia original. Seleccionala de nuevo antes de guardar.')}
+      if(!response.ok)throw new Error('La fotografia original de esta portada no esta disponible. Selecciona de nuevo la foto sin textos antes de guardar.')
+      const sourceBlob=await response.blob()
+      if(!sourceBlob.type.startsWith('image/')||sourceBlob.size<1000)throw new Error('La fotografia de origen no es valida. Selecciona de nuevo la foto sin textos.')
+      fileToUpload=new File([sourceBlob],'fotografia-original.jpg',{type:sourceBlob.type})
+      sourceOptimizedImage=await optimizeExperienceImage(fileToUpload)
+    }
     if(imageOptimizationFailed&&fileToUpload)throw new Error('La fotografía seleccionada no se ha podido preparar. Selecciona una imagen JPEG, PNG o WebP válida.')
     if(imageResolutionInsufficient&&fileToUpload)throw new Error('La fotografía tiene una resolución insuficiente para las tarjetas. Selecciona una imagen de al menos 640 × 427 px.')
     if(fileToUpload){
@@ -708,6 +725,11 @@ window.guardarEvento=async()=>{
           const {error:fullError}=await supabase.storage.from(STORAGE_BUCKET).upload(paths.full,optimizedImage.fullBlob,{contentType:optimizedImage.fullType,upsert:false})
           if(fullError)throw fullError
           uploadedPaths.push(paths.full)
+          // Conservar la fotografia limpia hace posible regenerar la portada al editar.
+          const cleanPhoto=sourceOptimizedImage?.fullBlob||(await optimizeExperienceImage(fileToUpload)).fullBlob
+          const {error:sourceError}=await supabase.storage.from(STORAGE_BUCKET).upload(paths.source,cleanPhoto,{contentType:'image/jpeg',upsert:false})
+          if(sourceError)throw sourceError
+          uploadedPaths.push(paths.source)
           if(paths.card&&optimizedImage.cardBlob){
             const {error:cardError}=await supabase.storage.from(STORAGE_BUCKET).upload(paths.card,optimizedImage.cardBlob,{contentType:'image/webp',upsert:false})
             if(cardError)throw cardError
