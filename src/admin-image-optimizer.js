@@ -87,10 +87,11 @@ const encodeWebP = async (canvas, originalSize) => {
   let selected = null
 
   for (const quality of WEBP_QUALITIES) {
-    const blob = await canvasToBlob(canvas, 'image/webp', quality)
-    if (blob.type !== 'image/webp') {
-      throw new Error('Este navegador no permite crear imágenes WebP.')
-    }
+    // Si Safari no exporta WebP, conservamos la imagen JPEG completa.
+    // No se crea ni anuncia una miniatura inexistente.
+    let blob
+    try { blob = await canvasToBlob(canvas, 'image/webp', quality) } catch { return null }
+    if (blob.type !== 'image/webp') return null
     selected = { blob, quality }
     if (blob.size <= TARGET_IMAGE_BYTES) break
   }
@@ -201,7 +202,7 @@ export const optimizeExperienceImage = async (file) => {
         cardDimensions.width,
         cardDimensions.height,
       )
-      cardBlob = (await encodeWebP(cardCanvas, fullBlob.size)).blob
+      cardBlob = (await encodeWebP(cardCanvas, fullBlob.size))?.blob || null
     }
 
     const previewURL = URL.createObjectURL(fullBlob)
@@ -246,7 +247,9 @@ export const buildExperienceImagePaths = (fileName, result) => {
   const base = `${Date.now()}_${stem}`
   const focusX = Math.min(100, Math.max(0, Math.round(result.focusX ?? 50)))
   const focusY = Math.min(100, Math.max(0, Math.round(result.focusY ?? 50)))
-  const imageBase = `${base}__focus-${focusX}-${focusY}`
+  // El marcador evita que la interfaz intente cargar __card.webp si no existe.
+  // Las imágenes antiguas mantienen sus rutas y miniaturas sin cambios.
+  const imageBase = `${base}__focus-${focusX}-${focusY}${result.cardBlob ? '' : '__nocard'}`
 
   return {
     full: `${imageBase}__full-${result.width}x${result.height}.${result.fullExtension}`,
@@ -281,7 +284,7 @@ export const getOptimizedExperienceImage = (value) => {
     url,
     width,
     height,
-    cardURL: width > CARD_IMAGE_WIDTH
+    cardURL: width > CARD_IMAGE_WIDTH && !url.includes('__nocard__full-')
       ? url.replace(/__full-\d+x\d+\.(?:webp|jpe?g|png)(?=\?|$)/i, '__card.webp')
       : null,
     cardWidth,
