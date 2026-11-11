@@ -185,7 +185,10 @@ const fitLogo = (logo, maxWidth, maxHeight) => {
 const encodeCover = async (canvas) => {
   let result = null
   for (const quality of COVER_QUALITIES) {
-    const blob = await canvasToBlob(canvas, quality)
+    // Safari puede devolver JPEG (u otro MIME) cuando se solicita WebP.
+    // La miniatura es opcional: nunca debe bloquear la portada JPEG.
+    let blob
+    try { blob = await canvasToBlob(canvas, quality) } catch { return null }
     result = { blob, quality }
     if (blob.size <= COVER_TARGET_BYTES) break
   }
@@ -297,7 +300,7 @@ export const createExperienceCover = async ({
     cardContext.imageSmoothingEnabled = true
     cardContext.imageSmoothingQuality = 'high'
     cardContext.drawImage(canvas, 0, 0, cardCanvas.width, cardCanvas.height)
-    const cardBlob = (await encodeCover(cardCanvas)).blob
+    const cardBlob = (await encodeCover(cardCanvas))?.blob || null
     const previewURL = URL.createObjectURL(encoded.blob)
 
     return {
@@ -310,8 +313,8 @@ export const createExperienceCover = async ({
       width,
       height,
       cardBlob,
-      cardWidth: cardCanvas.width,
-      cardHeight: cardCanvas.height,
+      cardWidth: cardBlob ? cardCanvas.width : null,
+      cardHeight: cardBlob ? cardCanvas.height : null,
       optimizedSize: encoded.blob.size,
       quality: encoded.quality,
       previewURL,
