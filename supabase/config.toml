@@ -1,0 +1,3 @@
+# Solo configuración de la función; no enlaza ni despliega proyectos.
+[functions.publish-experience-social]
+verify_jwt = true

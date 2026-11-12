@@ -1,19 +1,18 @@
-import { createClient } from 'npm:@supabase/supabase-js@2'
+import { createClient } from 'npm:@supabase/supabase-js@2.110.6'
+import { isAdminUser, approvedImageURL, validateStorageImage } from './security.ts'
 
-const corsHeaders = {'Access-Control-Allow-Origin':'*','Access-Control-Allow-Headers':'authorization, x-client-info, apikey, content-type'}
-const json=(body:unknown,status=200)=>new Response(JSON.stringify(body),{status,headers:{...corsHeaders,'Content-Type':'application/json'}})
 const env=(name:string)=>String(Deno.env.get(name)||'').trim()
 const graphVersion=()=>env('META_GRAPH_VERSION')||'v26.0'
 const EXPECTED_PAGE_ID='1389157527881023'
 const EXPECTED_INSTAGRAM_ID='17841409097576270'
 const sanitizeMetaError=(value:unknown)=>{
   let message=String(value||'Error desconocido de Meta.')
-  for(const secret of [env('META_FACEBOOK_PAGE_ACCESS_TOKEN'),env('META_APP_SECRET')].filter(Boolean))message=message.split(secret).join('[credencial oculta]')
+  for(const secret of [env('META_FACEBOOK_PAGE_ACCESS_TOKEN'),env('META_APP_SECRET'),env('META_INSTAGRAM_ACCESS_TOKEN'),env('SUPABASE_SERVICE_ROLE_KEY')].filter(Boolean))message=message.split(secret).join('[credencial oculta]')
   return message.replace(/EAA[A-Za-z0-9_-]{30,}/g,'[credencial oculta]')
 }
 
 const graphRequest=async(path:string,values:Record<string,string>)=>{
-  const response=await fetch(`https://graph.facebook.com/${graphVersion()}/${path}`,{method:'POST',headers:{'Content-Type':'application/x-www-form-urlencoded'},body:new URLSearchParams(values)})
+  const response=await fetch(`https://graph.facebook.com/${graphVersion()}/${path}`,{method:'POST',redirect:'error',signal:AbortSignal.timeout(10000),headers:{'Content-Type':'application/x-www-form-urlencoded'},body:new URLSearchParams(values)})
   const data=await response.json()
   if(!response.ok||data.error)throw new Error(sanitizeMetaError(data.error?.message||`Meta ha respondido con HTTP ${response.status}.`))
   return data
@@ -21,7 +20,7 @@ const graphRequest=async(path:string,values:Record<string,string>)=>{
 
 const graphRead=async(path:string,values:Record<string,string>)=>{
   const query=new URLSearchParams(values)
-  const response=await fetch(`https://graph.facebook.com/${graphVersion()}/${path}?${query}`)
+  const response=await fetch(`https://graph.facebook.com/${graphVersion()}/${path}?${query}`,{redirect:'error',signal:AbortSignal.timeout(10000)})
   const data=await response.json()
   if(!response.ok||data.error)throw new Error(sanitizeMetaError(data.error?.message||`Meta ha respondido con HTTP ${response.status}.`))
   return data
@@ -62,45 +61,37 @@ const validateToken=async(token:string)=>{
   const appId=env('META_APP_ID'),appSecret=env('META_APP_SECRET')
   if(!appId||!appSecret)return
   const query=new URLSearchParams({input_token:token,access_token:`${appId}|${appSecret}`})
-  const response=await fetch(`https://graph.facebook.com/${graphVersion()}/debug_token?${query}`)
+  const response=await fetch(`https://graph.facebook.com/${graphVersion()}/debug_token?${query}`,{redirect:'error',signal:AbortSignal.timeout(10000)})
   const body=await response.json()
   if(!response.ok||!body.data?.is_valid)throw new Error(body.error?.message||'Meta indica que el token ya no es válido.')
   if(body.data.expires_at&&body.data.expires_at*1000<=Date.now()+7*86400000)throw new Error('El token de Meta caducará en menos de siete días. Debe renovarse antes de publicar.')
 }
 
-const validatePublicImage=async(url:string,network:string)=>{
-  let parsed:URL
-  try{parsed=new URL(url)}catch{throw new Error('La imagen no tiene una URL pública válida.')}
-  if(parsed.protocol!=='https:')throw new Error('Meta requiere que la imagen sea accesible mediante HTTPS.')
-  const response=await fetch(parsed,{method:'GET',headers:{Range:'bytes=0-0'},redirect:'follow'})
-  if(!response.ok&&response.status!==206)throw new Error(`La imagen no es accesible públicamente (HTTP ${response.status}).`)
-  const type=String(response.headers.get('content-type')||'').split(';')[0].toLowerCase()
-  const allowed=network==='instagram'?['image/jpeg']:['image/jpeg','image/png','image/webp']
-  if(!allowed.includes(type))throw new Error(network==='instagram'?'Instagram requiere una imagen JPEG pública.':'Facebook requiere una imagen JPEG, PNG o WebP pública.')
-  const length=Number(response.headers.get('content-length')||0)
-  if(length>8*1024*1024)throw new Error('La imagen supera el límite seguro de 8 MB configurado para la publicación.')
-}
+const validatePublicImage=(url:string,network:string)=>validateStorageImage(url,network,env('SUPABASE_URL'))
 
 Deno.serve(async request=>{
+  const origin=request.headers.get('Origin')
+  const allowedOrigins=new Set(['https://viajessonoros.es','https://www.viajessonoros.es'])
+  const corsHeaders={'Access-Control-Allow-Origin':origin&&allowedOrigins.has(origin)?origin:'https://viajessonoros.es','Access-Control-Allow-Headers':'authorization, x-client-info, apikey, content-type','Access-Control-Allow-Methods':'POST, OPTIONS','Vary':'Origin','Cache-Control':'no-store'}
+  const json=(body:unknown,status=200)=>new Response(JSON.stringify(body),{status,headers:{...corsHeaders,'Content-Type':'application/json'}})
+  if(origin&&!allowedOrigins.has(origin))return json({error:'Origen no autorizado.'},403)
+
   if(request.method==='OPTIONS')return new Response('ok',{headers:corsHeaders})
   if(request.method!=='POST')return json({error:'Método no permitido.'},405)
   const authorization=request.headers.get('Authorization'),supabaseURL=env('SUPABASE_URL'),anonKey=env('SUPABASE_ANON_KEY'),serviceKey=env('SUPABASE_SERVICE_ROLE_KEY')
-  if(!authorization||!supabaseURL||!anonKey||!serviceKey)return json({error:'Configuración de Supabase incompleta.'},500)
+  if(!authorization||!/^Bearer\s+\S+$/i.test(authorization))return json({error:'Acceso no autorizado.'},401)
+  if(!supabaseURL||!anonKey||!serviceKey)return json({error:'Configuración de Supabase incompleta.'},503)
   let payload:{action?:string;experienceId?:string|number;targets?:string[];start?:string;end?:string;mode?:'feed'|'story';storyImageUrl?:string}
-  try{payload=await request.json()}catch{return json({error:'Solicitud no válida.'},400)}
+  try{payload=await request.json();if(!payload||typeof payload!=='object'||Array.isArray(payload))throw new Error('payload')}catch{return json({error:'Solicitud no válida.'},400)}
   const bearer=authorization.replace(/^Bearer\s+/i,'')
   if(payload.action==='validate_credentials'){
-    let serviceRole=false
-    try{serviceRole=JSON.parse(atob(bearer.split('.')[1].replace(/-/g,'+').replace(/_/g,'/'))).role==='service_role'}catch{/* Token no JWT */}
-    if(bearer!==serviceKey&&!serviceRole)return json({error:'Acceso no autorizado.'},401)
+    if(bearer!==serviceKey)return json({error:'Acceso no autorizado.'},401)
     const pageToken=env('META_FACEBOOK_PAGE_ACCESS_TOKEN')
     if(!pageToken)return json({error:'No está configurado el token de página de Meta.'},503)
     try{return json(await inspectCredentials(pageToken))}catch(error){return json({error:error instanceof Error?error.message:'No se pudieron validar las credenciales de Meta.'},503)}
   }
   if(payload.action==='audit_facebook_posts'){
-    let serviceRole=false
-    try{serviceRole=JSON.parse(atob(bearer.split('.')[1].replace(/-/g,'+').replace(/_/g,'/'))).role==='service_role'}catch{/* Token no JWT */}
-    if(bearer!==serviceKey&&!serviceRole)return json({error:'Acceso no autorizado.'},401)
+    if(bearer!==serviceKey)return json({error:'Acceso no autorizado.'},401)
     const pageToken=env('META_FACEBOOK_PAGE_ACCESS_TOKEN')
     if(!pageToken)return json({error:'No está configurado el token de página de Meta.'},503)
     try{
@@ -117,8 +108,9 @@ Deno.serve(async request=>{
   const admin=createClient(supabaseURL,serviceKey)
   const {data:userData,error:userError}=await client.auth.getUser()
   if(userError||!userData.user)return json({error:'Acceso no autorizado.'},401)
+  if(!(await isAdminUser(client)))return json({error:'Permiso administrativo requerido.'},403)
 
-  const targets=[...new Set(payload.targets||[])].filter(target=>target==='facebook'||target==='instagram')
+  const targets=[...new Set(Array.isArray(payload.targets)?payload.targets:[])].filter(target=>target==='facebook'||target==='instagram')
   if(!payload.experienceId||!targets.length)return json({error:'Falta la experiencia o la red de destino.'},400)
   const {data:experience,error:experienceError}=await client.from('experiencias').select('*').eq('id',payload.experienceId).single()
   if(experienceError||!experience)return json({error:'No se pudo leer la experiencia con los permisos del usuario.'},403)
@@ -130,9 +122,13 @@ Deno.serve(async request=>{
   const mode=payload.mode==='story'?'story':'feed'
   const socialImage=mode==='story'?String(payload.storyImageUrl||'').trim():String(experience.imagen_url||'').trim()
   if(mode==='story'&&!socialImage)return json({error:'Falta la imagen 9:16 de la historia.'},400)
+  try{approvedImageURL(socialImage,supabaseURL)}catch{return json({error:'URL de imagen no autorizada.'},400)}
   const contentFingerprint=await fingerprint({caption,image:socialImage,mode})
   const pageToken=env('META_FACEBOOK_PAGE_ACCESS_TOKEN')
   if(!pageToken)return json({error:'No está configurado el token de página de Meta.'},503)
+
+  // Validate bytes/MIME before any privileged status write or Meta operation.
+  try{for(const network of targets)await validatePublicImage(socialImage,network)}catch{return json({error:'La imagen no cumple los límites o formato permitidos.'},400)}
 
   let pageIdentity:{id?:string;instagram_business_account?:{id?:string}}
   try{
@@ -152,7 +148,6 @@ Deno.serve(async request=>{
 
     try{
       if(!socialImage)throw new Error('Selecciona y guarda una imagen pública antes de publicar en redes.')
-      await validatePublicImage(socialImage,network)
       let postId=''
       let postURL=''
 
@@ -187,7 +182,7 @@ Deno.serve(async request=>{
       if(mode==='feed')await admin.from('experience_social_publications').update({status:'published',post_id:postId,post_url:postURL||null,published_at:publishedAt,error_message:null,updated_at:publishedAt}).eq('experience_id',experience.id).eq('network',network)
       results[network]={ok:true,id:postId,url:postURL||undefined}
     }catch(error){
-      const message=error instanceof Error?error.message:'Error desconocido.'
+      const message=error instanceof Error?sanitizeMetaError(error.message):'Error desconocido.'
       if(mode==='feed')await admin.from('experience_social_publications').update({status:'failed',error_message:message,updated_at:new Date().toISOString()}).eq('experience_id',experience.id).eq('network',network)
       results[network]={ok:false,error:message}
     }
