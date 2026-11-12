@@ -19,5 +19,8 @@
     "@supabase/supabase-js": "^2.110.6",
     "jspdf": "4.2.1",
     "@vercel/blob": "^2.8.0"
+  },
+  "overrides": {
+    "zod": "4.6.6"
   }
 }
