@@ -1,0 +1,426 @@
+{
+  "columns": [
+    {
+      "udt": "int8",
+      "name": "id",
+      "type": "bigint",
+      "table": "experiencias",
+      "default": null,
+      "nullable": "NO"
+    },
+    {
+      "udt": "text",
+      "name": "titulo",
+      "type": "text",
+      "table": "experiencias",
+      "default": null,
+      "nullable": "NO"
+    },
+    {
+      "udt": "text",
+      "name": "fecha",
+      "type": "text",
+      "table": "experiencias",
+      "default": null,
+      "nullable": "YES"
+    },
+    {
+      "udt": "text",
+      "name": "precio",
+      "type": "text",
+      "table": "experiencias",
+      "default": null,
+      "nullable": "YES"
+    },
+    {
+      "udt": "text",
+      "name": "lugar",
+      "type": "text",
+      "table": "experiencias",
+      "default": null,
+      "nullable": "YES"
+    },
+    {
+      "udt": "text",
+      "name": "descripcion",
+      "type": "text",
+      "table": "experiencias",
+      "default": null,
+      "nullable": "YES"
+    },
+    {
+      "udt": "text",
+      "name": "imagen_url",
+      "type": "text",
+      "table": "experiencias",
+      "default": null,
+      "nullable": "YES"
+    },
+    {
+      "udt": "timestamptz",
+      "name": "created_at",
+      "type": "timestamp with time zone",
+      "table": "experiencias",
+      "default": "now()",
+      "nullable": "YES"
+    },
+    {
+      "udt": "time",
+      "name": "hora",
+      "type": "time without time zone",
+      "table": "experiencias",
+      "default": null,
+      "nullable": "YES"
+    },
+    {
+      "udt": "bool",
+      "name": "publicado",
+      "type": "boolean",
+      "table": "experiencias",
+      "default": "false",
+      "nullable": "NO"
+    },
+    {
+      "udt": "int4",
+      "name": "aforo_maximo",
+      "type": "integer",
+      "table": "experiencias",
+      "default": null,
+      "nullable": "YES"
+    },
+    {
+      "udt": "uuid",
+      "name": "id",
+      "type": "uuid",
+      "table": "reservas_whatsapp",
+      "default": "gen_random_uuid()",
+      "nullable": "NO"
+    },
+    {
+      "udt": "int8",
+      "name": "experiencia_id",
+      "type": "bigint",
+      "table": "reservas_whatsapp",
+      "default": null,
+      "nullable": "NO"
+    },
+    {
+      "udt": "text",
+      "name": "nombre",
+      "type": "text",
+      "table": "reservas_whatsapp",
+      "default": null,
+      "nullable": "NO"
+    },
+    {
+      "udt": "text",
+      "name": "telefono",
+      "type": "text",
+      "table": "reservas_whatsapp",
+      "default": null,
+      "nullable": "NO"
+    },
+    {
+      "udt": "int4",
+      "name": "plazas",
+      "type": "integer",
+      "table": "reservas_whatsapp",
+      "default": null,
+      "nullable": "NO"
+    },
+    {
+      "udt": "numeric",
+      "name": "precio_unitario",
+      "type": "numeric",
+      "table": "reservas_whatsapp",
+      "default": null,
+      "nullable": "YES"
+    },
+    {
+      "udt": "numeric",
+      "name": "importe_total",
+      "type": "numeric",
+      "table": "reservas_whatsapp",
+      "default": null,
+      "nullable": "YES"
+    },
+    {
+      "udt": "text",
+      "name": "estado",
+      "type": "text",
+      "table": "reservas_whatsapp",
+      "default": "'pendiente'::text",
+      "nullable": "NO"
+    },
+    {
+      "udt": "text",
+      "name": "pago_estado",
+      "type": "text",
+      "table": "reservas_whatsapp",
+      "default": "'pendiente'::text",
+      "nullable": "NO"
+    },
+    {
+      "udt": "timestamptz",
+      "name": "created_at",
+      "type": "timestamp with time zone",
+      "table": "reservas_whatsapp",
+      "default": "now()",
+      "nullable": "NO"
+    },
+    {
+      "udt": "text",
+      "name": "origen",
+      "type": "text",
+      "table": "reservas_whatsapp",
+      "default": "'web'::text",
+      "nullable": "NO"
+    },
+    {
+      "udt": "text",
+      "name": "aplazamiento_motivo",
+      "type": "text",
+      "table": "reservas_whatsapp",
+      "default": null,
+      "nullable": "YES"
+    },
+    {
+      "udt": "text",
+      "name": "aplazamiento_resolucion",
+      "type": "text",
+      "table": "reservas_whatsapp",
+      "default": null,
+      "nullable": "YES"
+    }
+  ],
+  "triggers": [
+    {
+      "table": "experiencias",
+      "trigger": "CREATE TRIGGER experiencias_guard_aforo BEFORE UPDATE OF aforo_maximo ON public.experiencias FOR EACH ROW EXECUTE FUNCTION guard_experience_capacity_v2()",
+      "function": "CREATE OR REPLACE FUNCTION public.guard_experience_capacity_v2()\n RETURNS trigger\n LANGUAGE plpgsql\nAS $function$\ndeclare occupied integer;\nbegin\n if new.aforo_maximo is not null then\n  select coalesce(sum(plazas),0)::integer into occupied from public.reservas_whatsapp where experiencia_id=new.id and estado='confirmada';\n  if occupied>new.aforo_maximo then raise exception 'AFORO_INFERIOR_A_CONFIRMADAS'; end if;\n end if;\n return new;\nend $function$\n"
+    },
+    {
+      "table": "reservas_whatsapp",
+      "trigger": "CREATE TRIGGER reservas_cancelar_pago BEFORE UPDATE ON public.reservas_whatsapp FOR EACH ROW EXECUTE FUNCTION cancelar_pago_reserva()",
+      "function": "CREATE OR REPLACE FUNCTION public.cancelar_pago_reserva()\n RETURNS trigger\n LANGUAGE plpgsql\nAS $function$\nbegin\n if new.estado = 'cancelada' then new.pago_estado := 'cancelado'; end if;\n if old.estado = 'cancelada' and new.estado <> 'cancelada' and new.pago_estado='cancelado' then new.pago_estado:='pendiente'; end if;\n return new;\nend $function$\n"
+    },
+    {
+      "table": "reservas_whatsapp",
+      "trigger": "CREATE TRIGGER reservas_guard_aforo BEFORE INSERT OR UPDATE OF estado, plazas, experiencia_id ON public.reservas_whatsapp FOR EACH ROW EXECUTE FUNCTION guard_reservation_capacity_v2()",
+      "function": "CREATE OR REPLACE FUNCTION public.guard_reservation_capacity_v2()\n RETURNS trigger\n LANGUAGE plpgsql\nAS $function$\ndeclare limit_value integer; occupied integer;\nbegin\n if new.estado='confirmada' then\n  select aforo_maximo into limit_value from public.experiencias where id=new.experiencia_id for update;\n  if limit_value is not null then\n   select coalesce(sum(plazas),0)::integer into occupied from public.reservas_whatsapp where experiencia_id=new.experiencia_id and estado='confirmada' and id<>new.id;\n   if occupied+new.plazas>limit_value then raise exception 'AFORO_COMPLETO'; end if;\n  end if;\n end if;\n return new;\nend $function$\n"
+    },
+    {
+      "table": "reservas_whatsapp",
+      "trigger": "CREATE TRIGGER vs_guard_booking_capacity BEFORE INSERT OR UPDATE OF plazas, estado, experiencia_id ON public.reservas_whatsapp FOR EACH ROW EXECUTE FUNCTION vs_internal.guard_booking_capacity()",
+      "function": "CREATE OR REPLACE FUNCTION vs_internal.guard_booking_capacity()\n RETURNS trigger\n LANGUAGE plpgsql\n SECURITY DEFINER\n SET search_path TO ''\nAS $function$\nDECLARE v_capacity integer; v_taken bigint;\nBEGIN\n IF TG_OP='UPDATE' AND NEW.experiencia_id IS DISTINCT FROM OLD.experiencia_id THEN\n  RAISE EXCEPTION 'No se permite cambiar la experiencia de una reserva' USING ERRCODE='23514';\n END IF;\n PERFORM pg_catalog.pg_advisory_xact_lock(NEW.experiencia_id);\n SELECT e.aforo_maximo INTO v_capacity FROM public.experiencias e WHERE e.id=NEW.experiencia_id;\n IF NOT FOUND THEN RAISE EXCEPTION 'Experiencia inexistente' USING ERRCODE='23503'; END IF;\n IF NEW.estado IN ('cancelada','aplazada') OR v_capacity IS NULL THEN RETURN NEW; END IF;\n SELECT coalesce(sum(r.plazas),0) INTO v_taken FROM public.reservas_whatsapp r\n WHERE r.experiencia_id=NEW.experiencia_id\n AND r.estado NOT IN ('cancelada','aplazada')\n AND (TG_OP='INSERT' OR r.id<>NEW.id);\n IF v_taken+NEW.plazas>v_capacity THEN\n  RAISE EXCEPTION 'No quedan suficientes plazas disponibles' USING ERRCODE='P0001';\n END IF;\n RETURN NEW;\nEND $function$\n"
+    },
+    {
+      "table": "reservas_whatsapp",
+      "trigger": "CREATE TRIGGER vs_historial_reserva AFTER UPDATE OF estado, pago_estado, plazas, importe_total, experiencia_id ON public.reservas_whatsapp FOR EACH ROW EXECUTE FUNCTION vs_registrar_historial_reserva()",
+      "function": "CREATE OR REPLACE FUNCTION public.vs_registrar_historial_reserva()\n RETURNS trigger\n LANGUAGE plpgsql\n SECURITY DEFINER\n SET search_path TO ''\nAS $function$\nbegin\n if (old.estado,old.pago_estado,old.plazas,old.importe_total,old.experiencia_id)\n is distinct from (new.estado,new.pago_estado,new.plazas,new.importe_total,new.experiencia_id) then\n insert into public.vs_reservas_historial\n (reserva_id,actor,estado_antes,estado_despues,pago_antes,pago_despues,\n  plazas_antes,plazas_despues,importe_antes,importe_despues,experiencia_antes,experiencia_despues)\n values(new.id,(select auth.uid()),old.estado,new.estado,old.pago_estado,new.pago_estado,\n old.plazas,new.plazas,old.importe_total,new.importe_total,old.experiencia_id,new.experiencia_id);\n end if;\n return new;\nend $function$\n"
+    }
+  ],
+  "constraints": [
+    {
+      "name": "experiencias_aforo_maximo_check",
+      "table": "experiencias",
+      "definition": "CHECK (((aforo_maximo IS NULL) OR (aforo_maximo > 0)))"
+    },
+    {
+      "name": "experiencias_pkey",
+      "table": "experiencias",
+      "definition": "PRIMARY KEY (id)"
+    },
+    {
+      "name": "reservas_aplazamiento_resolucion_check",
+      "table": "reservas_whatsapp",
+      "definition": "CHECK (((aplazamiento_resolucion IS NULL) OR (aplazamiento_resolucion = ANY (ARRAY['devolucion'::text, 'siguiente_experiencia'::text]))))"
+    },
+    {
+      "name": "reservas_whatsapp_estado_check",
+      "table": "reservas_whatsapp",
+      "definition": "CHECK ((estado = ANY (ARRAY['pendiente'::text, 'confirmada'::text, 'cancelada'::text, 'aplazada'::text])))"
+    },
+    {
+      "name": "reservas_whatsapp_experiencia_id_fkey",
+      "table": "reservas_whatsapp",
+      "definition": "FOREIGN KEY (experiencia_id) REFERENCES experiencias(id) ON DELETE RESTRICT"
+    },
+    {
+      "name": "reservas_whatsapp_importe_total_check",
+      "table": "reservas_whatsapp",
+      "definition": "CHECK (((importe_total IS NULL) OR (importe_total >= (0)::numeric)))"
+    },
+    {
+      "name": "reservas_whatsapp_nombre_check",
+      "table": "reservas_whatsapp",
+      "definition": "CHECK (((char_length(btrim(nombre)) >= 2) AND (char_length(btrim(nombre)) <= 100)))"
+    },
+    {
+      "name": "reservas_whatsapp_origen_check",
+      "table": "reservas_whatsapp",
+      "definition": "CHECK ((origen = ANY (ARRAY['web'::text, 'manual'::text])))"
+    },
+    {
+      "name": "reservas_whatsapp_pago_estado_check",
+      "table": "reservas_whatsapp",
+      "definition": "CHECK ((pago_estado = ANY (ARRAY['pendiente'::text, 'recibido'::text, 'revisar'::text, 'cancelado'::text])))"
+    },
+    {
+      "name": "reservas_whatsapp_pkey",
+      "table": "reservas_whatsapp",
+      "definition": "PRIMARY KEY (id)"
+    },
+    {
+      "name": "reservas_whatsapp_plazas_check",
+      "table": "reservas_whatsapp",
+      "definition": "CHECK (((plazas >= 1) AND (plazas <= 10)))"
+    },
+    {
+      "name": "reservas_whatsapp_precio_unitario_check",
+      "table": "reservas_whatsapp",
+      "definition": "CHECK (((precio_unitario IS NULL) OR (precio_unitario >= (0)::numeric)))"
+    },
+    {
+      "name": "reservas_whatsapp_telefono_check",
+      "table": "reservas_whatsapp",
+      "definition": "CHECK ((telefono ~ '^[+]?[0-9]{9,15}$'::text))"
+    }
+  ],
+  "booking_grants": [
+    {
+      "role": "postgres",
+      "privilege": "INSERT"
+    },
+    {
+      "role": "postgres",
+      "privilege": "SELECT"
+    },
+    {
+      "role": "postgres",
+      "privilege": "UPDATE"
+    },
+    {
+      "role": "postgres",
+      "privilege": "DELETE"
+    },
+    {
+      "role": "postgres",
+      "privilege": "TRUNCATE"
+    },
+    {
+      "role": "postgres",
+      "privilege": "REFERENCES"
+    },
+    {
+      "role": "postgres",
+      "privilege": "TRIGGER"
+    },
+    {
+      "role": "service_role",
+      "privilege": "INSERT"
+    },
+    {
+      "role": "service_role",
+      "privilege": "SELECT"
+    },
+    {
+      "role": "service_role",
+      "privilege": "UPDATE"
+    },
+    {
+      "role": "service_role",
+      "privilege": "DELETE"
+    },
+    {
+      "role": "service_role",
+      "privilege": "TRUNCATE"
+    },
+    {
+      "role": "service_role",
+      "privilege": "REFERENCES"
+    },
+    {
+      "role": "service_role",
+      "privilege": "TRIGGER"
+    },
+    {
+      "role": "authenticated",
+      "privilege": "INSERT"
+    },
+    {
+      "role": "authenticated",
+      "privilege": "SELECT"
+    },
+    {
+      "role": "authenticated",
+      "privilege": "UPDATE"
+    },
+    {
+      "role": "authenticated",
+      "privilege": "DELETE"
+    }
+  ],
+  "booking_policies": [
+    {
+      "cmd": "INSERT",
+      "qual": null,
+      "roles": [
+        "anon"
+      ],
+      "tablename": "reservas_whatsapp",
+      "permissive": "PERMISSIVE",
+      "policyname": "anon_insert_published_reservation",
+      "schemaname": "public",
+      "with_check": "((origen = 'web'::text) AND (estado = 'pendiente'::text) AND (pago_estado = 'pendiente'::text) AND (EXISTS ( SELECT 1\n   FROM experiencias e\n  WHERE ((e.id = reservas_whatsapp.experiencia_id) AND (e.publicado = true)))))"
+    },
+    {
+      "cmd": "DELETE",
+      "qual": "((auth.jwt() ->> 'email'::text) = 'info@viajessonoros.es'::text)",
+      "roles": [
+        "authenticated"
+      ],
+      "tablename": "reservas_whatsapp",
+      "permissive": "PERMISSIVE",
+      "policyname": "booking_admin_delete",
+      "schemaname": "public",
+      "with_check": null
+    },
+    {
+      "cmd": "INSERT",
+      "qual": null,
+      "roles": [
+        "authenticated"
+      ],
+      "tablename": "reservas_whatsapp",
+      "permissive": "PERMISSIVE",
+      "policyname": "booking_admin_insert",
+      "schemaname": "public",
+      "with_check": "((auth.jwt() ->> 'email'::text) = 'info@viajessonoros.es'::text)"
+    },
+    {
+      "cmd": "SELECT",
+      "qual": "((auth.jwt() ->> 'email'::text) = 'info@viajessonoros.es'::text)",
+      "roles": [
+        "authenticated"
+      ],
+      "tablename": "reservas_whatsapp",
+      "permissive": "PERMISSIVE",
+      "policyname": "booking_admin_select",
+      "schemaname": "public",
+      "with_check": null
+    },
+    {
+      "cmd": "UPDATE",
+      "qual": "((auth.jwt() ->> 'email'::text) = 'info@viajessonoros.es'::text)",
+      "roles": [
+        "authenticated"
+      ],
+      "tablename": "reservas_whatsapp",
+      "permissive": "PERMISSIVE",
+      "policyname": "booking_admin_update",
+      "schemaname": "public",
+      "with_check": "((auth.jwt() ->> 'email'::text) = 'info@viajessonoros.es'::text)"
+    }
+  ]
+}
